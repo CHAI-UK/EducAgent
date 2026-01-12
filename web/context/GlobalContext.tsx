@@ -281,7 +281,11 @@ interface GlobalContextType {
   newChatSession: () => void;
 
   // UI Settings
-  uiSettings: { theme: "light" | "dark"; language: "en" | "zh" };
+  uiSettings: {
+    theme: "light" | "dark";
+    language: "en" | "zh";
+    features: { ideagen: boolean; deep_research: boolean };
+  };
   refreshSettings: () => Promise<void>;
 
   // Sidebar
@@ -299,7 +303,12 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   const [uiSettings, setUiSettings] = useState<{
     theme: "light" | "dark";
     language: "en" | "zh";
-  }>({ theme: "light", language: "en" });
+    features: { ideagen: boolean; deep_research: boolean };
+  }>({
+    theme: "light",
+    language: "en",
+    features: { ideagen: true, deep_research: true },
+  });
 
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -316,6 +325,10 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
           setUiSettings({
             theme: themeToUse,
             language: data.ui.language,
+            features: data.ui.features || {
+              ideagen: true,
+              deep_research: true,
+            },
           });
           // Apply and persist theme
           setTheme(themeToUse);

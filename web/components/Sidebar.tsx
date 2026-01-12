@@ -57,8 +57,12 @@ export default function Sidebar() {
     {
       name: t("Research"),
       items: [
-        { name: t("IdeaGen"), href: "/ideagen", icon: Lightbulb },
-        { name: t("Deep Research"), href: "/research", icon: Microscope },
+        ...(uiSettings.features && uiSettings.features.ideagen !== false
+          ? [{ name: t("IdeaGen"), href: "/ideagen", icon: Lightbulb }]
+          : []),
+        ...(uiSettings.features && uiSettings.features.deep_research !== false
+          ? [{ name: t("Deep Research"), href: "/research", icon: Microscope }]
+          : []),
         { name: t("Co-Writer"), href: "/co_writer", icon: Edit3 },
       ],
     },
