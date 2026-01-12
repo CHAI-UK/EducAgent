@@ -40,6 +40,7 @@ interface UISettings {
   theme: "light" | "dark";
   language: "zh" | "en";
   output_language: "zh" | "en";
+  features?: { ideagen?: boolean; deep_research?: boolean };
 }
 
 interface EnvInfo {
@@ -1280,10 +1281,8 @@ export default function SettingsPage() {
         {/* General Settings Tab */}
         {activeTab === "general" && (
           <div className="space-y-4">
-            {/* Row 1: Interface + System Language + Active Model */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-              {/* Interface Settings */}
-              <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+            {/* Interface Preferences - Full Width */}
+            <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
                   <Globe className="w-4 h-4 text-blue-500 dark:text-blue-400" />
                   <h2 className="font-semibold text-sm text-slate-900 dark:text-slate-100">
@@ -1339,9 +1338,70 @@ export default function SettingsPage() {
                       <option value="zh">{t("Chinese")}</option>
                     </select>
                   </div>
+                  {/* Feature Toggles */}
+                  <div>
+                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-2">
+                      {t("Feature Toggles")}
+                    </label>
+                    <div className="space-y-2">
+                      {/* IdeaGen Toggle */}
+                      <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-600">
+                        <div>
+                          <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                            {t("IdeaGen")}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editedUI.features?.ideagen ?? true}
+                            onChange={(e) =>
+                              setEditedUI((prev) => {
+                                if (!prev) return prev;
+                                return {
+                                  ...prev,
+                                  features: { ...(prev.features || {}), ideagen: e.target.checked },
+                                };
+                              })
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+
+                      {/* Deep Research Toggle */}
+                      <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-600">
+                        <div>
+                          <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                            {t("Deep Research")}
+                          </div>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editedUI.features?.deep_research ?? true}
+                            onChange={(e) =>
+                              setEditedUI((prev) => {
+                                if (!prev) return prev;
+                                return {
+                                  ...prev,
+                                  features: { ...(prev.features || {}), deep_research: e.target.checked },
+                                };
+                              })
+                            }
+                            className="sr-only peer"
+                          />
+                          <div className="w-9 h-5 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </section>
 
+            {/* Row 2: System Configuration + Active Models */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {/* System Language */}
               <section className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-800/50 flex items-center gap-2">
