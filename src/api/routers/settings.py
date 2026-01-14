@@ -169,7 +169,7 @@ DEFAULT_UI_SETTINGS = {
     "theme": "light",
     "language": "en",  # Interface language
     "output_language": "en",  # Output preference (legacy, might move to main.yaml)
-    "features": {"ideagen": True, "deep_research": True},
+    "features": {"ideagen": True, "deep_research": True, "knowledge_bases": True},
 }
 
 
@@ -177,7 +177,7 @@ class UISettings(BaseModel):
     theme: Literal["light", "dark"] = "light"
     language: Literal["zh", "en"] = "en"
     output_language: Literal["zh", "en"] = "en"
-    features: Dict[str, bool] = {"ideagen": True, "deep_research": True}
+    features: Dict[str, bool] = {"ideagen": True, "deep_research": True, "knowledge_bases": True}
 
 
 class FullSettingsResponse(BaseModel):

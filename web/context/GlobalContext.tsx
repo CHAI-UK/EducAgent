@@ -284,7 +284,7 @@ interface GlobalContextType {
   uiSettings: {
     theme: "light" | "dark";
     language: "en" | "zh";
-    features: { ideagen: boolean; deep_research: boolean };
+    features: { ideagen: boolean; deep_research: boolean; knowledge_bases: boolean };
   };
   refreshSettings: () => Promise<void>;
 
@@ -303,11 +303,11 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   const [uiSettings, setUiSettings] = useState<{
     theme: "light" | "dark";
     language: "en" | "zh";
-    features: { ideagen: boolean; deep_research: boolean };
+    features: { ideagen: boolean; deep_research: boolean, knowledge_bases: boolean };
   }>({
     theme: "light",
     language: "en",
-    features: { ideagen: true, deep_research: true },
+    features: { ideagen: true, deep_research: true, knowledge_bases: true },
   });
 
   const [isInitialized, setIsInitialized] = useState(false);

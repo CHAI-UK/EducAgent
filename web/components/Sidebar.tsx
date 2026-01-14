@@ -42,7 +42,9 @@ export default function Sidebar() {
       items: [
         { name: t("Home"), href: "/", icon: Home },
         { name: t("History"), href: "/history", icon: History },
-        { name: t("Knowledge Bases"), href: "/knowledge", icon: BookOpen },
+        ...(uiSettings.features && uiSettings.features.knowledge_bases !== false
+          ? [{ name: t("Knowledge Bases"), href: "/knowledge", icon: BookOpen }]
+          : []),
         { name: t("Notebooks"), href: "/notebook", icon: Book },
       ],
     },

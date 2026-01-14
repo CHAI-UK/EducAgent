@@ -40,7 +40,7 @@ interface UISettings {
   theme: "light" | "dark";
   language: "zh" | "en";
   output_language: "zh" | "en";
-  features?: { ideagen?: boolean; deep_research?: boolean };
+  features?: { ideagen?: boolean; deep_research?: boolean, knowledge_bases?: boolean };
 }
 
 interface EnvInfo {
@@ -1390,6 +1390,35 @@ export default function SettingsPage() {
                                 features: {
                                   ...(prev.features || {}),
                                   deep_research: e.target.checked,
+                                },
+                              };
+                            })
+                          }
+                          className="sr-only peer"
+                        />
+                        <div className="w-9 h-5 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 dark:after:border-slate-500 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                      </label>
+                    </div>
+
+                    {/* Knowledge Bases Toggle */}
+                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-600">
+                      <div>
+                        <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                          {t("Knowledge Bases")}
+                        </div>
+                      </div>
+                      <label className="relative inline-flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editedUI.features?.knowledge_bases ?? true}
+                          onChange={(e) =>
+                            setEditedUI((prev) => {
+                              if (!prev) return prev;
+                              return {
+                                ...prev,
+                                features: {
+                                  ...(prev.features || {}),
+                                  knowledge_bases: e.target.checked,
                                 },
                               };
                             })
