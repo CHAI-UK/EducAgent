@@ -81,8 +81,9 @@ NFR12: LangGraph checkpointing preserves session state across network interrupti
 ### Additional Requirements
 
 - Greenfield project — no starter template; stack is Next.js 14 App Router (TypeScript) + FastAPI (Python)
-- Knowledge Graph build pipeline: `python build_knowledge_graph.py` → produces `graph.pkl` (162KB), `graph.json` (535KB), `concepts_by_chapter.json`, `graph_summary.json`
-- NetworkX in-memory graph (672 nodes, 3,303 edges) loaded at FastAPI startup from `graph.pkl`
+- **Textbook:** *Elements of Causal Inference* (Peters, Janzing & Schölkopf, 2017) — 266 pages, 10 chapters + 3 appendices
+- Knowledge Graph build pipeline: `python graph/eci_graph_builder.py` → produces `graph/output/eci_graph.pkl`, `eci_graph.json`, `eci_graph.html` (vis.js), `eci_uni.html` (D3 universe)
+- NetworkX in-memory graph (189 nodes: 79 Section + 9 Category + 101 Concept, 332 edges) loaded at FastAPI startup from `eci_graph.pkl`
 - Content caching by `hash(concept_id + background + level)` key; MVP = in-memory Python dict
 - LangGraph v1.0 two graphs: `StudyModeGraph` (profile_loader → concept_retriever → prerequisite_checker → tutor_generator → critic_validator → content_renderer) and `AgileModeGraph` (problem_intake → concept_identifier → mastery_checker → mini_teacher → direct_consultant → response_formatter)
 - OpenRouter multi-provider LLM routing: Tutor = claude-sonnet-4-6 / gpt-4.1; Critic = gemini-2.0-flash / claude-haiku-4-5; Quiz gen = gpt-4.1-mini; Answer eval = claude-haiku-4-5; Embeddings = text-embedding-3-small
@@ -139,8 +140,8 @@ NFR12: LangGraph checkpointing preserves session state across network interrupti
 ## Epic List
 
 ### Epic 1: Causality Concept Graph & Project Foundation
-The graph build pipeline is the first deliverable — running `python build_knowledge_graph.py` to produce the full 672-node / 3,303-edge NetworkX graph (Section + Concept nodes, all edge types including PREREQUISITE_OF and COMMONLY_CONFUSED) is Story 1.1. Everything else in Epic 1 — Next.js + FastAPI scaffold, LangGraph skeletons, OpenRouter wiring, Qdrant, audit logging — is scaffolded around and after the graph. No downstream epic can deliver value without the graph queryable.
-Delivers: *A running application where the full Causality Concept Graph is built, loaded in-memory at FastAPI startup, and queryable via the Tutor Agent Graph API — the knowledge backbone for all learning features.*
+The graph build pipeline is the first deliverable — running `python graph/eci_graph_builder.py` to produce the full ECI knowledge graph (Section + Category + Concept nodes; all edge types including PREREQUISITE_OF, SUBTOPIC_OF, COMMONLY_CONFUSED, RELATED_TO_SEE_ALSO, RELATED_TO_ALIAS, COVERED_IN, NEXT_IN_SEQUENCE) is **Story 1.1 — COMPLETE**. Everything else in Epic 1 — Next.js + FastAPI scaffold, LangGraph skeletons, OpenRouter wiring, Qdrant, audit logging — is scaffolded around and after the graph. No downstream epic can deliver value without the graph queryable.
+Delivers: *A running application where the ECI Causality Concept Graph (189 nodes / 332 edges, built from* Elements of Causal Inference*) is loaded in-memory at FastAPI startup and queryable via the Tutor Agent Graph API — the knowledge backbone for all learning features.*
 **FRs covered:** None directly | **NFRs:** NFR1, NFR2, NFR3, NFR11
 **Story order:** 1) Graph build pipeline · 2) FastAPI scaffold + graph at startup · 3) Next.js scaffold + API connectivity · 4) LangGraph skeleton + OpenRouter integration · 5) Qdrant setup + audit logging foundation
 
@@ -151,7 +152,7 @@ Delivers: *Personalised, persistent learning sessions without requiring an accou
 
 ### Epic 3: Concept Navigation & Discovery
 Learners can navigate the full causality knowledge graph, search concepts by name or keyword, view prerequisite chains before diving in, receive next-concept recommendations, and bookmark items for later review.
-Delivers: *Self-directed exploration of Pearl's causality knowledge graph.*
+Delivers: *Self-directed exploration of the ECI (Elements of Causal Inference) knowledge graph.*
 **FRs covered:** FR6, FR7, FR8, FR9, FR10 | **NFRs:** NFR8, NFR9
 
 ### Epic 4: Passive-Interactive Study Mode & Assessment
@@ -178,35 +179,44 @@ Delivers: *Institutional oversight and research data infrastructure for the user
 
 ## Epic 1: Causality Concept Graph & Project Foundation
 
-The graph build pipeline is the first deliverable — the full 672-node / 3,303-edge NetworkX graph is built, loaded in-memory at FastAPI startup, and queryable via the Tutor Agent Graph API. The web stack scaffold, LangGraph agent skeletons, OpenRouter wiring, and audit logging foundation are all built around it. No downstream epic delivers value without this in place.
+The graph build pipeline is the first deliverable — the full ECI knowledge graph (189 nodes / 332 edges: 79 Section + 9 Category + 101 Concept) is built from *Elements of Causal Inference* (Peters, Janzing & Schölkopf, 2017), loaded in-memory at FastAPI startup, and queryable via the Tutor Agent Graph API. The web stack scaffold, LangGraph agent skeletons, OpenRouter wiring, and audit logging foundation are all built around it. No downstream epic delivers value without this in place.
 
-### Story 1.1: Knowledge Graph Build Pipeline & Validation
+### Story 1.1: Knowledge Graph Build Pipeline & Validation ✅ COMPLETE
 
 As a **developer**,
-I want the Causality Concept Graph built and validated from Pearl's textbook data,
+I want the ECI Causality Concept Graph built and validated from *Elements of Causal Inference* (Peters, Janzing & Schölkopf, 2017),
 So that all downstream features have a reliable, queryable knowledge backbone.
+
+**Status: DONE** — Graph built, validated, and all outputs committed to `graph/output/`.
 
 **Acceptance Criteria:**
 
 **Given** the project is set up
-**When** `python build_knowledge_graph.py` is run
-**Then** it produces `graph.pkl` (≤200KB), `graph.json`, `concepts_by_chapter.json`, and `graph_summary.json`
+**When** `python graph/eci_graph_builder.py` is run
+**Then** it produces `graph/output/eci_graph.pkl`, `eci_graph.json`, `eci_graph.html` (interactive vis.js), and `eci_uni.html` (D3 universe view)
 
-**Given** `graph.pkl` is built
-**When** it is loaded via `load_graph()`
-**Then** the graph contains 672 nodes (226 Section + 446 Concept) and 3,303 edges
-
-**Given** the graph is loaded
-**When** `get_prerequisites("d_separation")` is called
-**Then** it returns the correct PREREQUISITE_OF predecessor concepts
+**Given** `eci_graph.pkl` is built
+**When** it is loaded via `pickle.load()`
+**Then** the graph contains 189 nodes (79 Section + 9 Category + 101 Concept) and 332 edges ✅
 
 **Given** the graph is loaded
-**When** `get_chapter_concepts(1)` is called
-**Then** it returns the 159 concept nodes for Chapter 1
+**When** `get_prerequisites("d_separation")` is called  
+**Then** it returns `conditional_independence` and `directed_acyclic_graph_dag` as PREREQUISITE_OF predecessors ✅
 
 **Given** the graph is loaded
-**When** `get_next_concepts("back_door_criterion")` is called
-**Then** it returns the correct PREREQUISITE_OF downstream successors
+**When** `get_chapter_concepts(6)` is called
+**Then** it returns the 23 concept nodes for Chapter 6 (Multivariate Causal Models) — largest chapter ✅
+
+**Given** the graph is loaded
+**When** `get_next_concepts("causal_learning")` is called
+**Then** it returns `pc_algorithm` and `greedy_equivalence_search_ges` as PREREQUISITE_OF downstream successors ✅
+
+**Additional work completed alongside Story 1.1:**
+- `graph/eci_toc_parser.py` — Parses `01_TOC.mmd` → 79 Section nodes (13 chapter roots + 66 subsections)
+- `graph/eci_concept_stars.py` — D3 "concept universe" self-contained visualization (`eci_uni.html`)
+- `graph/eci_visualize.py` — Interactive vis.js HTML knowledge graph (`eci_graph.html`)
+- `scripts/parse_subject_index.py` — Subject index parser utility
+- `scripts/split_pdf_by_bookmarks.py` — PDF section splitter used to prepare `assets/ElementsOfCausalInference_sections/`
 
 ---
 

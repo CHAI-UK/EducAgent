@@ -18,125 +18,146 @@ date: '2026-02-23'
 
 ## Component 1: Causality Concept Graph
 
+**Textbook:** *Elements of Causal Inference* (Peters, Janzing & Schölkopf, 2017) — 266 pages, 10 chapters + 3 appendices (A–C).
+
 ### Decision: NetworkX (MVP) → Neo4j (Production)
 
-**Rationale:** NetworkX runs in-memory with zero infrastructure for the MVP demo. The full graph (672 nodes, 3,303 edges) fits comfortably in RAM (~162 KB pickle). Neo4j with Cypher enables production-grade prerequisite traversal and concept path queries.
+**Rationale:** NetworkX runs in-memory with zero infrastructure for the MVP demo. The graph (189 nodes, 332 edges) fits comfortably in RAM. Neo4j with Cypher enables production-grade prerequisite traversal and concept path queries.
 
-**Migration path:** Graph is exported to `graph.json` (node-link format) and `graph.pkl` on every build. The export schema is networkx-compatible and can be ingested into Neo4j via `py2neo` with no schema changes.
+**Migration path:** Graph is exported to `eci_graph.json` (node-link format) and `eci_graph.pkl` on every build. The export schema is networkx-compatible and can be ingested into Neo4j via `py2neo` with no schema changes.
 
 ### Graph Schema
 
 ```
 Node types:
-  Section   — section_id (e.g. "1.2.3"), title, chapter, depth, start_page, end_page
-  Concept   — concept_id (slugified), name, page_refs[], subentries{}, see_also[], difficulty, misconceptions[]
+  Section   — section_id (e.g. "1.2"), label, chapter (1–13), depth, start_page, end_page
+  Category  — umbrella grouping nodes from the index (e.g. "graph", "entropy")
+  Concept   — concept_id (slugified), name, page_refs[], chapter, difficulty, misconceptions[]
 
 Edge types:
-  NEXT_IN_SEQUENCE   Section → Section      (TOC linear order; 169 edges)
-  COVERED_IN         Concept → Section      (page overlap; 1,545 edges)
-  ILLUSTRATES        Section → Concept      (inverse of COVERED_IN; 1,545 edges)
-  PREREQUISITE_OF    Concept → Concept      (curated seed; 28 edges; LLM-extended later)
-  COMMONLY_CONFUSED  Concept ↔ Concept      (bidirectional; 10 pairs / 20 edges)
+  NEXT_IN_SEQUENCE   Section → Section      (TOC linear order; 78 edges)
+  COVERED_IN         Concept → Section      (page overlap; 140 edges)
+  SUBTOPIC_OF        Concept → Category     (index sub-entry hierarchy; 34 edges)
+  RELATED_TO_SEE_ALSO Concept ↔ Concept     (index see-also links; 22 edges)
+  RELATED_TO_ALIAS   Concept → Concept      (acronym/alias merges; 14 edges)
+  PREREQUISITE_OF    Concept → Concept      (curated seed; 29 edges; LLM-extended later)
+  COMMONLY_CONFUSED  Concept ↔ Concept      (bidirectional; 8 pairs / 15 edges)
 ```
 
-### Build Pipeline
+### Build Pipeline  ✅ COMPLETE
 
 ```
-Step 1  graph/toc_parser.py       Parse 07_Contents.pdf       → 226 Section nodes
-                                  11 chapters, 65 sections, 150 subsections
+Step 1  graph/eci_toc_parser.py      Parse assets/…/01_TOC/01_TOC.mmd
+                                     → 79 Section nodes (13 chapter roots + 66 subsections)
 
-Step 2  graph/index_parser.py     Parse 24_Subject_Index.pdf  → 431 parsed Concept nodes
-        graph/curated_additions.py                            + 15 curated key concepts
-                                                              = 446 Concept nodes total
+Step 2  graph/eci_graph_builder.py   Parse assets/…/18_Index/18_Index.mmd
+                                     → 101 Concept nodes + 9 Category nodes
+                                     Build NetworkX DiGraph + all edges
+                                     = 189 nodes, 332 edges
 
-Step 3  graph/graph_builder.py    Build NetworkX DiGraph + all edges
-                                  672 nodes, 3,303 edges (0 skipped prerequisites)
+Step 3  graph/eci_visualize.py       eci_graph.pkl + eci_graph.json → eci_graph.html
+                                     (interactive vis.js network with edge-type filters,
+                                      chapter coloring, view presets)
 
-Step 4  graph/export.py           graph.pkl (162 KB), graph.json (535 KB),
-                                  concepts_by_chapter.json, graph_summary.json
+Step 4  graph/eci_concept_stars.py   eci_graph.pkl → eci_uni.html
+                                     (self-contained D3 "concept universe" visualization
+                                      with star/nebula/sun node types)
 ```
 
-**Run:** `python build_knowledge_graph.py` from project root.
+**Run:** `python graph/eci_graph_builder.py` from project root.
+**Visualize:** `python graph/eci_visualize.py` and `python graph/eci_concept_stars.py`
+
+**Supporting scripts:**
+- `scripts/split_pdf_by_bookmarks.py` — split ECI PDF into per-section files → `assets/ElementsOfCausalInference_sections/`
+- `scripts/parse_subject_index.py` — subject index parsing utility
 
 ### Graph Statistics
 
 | Metric | Value |
 |---|---|
-| Total nodes | 672 |
-| Section nodes | 226 |
-| Concept nodes | 446 |
-| Total edges | 3,303 |
-| NEXT_IN_SEQUENCE | 169 |
-| COVERED_IN | 1,545 |
-| ILLUSTRATES | 1,545 |
-| PREREQUISITE_OF | 28 (curated seed) |
-| COMMONLY_CONFUSED | 20 (10 pairs) |
+| Total nodes | 189 |
+| Section nodes | 79 |
+| Category nodes | 9 |
+| Concept nodes | 101 |
+| Total edges | 332 |
+| NEXT_IN_SEQUENCE | 78 |
+| COVERED_IN | 140 |
+| SUBTOPIC_OF | 34 |
+| RELATED_TO_SEE_ALSO | 22 |
+| RELATED_TO_ALIAS | 14 |
+| COMMONLY_CONFUSED | 15 |
+| PREREQUISITE_OF | 29 (curated seed) |
 
 ### Concepts per Chapter
 
 | Chapter | Concepts | Title |
 |---|---|---|
-| 1 | 159 | Introduction to Probabilities, Graphs, and Causal Models |
-| 2 | 57 | A Theory of Inferred Causation |
-| 3 | 122 | Causal Diagrams and the Identification of Causal Effects |
-| 4 | 53 | Actions, Plans, and Direct Effects |
-| 5 | 72 | Causality and Structural Models in Social Science and Economics |
-| 6 | 31 | Simpson's Paradox, Confounding, and Collapsibility |
-| 7 | 104 | The Logic of Structure-Based Counterfactuals |
-| 8 | 33 | Imperfect Experiments: Bounding Effects and Counterfactuals |
-| 9 | 29 | Probability of Causation |
-| 10 | 24 | The Actual Cause |
-| 11 | 130 | Reflections, Elaborations, and Discussions with Readers |
+| 1 | 4 | Statistical and Causal Models |
+| 2 | 12 | Assumptions for Causal Inference |
+| 3 | 2 | Cause-Effect Models |
+| 4 | 5 | Learning Cause-Effect Models |
+| 5 | 1 | Connections to Machine Learning, I |
+| 6 | 23 | Multivariate Causal Models |
+| 7 | 19 | Learning Multivariate Causal Models |
+| 8 | 2 | Connections to Machine Learning, II |
+| 9 | 14 | Hidden Variables |
+| 10 | 8 | Time Series |
+| App A (11) | 4 | Some Probability and Statistics |
+| App B (12) | 0 | Causal Orderings and Adjacency Matrices |
+| App C (13) | 0 | Proofs |
 
-### Key PREREQUISITE_OF Chains
+### Key PREREQUISITE_OF Chains (ECI curated seed, 29 edges)
 
 ```
-probability_theory
-  → conditional_independence → graphoids
-  → conditional_independence → d_separation
-  → bayesian_networks_probabilistic → d_separation
-                                    → causal_bayesian_networks → intervention → do_calculus
+random_variable
+  → structural_causal_model_scm
+  → conditional_independence → d_separation → causal_markov_condition → faithfulness
+                                                                        → causal_minimality
+  → conditional_independence → causal_markov_condition
 
-d_separation
-  → back_door_criterion → do_calculus
-  → front_door_criterion → do_calculus
-  → markov_condition
+directed_acyclic_graph_dag
+  → d_separation
+  → structural_causal_model_scm → interventions
+                                → counterfactuals → potential_outcomes
+                                → total_causal_effect_ace
+                                → granger_causality → transfer_entropy
+  → maximal_ancestral_graph_mag → fci_algorithm
 
-structural_equations → functional_models → counterfactuals → probability_of_causation
-                                                           → actual_causation
-                      → functional_models → direct_effects
-                      → functional_models → intervention
+d_separation → backdoor_criterion → adjustment
+                                   → propensity_score_matching
 
-confounding_bias      → back_door_criterion
-confounders           → back_door_criterion
-simpson_s_paradox     → confounding_bias
-collider              → d_separation
-causal_discovery      → stability
-instrumental_variables → do_calculus
-potential_outcome_framework → counterfactuals
+markov_property → causal_markov_condition
+markov_equivalence → pc_algorithm
+                   → greedy_equivalence_search_ges
+
+faithfulness → causal_learning → pc_algorithm
+                                → greedy_equivalence_search_ges
+additive_noise_model_anm → causal_learning
+kolmogorov_complexity → additive_noise_model_anm
+linear_non_gaussian_acyclic_model_lingam → independent_component_analysis_ica
+instrumental_variable → total_causal_effect_ace
 ```
 
 ### COMMONLY_CONFUSED Pairs (Dumb Student misconception library)
 
 | Pair | Misconception |
 |---|---|
-| `confounders` ↔ `collider` | confounders open paths; colliders block them |
-| `back_door_criterion` ↔ `front_door_criterion` | front-door handles unmeasured confounders |
+| `granger_causality` ↔ `total_causal_effect_ace` | Granger causality is predictive, not interventional |
+| `markov_condition` ↔ `causal_markov_condition` | causal version implies directionality |
+| `structural_causal_model_scm` ↔ `structural_equation_model` | SEM absorbed into SCM; SCM supports do(·) |
+| `counterfactuals` ↔ `potential_outcomes` | different formalisms, same quantities |
 | `d_separation` ↔ `conditional_independence` | d-sep is graphical; CI is probabilistic |
-| `causation` ↔ `correlation` | correlation does not imply causation |
-| `counterfactuals` ↔ `potential_outcome_framework` | different formalisms, same quantities |
-| `intervention` ↔ `conditioning` | do(x) ≠ P(Y\|X=x) |
-| `direct_effects` ↔ `total_effects` | direct effects exclude mediated paths |
-| `confounding_bias` ↔ `selection_bias` | different sources, different corrections |
-| `simpson_s_paradox` ↔ `collapsibility` | reversal vs. aggregation phenomenon |
-| `causal_bayesian_networks` ↔ `bayesian_networks_probabilistic` | causal BNs support do(·) |
+| `common_cause` ↔ `collider` | common cause opens paths; collider blocks them |
+| `faithfulness` ↔ `markov_property` | Markov is necessity; faithfulness adds sufficiency |
+| `adjustment` ↔ `inverse_probability_weighting` | different estimators for the same causal quantity |
 
 ### Tutor Agent Graph API
 
 ```python
-from graph.export import load_graph
+import pickle
+from pathlib import Path
 
-G = load_graph()  # loads graph/data/graph.pkl
+G = pickle.load(open("graph/output/eci_graph.pkl", "rb"))
 
 def get_prerequisites(concept_id: str) -> list[str]:
     return [u for u, v, d in G.in_edges(concept_id, data=True)
@@ -147,13 +168,11 @@ def get_covered_sections(concept_id: str) -> list[str]:
             if d["edge_type"] == "COVERED_IN"]
 
 def get_chapter_concepts(chapter: int) -> list[str]:
-    concepts = set()
-    for n, d in G.nodes(data=True):
-        if d.get("node_type") == "Section" and d.get("chapter") == chapter:
-            for _, c, ed in G.out_edges(n, data=True):
-                if ed["edge_type"] == "ILLUSTRATES":
-                    concepts.add(c)
-    return sorted(concepts)
+    """Return concept node IDs covered in a given chapter."""
+    return [
+        n for n, d in G.nodes(data=True)
+        if d.get("type") == "concept" and d.get("chapter") == chapter
+    ]
 
 def get_next_concepts(concept_id: str) -> list[str]:
     return [v for _, v, d in G.out_edges(concept_id, data=True)
@@ -162,11 +181,11 @@ def get_next_concepts(concept_id: str) -> list[str]:
 
 ### Planned Graph Enhancements
 
-1. **PREREQUISITE_OF expansion (LLM):** Prompt LLM over section text pairs to extract ~100–150 total edges. Script: `graph/llm_prerequisite_extractor.py`.
-2. **Difficulty scoring:** LLM assigns `difficulty` (1–5) to each Concept node.
+1. **PREREQUISITE_OF expansion (LLM):** Prompt LLM over ECI section text pairs to extract ~100–150 total edges. Script: `graph/eci_llm_prerequisite_extractor.py` (planned).
+2. **Difficulty scoring:** LLM assigns `difficulty` (1–5) to each Concept node based on ECI section content.
 3. **Misconception library:** Expand `misconceptions[]` on key Concept nodes for Dumb Student agent.
-4. **Section text chunking → Qdrant:** Parse per-chapter PDFs into subsection-level chunks; embed with `text-embedding-3-small`; store in Qdrant.
-5. **Neo4j migration:** Import `graph.json` via `py2neo` when moving to production.
+4. **Section text chunking → Qdrant:** Parse per-chapter ECI PDFs (in `assets/ElementsOfCausalInference_sections/`) into subsection-level chunks; embed with `text-embedding-3-small`; store in Qdrant.
+5. **Neo4j migration:** Import `eci_graph.json` via `py2neo` when moving to production.
 
 ---
 

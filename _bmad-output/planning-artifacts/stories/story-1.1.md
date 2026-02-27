@@ -1,35 +1,46 @@
 ---
 story_id: '1.1'
+status: 'complete'
 epic: 'Epic 1: Causality Concept Graph & Project Foundation'
 source: '_bmad-output/planning-artifacts/epics.md'
+completed: '2026-02-27'
 ---
 
-### Story 1.1: Knowledge Graph Build Pipeline & Validation
+### Story 1.1: Knowledge Graph Build Pipeline & Validation ✅ COMPLETE
 
 As a **developer**,
-I want the Causality Concept Graph built and validated from Pearl's textbook data,
+I want the ECI Causality Concept Graph built and validated from *Elements of Causal Inference* (Peters, Janzing & Schölkopf, 2017),
 So that all downstream features have a reliable, queryable knowledge backbone.
+
+**Status: DONE** — Graph built, all outputs committed to `graph/output/`.
 
 **Acceptance Criteria:**
 
 **Given** the project is set up
-**When** `python build_knowledge_graph.py` is run
-**Then** it produces `graph.pkl` (≤200KB), `graph.json`, `concepts_by_chapter.json`, and `graph_summary.json`
+**When** `python graph/eci_graph_builder.py` is run
+**Then** it produces `graph/output/eci_graph.pkl`, `eci_graph.json`, `eci_graph.html`, and `eci_uni.html` ✅
 
-**Given** `graph.pkl` is built
-**When** it is loaded via `load_graph()`
-**Then** the graph contains 672 nodes (226 Section + 446 Concept) and 3,303 edges
+**Given** `eci_graph.pkl` is built
+**When** it is loaded via `pickle.load()`
+**Then** the graph contains 189 nodes (79 Section + 9 Category + 101 Concept) and 332 edges ✅
 
 **Given** the graph is loaded
 **When** `get_prerequisites("d_separation")` is called
-**Then** it returns the correct PREREQUISITE_OF predecessor concepts
+**Then** it returns `conditional_independence` and `directed_acyclic_graph_dag` as PREREQUISITE_OF predecessors ✅
 
 **Given** the graph is loaded
-**When** `get_chapter_concepts(1)` is called
-**Then** it returns the 159 concept nodes for Chapter 1
+**When** `get_chapter_concepts(6)` is called
+**Then** it returns the 23 concept nodes for Chapter 6 (Multivariate Causal Models) ✅
 
 **Given** the graph is loaded
-**When** `get_next_concepts("back_door_criterion")` is called
-**Then** it returns the correct PREREQUISITE_OF downstream successors
+**When** `get_next_concepts("causal_learning")` is called
+**Then** it returns `pc_algorithm` and `greedy_equivalence_search_ges` as PREREQUISITE_OF successors ✅
+
+**Additional deliverables completed:**
+- `graph/eci_toc_parser.py` — TOC → 79 Section nodes
+- `graph/eci_concept_stars.py` — D3 "concept universe" visualization
+- `graph/eci_visualize.py` — Interactive vis.js HTML knowledge graph
+- `scripts/parse_subject_index.py` — Subject index parser
+- `scripts/split_pdf_by_bookmarks.py` — PDF section splitter
 
 ---
