@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pearl (2009) — Causality Mind Map</title>
+
+<!-- markmap autoloader bundles d3 + markmap-lib + markmap-view -->
+<script src="https://cdn.jsdelivr.net/npm/markmap-autoloader@0.16"></script>
+
+<style>
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100vw; height: 100vh; overflow: hidden;
+  background: #0d1117;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+/* ── Markmap dark-theme overrides ───────────────────────────────────────── */
+/* The autoloader renders an <svg class="markmap"> inside our div */
+svg.markmap {
+  background: #0d1117 !important;
+  width:  100vw !important;
+  height: 100vh !important;
+}
+
+/* All text inside nodes */
+.markmap-foreign,
+.markmap-foreign div,
+.markmap-foreign span,
+.markmap-foreign p {
+  color: #c9d1d9 !important;
+  line-height: 1.5 !important;
+}
+
+/* Bold section IDs */
+.markmap-foreign strong { color: #e6edf3 !important; font-weight: 700 !important; }
+
+/* Page-range code spans */
+.markmap-foreign code {
+  color: #8b949e !important;
+  background: rgba(139,148,158,0.12) !important;
+  border-radius: 4px !important;
+  padding: 1px 6px !important;
+  font-size: 0.80em !important;
+  font-family: ui-monospace, "SF Mono", "Fira Code", monospace !important;
+  letter-spacing: 0.2px !important;
+}
+
+/* Node circle: semi-transparent fill, coloured stroke */
+.markmap-node > circle {
+  fill-opacity: 0.08 !important;
+  stroke-width: 1.8px !important;
+  transition: r 0.15s ease !important;
+}
+.markmap-node:hover > circle { fill-opacity: 0.18 !important; }
+
+/* Connector paths */
+.markmap-link { stroke-opacity: 0.40 !important; }
+
+/* Fold indicator triangle */
+.markmap-fold { fill-opacity: 0.6 !important; }
+
+/* ── HUD overlays ───────────────────────────────────────────────────────── */
+#hud-title {
+  position: fixed; top: 18px; left: 22px;
+  font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: #58a6ff; opacity: 0.75;
+  pointer-events: none; z-index: 10;
+}
+#hud-stats {
+  position: fixed; top: 38px; left: 22px;
+  font-size: 10px; color: #484f58; letter-spacing: 0.3px;
+  pointer-events: none; z-index: 10;
+}
+#hud-stats span { color: #6e7681; }
+#hud-hint {
+  position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%);
+  font-size: 10px; color: #30363d; letter-spacing: 0.6px;
+  pointer-events: none; z-index: 10;
+}
+</style>
+</head>
+<body>
+
+<!-- HUD labels -->
+<div id="hud-title">Causality · Table of Contents</div>
+<div id="hud-stats">
+  <span>11</span> chapters &nbsp;·&nbsp;
+  <span>66</span> sections &nbsp;·&nbsp;
+  <span>163</span> subsections
+</div>
+<div id="hud-hint">click node to fold / unfold &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; drag to pan</div>
+
+<!-- markmap renders into this div (autoloader detects it automatically) -->
+<div class="markmap" style="width:100vw;height:100vh;">
+<script type="text/template">
+---
+markmap:
+  colorFreezeLevel: 2
+  maxWidth: 380
+  initialExpandLevel: 1
+  zoom: true
+  pan: true
+  spacingHorizontal: 100
+  spacingVertical: 6
+  paddingX: 14
+  colors:
+    - "#79c0ff"
+    - "#56d364"
+    - "#e3b341"
+    - "#ff7b72"
+    - "#d2a8ff"
+    - "#3fb950"
+    - "#ffa657"
+    - "#58a6ff"
+    - "#f78166"
+    - "#a5d6ff"
+    - "#7ee787"
+---
+
+# Pearl (2009) — Causality
+## **Ch. 1** — Introduction to Probabilities, Graphs & Causal Models
+### **1.1** Introduction to Probability Theory  `pp. 1–11`
+#### **1.1.1** Why Probabilities?  `p. 1`
+#### **1.1.2** Basic Concepts in Probability Theory  `pp. 2–5`
+#### **1.1.3** Combining Predictive and Diagnostic Supports  `pp. 6–7`
+#### **1.1.4** Random Variables and Expectations  `pp. 8–10`
+#### **1.1.5** Conditional Independence and Graphoids  `p. 11`
+### **1.2** Graphs and Probabilities  `pp. 12–20`
+#### **1.2.1** Graphical Notation and Terminology  `p. 12`
+#### **1.2.2** Bayesian Networks  `pp. 13–15`
+#### **1.2.3** The d-Separation Criterion  `pp. 16–19`
+#### **1.2.4** Inference with Bayesian Networks  `p. 20`
+### **1.3** Causal Bayesian Networks  `pp. 21–25`
+#### **1.3.1** Causal Networks as Oracles for Interventions  `pp. 22–23`
+#### **1.3.2** Causal Relationships and Their Stability  `pp. 24–25`
+### **1.4** Functional Causal Models  `pp. 26–37`
+#### **1.4.1** Structural Equations  `pp. 27–29`
+#### **1.4.2** Probabilistic Predictions in Causal Models  `pp. 30–31`
+#### **1.4.3** Interventions and Causal Effects in Functional Models  `p. 32`
+#### **1.4.4** Counterfactuals in Functional Models  `pp. 33–37`
+### **1.5** Causal versus Statistical Terminology  `pp. 38–40`
+## **Ch. 2** — A Theory of Inferred Causation
+### **2.1** Introduction – The Basic Intuitions  `p. 42`
+### **2.2** The Causal Discovery Framework  `pp. 43–44`
+### **2.3** Model Preference (Occam's Razor)  `pp. 45–47`
+### **2.4** Stable Distributions  `p. 48`
+### **2.5** Recovering DAG Structures  `pp. 49–50`
+### **2.6** Recovering Latent Structures  `pp. 51–53`
+### **2.7** Local Criteria for Inferring Causal Relations  `pp. 54–56`
+### **2.8** Nontemporal Causation and Statistical Time  `pp. 57–58`
+### **2.9** Conclusions  `pp. 59–64`
+#### **2.9.1** On Minimality, Markov, and Stability  `pp. 61–64`
+## **Ch. 3** — Causal Diagrams & Identification of Causal Effects
+### **3.1** Introduction  `pp. 66–67`
+### **3.2** Intervention in Markovian Models  `pp. 68–77`
+#### **3.2.1** Graphs as Models of Interventions  `pp. 68–69`
+#### **3.2.2** Interventions as Variables  `pp. 70–71`
+#### **3.2.3** Computing the Effect of Interventions  `pp. 72–76`
+#### **3.2.4** Identification of Causal Quantities  `p. 77`
+### **3.3** Controlling Confounding Bias  `pp. 78–84`
+#### **3.3.1** The Back-Door Criterion  `pp. 79–80`
+#### **3.3.2** The Front-Door Criterion  `pp. 81–82`
+#### **3.3.3** Example: Smoking and the Genotype Theory  `pp. 83–84`
+### **3.4** A Calculus of Intervention  `pp. 85–88`
+#### **3.4.1** Preliminary Notation  `p. 85`
+#### **3.4.2** Inference Rules  `p. 85`
+#### **3.4.3** Symbolic Derivation of Causal Effects: An Example  `pp. 86–87`
+#### **3.4.4** Causal Inference by Surrogate Experiments  `p. 88`
+### **3.5** Graphical Tests of Identifiability  `pp. 89–93`
+#### **3.5.1** Identifying Models  `pp. 91–92`
+#### **3.5.2** Nonidentifying Models  `p. 93`
+### **3.6** Discussion  `pp. 94–106`
+#### **3.6.1** Qualifications and Extensions  `pp. 94–95`
+#### **3.6.2** Diagrams as a Mathematical Language  `pp. 96–97`
+#### **3.6.3** Translation from Graphs to Potential Outcomes  `pp. 98–101`
+#### **3.6.4** Relations to Robins's G-Estimation  `pp. 102–106`
+## **Ch. 4** — Actions, Plans & Direct Effects
+### **4.1** Introduction  `pp. 108–112`
+#### **4.1.1** Actions, Acts, and Probabilities  `pp. 108–109`
+#### **4.1.2** Actions in Decision Analysis  `pp. 110–111`
+#### **4.1.3** Actions and Counterfactuals  `p. 112`
+### **4.2** Conditional Actions and Stochastic Policies  `p. 113`
+### **4.3** When Is the Effect of an Action Identifiable?  `pp. 114–117`
+#### **4.3.1** Graphical Conditions for Identification  `pp. 114–115`
+#### **4.3.2** Remarks on Efficiency  `p. 116`
+#### **4.3.3** Deriving a Closed-Form Expression for Control Queries  `p. 117`
+#### **4.3.4** Summary  `p. 118`
+### **4.4** The Identification of Dynamic Plans  `pp. 118–125`
+#### **4.4.1** Motivation  `pp. 118–119`
+#### **4.4.2** Plan Identification: Notation and Assumptions  `p. 120`
+#### **4.4.3** Plan Identification: The Sequential Back-Door Criterion  `pp. 121–123`
+#### **4.4.4** Plan Identification: A Procedure  `pp. 124–125`
+### **4.5** Direct and Indirect Effects  `pp. 126–132`
+#### **4.5.1** Direct versus Total Effects  `p. 126`
+#### **4.5.2** Direct Effects, Definition, and Identification  `p. 127`
+#### **4.5.3** Example: Sex Discrimination in College Admission  `pp. 128–129`
+#### **4.5.4** Natural Direct Effects  `pp. 130–131`
+#### **4.5.5** Indirect Effects and the Mediation Formula  `p. 132`
+## **Ch. 5** — Causality & Structural Models in Social Science
+### **5.1** Introduction  `pp. 134–139`
+#### **5.1.1** Causality in Search of a Language  `p. 134`
+#### **5.1.2** SEM: How Its Meaning Became Obscured  `pp. 135–137`
+#### **5.1.3** Graphs as a Mathematical Language  `pp. 138–139`
+### **5.2** Graphs and Model Testing  `pp. 140–148`
+#### **5.2.1** The Testable Implications of Structural Models  `pp. 140–143`
+#### **5.2.2** Testing the Testable  `p. 144`
+#### **5.2.3** Model Equivalence  `pp. 145–148`
+### **5.3** Graphs and Identifiability  `pp. 149–158`
+#### **5.3.1** Parameter Identification in Linear Models  `pp. 149–153`
+#### **5.3.2** Comparison to Nonparametric Identification  `pp. 154–156`
+#### **5.3.3** Causal Effects: The Interventional Interpretation of Structural Equation Models  `pp. 157–158`
+### **5.4** Some Conceptual Underpinnings  `pp. 159–169`
+#### **5.4.1** What Do Structural Parameters Really Mean?  `pp. 159–162`
+#### **5.4.2** Interpretation of Effect Decomposition  `pp. 163–164`
+#### **5.4.3** Exogeneity, Superexogeneity, and Other Frills  `pp. 165–169`
+### **5.5** Conclusion  `p. 170`
+### **5.6** Postscript for the Second Edition  `pp. 171–172`
+#### **5.6.1** An Econometric Awakening?  `p. 171`
+#### **5.6.2** Identification in Linear Models  `p. 171`
+#### **5.6.3** Robustness of Causal Claims  `p. 172`
+## **Ch. 6** — Simpson's Paradox, Confounding & Collapsibility
+### **6.1** Simpson's Paradox: An Anatomy  `pp. 174–181`
+#### **6.1.1** A Tale of a Non-Paradox  `p. 174`
+#### **6.1.2** A Tale of Statistical Agony  `pp. 175–176`
+#### **6.1.3** Causality versus Exchangeability  `pp. 177–179`
+#### **6.1.4** A Paradox Resolved (Or: What Kind of Machine Is Man?)  `pp. 180–181`
+### **6.2** Why There Is No Statistical Test for Confounding, Why Many Think There Is, and Why They Are Almost Right  `pp. 182–184`
+#### **6.2.1** Introduction  `pp. 182–183`
+#### **6.2.2** Causal and Associational Definitions  `p. 184`
+### **6.3** How the Associational Criterion Fails  `pp. 185–188`
+#### **6.3.1** Failing Sufficiency via Marginality  `p. 185`
+#### **6.3.2** Failing Sufficiency via Closed-World Assumptions  `p. 186`
+#### **6.3.3** Failing Necessity via Barren Proxies  `pp. 186–187`
+#### **6.3.4** Failing Necessity via Incidental Cancellations  `p. 188`
+### **6.4** Stable versus Incidental Unbiasedness  `pp. 189–192`
+#### **6.4.1** Motivation  `pp. 189–190`
+#### **6.4.2** Formal Definitions  `p. 191`
+#### **6.4.3** Operational Test for Stable No-Confounding  `p. 192`
+### **6.5** Confounding, Collapsibility, and Exchangeability  `pp. 193–198`
+#### **6.5.1** Confounding and Collapsibility  `p. 193`
+#### **6.5.2** Confounding versus Confounders  `pp. 194–195`
+#### **6.5.3** Exchangeability versus Structural Analysis of Confounding  `pp. 196–198`
+### **6.6** Conclusions  `pp. 199–200`
+## **Ch. 7** — The Logic of Structure-Based Counterfactuals
+### **7.1** Structural Model Semantics  `pp. 202–214`
+#### **7.1.1** Definitions: Causal Models, Actions, and Counterfactuals  `pp. 202–206`
+#### **7.1.2** Evaluating Counterfactuals: Deterministic Analysis  `pp. 207–211`
+#### **7.1.3** Evaluating Counterfactuals: Probabilistic Analysis  `p. 212`
+#### **7.1.4** The Twin Network Method  `pp. 213–214`
+### **7.2** Applications and Interpretation of Structural Models  `pp. 215–227`
+#### **7.2.1** Policy Analysis in Linear Econometric Models: An Example  `pp. 215–216`
+#### **7.2.2** The Empirical Content of Counterfactuals  `pp. 217–220`
+#### **7.2.3** Causal Explanations, Utterances, and Their Interpretation  `pp. 221–222`
+#### **7.2.4** From Mechanisms to Actions to Causation  `pp. 223–225`
+#### **7.2.5** Simon's Causal Ordering  `pp. 226–227`
+### **7.3** Axiomatic Characterization  `pp. 228–237`
+#### **7.3.1** The Axioms of Structural Counterfactuals  `pp. 228–230`
+#### **7.3.2** Causal Effects from Counterfactual Logic: An Example  `pp. 231–233`
+#### **7.3.3** Axioms of Causal Relevance  `pp. 234–237`
+### **7.4** Structural and Similarity-Based Counterfactuals  `pp. 238–248`
+#### **7.4.1** Relations to Lewis's Counterfactuals  `pp. 238–239`
+#### **7.4.2** Axiomatic Comparison  `pp. 240–241`
+#### **7.4.3** Imaging versus Conditioning  `p. 242`
+#### **7.4.4** Relations to the Neyman–Rubin Framework  `pp. 243–244`
+#### **7.4.5** Exogeneity and Instruments: Counterfactual and Graphical Definitions  `pp. 245–248`
+### **7.5** Structural versus Probabilistic Causality  `pp. 249–258`
+#### **7.5.1** The Reliance on Temporal Ordering  `p. 249`
+#### **7.5.2** The Perils of Circularity  `pp. 250–251`
+#### **7.5.3** Challenging the Closed-World Assumption, with Children  `p. 252`
+#### **7.5.4** Singular versus General Causes  `pp. 253–255`
+#### **7.5.5** Summary  `pp. 256–258`
+## **Ch. 8** — Imperfect Experiments
+### **8.1** Introduction  `pp. 259–261`
+#### **8.1.1** Imperfect and Indirect Experiments  `pp. 259–260`
+#### **8.1.2** Noncompliance and Intent to Treat  `p. 261`
+### **8.2** Bounding Causal Effects with Instrumental Variables  `pp. 262–270`
+#### **8.2.1** Problem Formulation: Constrained Optimization  `p. 262`
+#### **8.2.2** Canonical Partitions: The Evolution of Finite-Response Variables  `pp. 263–265`
+#### **8.2.3** Linear Programming Formulation  `pp. 266–267`
+#### **8.2.4** The Natural Bounds  `p. 268`
+#### **8.2.5** Effect of Treatment on the Treated (ETT)  `p. 269`
+#### **8.2.6** Example: The Effect of Cholestyramine  `p. 270`
+### **8.3** Counterfactuals and Legal Responsibility  `pp. 271–273`
+### **8.4** A Test for Instruments  `p. 274`
+### **8.5** A Bayesian Approach to Noncompliance  `pp. 275–280`
+#### **8.5.1** Bayesian Methods and Gibbs Sampling  `pp. 275–276`
+#### **8.5.2** The Effects of Sample Size and Prior Distribution  `p. 277`
+#### **8.5.3** Causal Effects from Clinical Data with Imperfect Compliance  `pp. 277–279`
+#### **8.5.4** Bayesian Estimate of Single-Event Causation  `p. 280`
+### **8.6** Conclusion  `pp. 281–282`
+## **Ch. 9** — Probability of Causation
+### **9.1** Introduction  `pp. 283–285`
+### **9.2** Necessary and Sufficient Causes: Conditions of Identification  `pp. 286–295`
+#### **9.2.1** Definitions, Notation, and Basic Relationships  `pp. 286–288`
+#### **9.2.2** Bounds and Basic Relationships under Exogeneity  `pp. 289–290`
+#### **9.2.3** Identifiability under Monotonicity and Exogeneity  `pp. 291–292`
+#### **9.2.4** Identifiability under Monotonicity and Nonexogeneity  `pp. 293–295`
+### **9.3** Examples and Applications  `pp. 296–303`
+#### **9.3.1** Example 1: Betting against a Fair Coin  `p. 296`
+#### **9.3.2** Example 2: The Firing Squad  `pp. 297–298`
+#### **9.3.3** Example 3: The Effect of Radiation on Leukemia  `pp. 299–301`
+#### **9.3.4** Example 4: Legal Responsibility from Experimental and Nonexperimental Data  `p. 302`
+#### **9.3.5** Summary of Results  `p. 303`
+### **9.4** Identification in Nonmonotonic Models  `pp. 304–306`
+### **9.5** Conclusions  `pp. 307–308`
+## **Ch. 10** — The Actual Cause
+### **10.1** Introduction: The Insufficiency of Necessary Causation  `pp. 309–315`
+#### **10.1.1** Singular Causes Revisited  `pp. 309–310`
+#### **10.1.2** Preemption and the Role of Structural Information  `pp. 311–312`
+#### **10.1.3** Overdetermination and Quasi-Dependence  `p. 313`
+#### **10.1.4** Mackie's INUS Condition  `pp. 313–315`
+### **10.2** Production, Dependence, and Sustenance  `pp. 316–317`
+### **10.3** Causal Beams and Sustenance-Based Causation  `pp. 318–326`
+#### **10.3.1** Causal Beams: Definitions and Implications  `pp. 318–319`
+#### **10.3.2** Examples: From Disjunction to General Formulas  `pp. 320–321`
+#### **10.3.3** Beams, Preemption, and the Probability of Single-Event Causation  `pp. 322–323`
+#### **10.3.4** Path-Switching Causation  `p. 324`
+#### **10.3.5** Temporal Preemption  `pp. 325–326`
+### **10.4** Conclusions  `pp. 327–330`
+## **Ch. 11** — Reflections, Elaborations & Discussions
+### **11.1** Causal, Statistical, and Graphical Vocabulary  `pp. 331–336`
+#### **11.1.1** Is the Causal-Statistical Dichotomy Necessary?  `pp. 331–334`
+#### **11.1.2** d-Separation without Tears (Chapter 1, pp. 16–18)  `pp. 335–336`
+### **11.2** Reversing Statistical Time (Chapter 2, p. 58–59)  `p. 337`
+### **11.3** Estimating Causal Effects  `pp. 338–353`
+#### **11.3.1** The Intuition behind the Back-Door Criterion (Chapter 3, p. 79)  `pp. 338–340`
+#### **11.3.2** Demystifying “Strong Ignorability”  `pp. 341–343`
+#### **11.3.3** Alternative Proof of the Back-Door Criterion  `pp. 344–345`
+#### **11.3.4** Data vs. Knowledge in Covariate Selection  `pp. 346–347`
+#### **11.3.5** Understanding Propensity Scores  `pp. 348–351`
+#### **11.3.6** The Intuition behind do-Calculus  `p. 352`
+#### **11.3.7** The Validity of G-Estimation  `pp. 352–353`
+### **11.4** Policy Evaluation and the do-Operator  `pp. 354–365`
+#### **11.4.1** Identifying Conditional Plans (Section 4.2, p. 113)  `p. 354`
+#### **11.4.2** The Meaning of Indirect Effects  `pp. 355–357`
+#### **11.4.3** Can do(x) Represent Practical Experiments?  `p. 358`
+#### **11.4.4** Is the do(x) Operator Universal?  `pp. 359–360`
+#### **11.4.5** Causation without Manipulation!!!  `p. 361`
+#### **11.4.6** Hunting Causes with Cartwright  `pp. 362–363`
+#### **11.4.7** The Illusion of Nonmodularity  `pp. 364–365`
+### **11.5** Causal Analysis in Linear Structural Models  `pp. 366–379`
+#### **11.5.1** General Criterion for Parameter Identification (Chapter 5, pp. 149–54)  `p. 366`
+#### **11.5.2** The Causal Interpretation of Structural Coefficients  `pp. 366–367`
+#### **11.5.3** Defending the Causal Interpretation of SEM (or, SEM Survival Kit)  `pp. 368–373`
+#### **11.5.4** Where Is Economic Modeling Today? – Courting Causes with Heckman  `pp. 374–375`
+#### **11.5.5** External Variation versus Surgery  `pp. 376–379`
+### **11.6** Decisions and Confounding (Chapter 6)  `pp. 380–388`
+#### **11.6.1** Simpson’s Paradox and Decision Trees  `pp. 380–381`
+#### **11.6.2** Is Chronological Information Sufficient for Decision Trees?  `pp. 382–383`
+#### **11.6.3** Lindley on Causality, Decision Trees, and Bayesianism  `pp. 384–386`
+#### **11.6.4** Why Isn’t Confounding a Statistical Concept?  `pp. 387–388`
+### **11.7** The Calculus of Counterfactuals  `pp. 389–394`
+#### **11.7.1** Counterfactuals in Linear Systems  `pp. 389–390`
+#### **11.7.2** The Meaning of Counterfactuals  `pp. 391–392`
+#### **11.7.3** d-Separation of Counterfactuals  `pp. 393–394`
+### **11.8** Instrumental Variables and Noncompliance  `p. 395`
+#### **11.8.1** Tight Bounds under Noncompliance  `p. 395`
+### **11.9** More on Probabilities of Causation  `pp. 396–460`
+#### **11.9.1** Is “Guilty with Probability One” Ever Possible?  `pp. 396–397`
+#### **11.9.2** Tightening the Bounds on Probabilities of Causation  `pp. 398–460`
+</script>
+</div>
+
+</body>
+</html>

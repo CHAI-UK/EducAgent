@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pearl (2009) — TOC Mind Map</title>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<style>
+/* ── Base ─────────────────────────────────────────────────────────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 100%; height: 100%; overflow: hidden;
+  background: #0a0e1a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #e6edf3;
+}
+
+/* ── SVG ──────────────────────────────────────────────────────────────────── */
+svg { width: 100vw; height: 100vh; cursor: grab; }
+svg:active { cursor: grabbing; }
+
+.link {
+  fill: none;
+  stroke-linecap: round;
+  transition: opacity .2s;
+}
+.link:hover { opacity: 1 !important; }
+
+.node circle, .node rect {
+  stroke-width: 2px;
+  cursor: pointer;
+  transition: filter .15s, stroke-width .15s;
+}
+.node:hover circle,
+.node:hover rect {
+  filter: brightness(1.35) drop-shadow(0 0 6px currentColor);
+  stroke-width: 2.5px;
+}
+
+.node-label {
+  pointer-events: none;
+  dominant-baseline: middle;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  transition: opacity .2s;
+}
+
+/* collapsed indicator pulse */
+@keyframes pulse {
+  0%,100% { r: 4px; opacity:.6; }
+  50%      { r: 6px; opacity:.9; }
+}
+.has-children circle.dot { animation: pulse 2s ease-in-out infinite; }
+
+/* ── Controls ─────────────────────────────────────────────────────────────── */
+#controls {
+  position: fixed; top: 16px; right: 16px;
+  display: flex; flex-direction: column; gap: 6px;
+  z-index: 20;
+}
+.ctrl-btn {
+  background: rgba(22,27,34,0.92);
+  border: 1px solid #30363d;
+  border-radius: 7px;
+  color: #8b949e;
+  font-size: 11px; font-weight: 600;
+  padding: 7px 12px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: border-color .15s, color .15s;
+  letter-spacing: 0.4px;
+  text-align: left;
+}
+.ctrl-btn:hover { border-color: #58a6ff; color: #58a6ff; }
+
+/* ── Stats bar ────────────────────────────────────────────────────────────── */
+#stats {
+  position: fixed; bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 10px;
+  z-index: 20;
+}
+.stat-pill {
+  background: rgba(13,17,23,0.88);
+  border: 1px solid #21262d;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 11px; color: #8b949e;
+  font-weight: 600; letter-spacing: 0.3px;
+  backdrop-filter: blur(6px);
+}
+.stat-pill span { color: #e6edf3; }
+
+/* ── Tooltip ──────────────────────────────────────────────────────────────── */
+#tooltip {
+  position: fixed;
+  background: rgba(13,17,23,0.96);
+  border: 1px solid #30363d;
+  border-radius: 9px;
+  padding: 11px 15px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 30;
+  max-width: 280px;
+  opacity: 0;
+  transition: opacity .15s;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+#tooltip.show { opacity: 1; }
+#tooltip .tt-title {
+  font-weight: 600; font-size: 13px;
+  color: #e6edf3; margin-bottom: 5px;
+  line-height: 1.3;
+}
+#tooltip .tt-row {
+  color: #8b949e; font-size: 11px;
+  margin-top: 3px; line-height: 1.5;
+}
+#tooltip .tt-row span { color: #c9d1d9; }
+
+/* ── Breadcrumb ───────────────────────────────────────────────────────────── */
+#breadcrumb {
+  position: fixed; top: 16px; left: 16px;
+  font-size: 11px; color: #484f58;
+  z-index: 20; max-width: 420px;
+  line-height: 1.8; letter-spacing: 0.2px;
+}
+#breadcrumb span { color: #8b949e; }
+#breadcrumb .sep { margin: 0 5px; color: #30363d; }
+</style>
+</head>
+<body>
+
+<svg id="svg"></svg>
+
+<!-- Controls -->
+<div id="controls">
+  <button class="ctrl-btn" onclick="resetView()">⌂ Reset view</button>
+  <button class="ctrl-btn" onclick="expandAll()">⊞ Expand all</button>
+  <button class="ctrl-btn" onclick="collapseAll()">⊟ Collapse all</button>
+</div>
+
+<!-- Stats -->
+<div id="stats">
+  <div class="stat-pill"><span>11</span> chapters</div>
+  <div class="stat-pill"><span>66</span> sections</div>
+  <div class="stat-pill"><span>163</span> subsections</div>
+</div>
+
+<!-- Tooltip -->
+<div id="tooltip">
+  <div class="tt-title" id="tt-title"></div>
+  <div class="tt-row" id="tt-pages"></div>
+  <div class="tt-row" id="tt-children"></div>
+</div>
+
+<!-- Breadcrumb -->
+<div id="breadcrumb"></div>
+
+<script>
+// ── Data ───────────────────────────────────────────────────────────────────────
+const RAW_TREE   = {"id":"root","name":"Pearl (2009)","subtitle":"Causality","type":"root","chapter":0,"pages":"1\u2013460","depth":-1,"children":[{"id":"1","name":"Introduction","full":"\u00a71  Introduction to Probabilities, Graphs, and Causal Models","type":"chapter","chapter":1,"pages":"1\u201340","depth":0,"children":[{"id":"1.1","name":"Introduction to Probability Theory","full":"\u00a71.1  Introduction to Probability Theory","type":"section","chapter":1,"pages":"1\u201311","depth":1,"children":[{"id":"1.1.1","name":"Why Probabilities?","full":"\u00a71.1.1  Why Probabilities?","type":"subsection","chapter":1,"pages":"1\u20131","depth":2,"children":[]},{"id":"1.1.2","name":"Basic Concepts in Probability Theory","full":"\u00a71.1.2  Basic Concepts in Probability Theory","type":"subsection","chapter":1,"pages":"2\u20135","depth":2,"children":[]},{"id":"1.1.3","name":"Combining Predictive and Diagnostic Supports","full":"\u00a71.1.3  Combining Predictive and Diagnostic Supports","type":"subsection","chapter":1,"pages":"6\u20137","depth":2,"children":[]},{"id":"1.1.4","name":"Random Variables and Expectations","full":"\u00a71.1.4  Random Variables and Expectations","type":"subsection","chapter":1,"pages":"8\u201310","depth":2,"children":[]},{"id":"1.1.5","name":"Conditional Independence and Graphoids","full":"\u00a71.1.5  Conditional Independence and Graphoids","type":"subsection","chapter":1,"pages":"11\u201311","depth":2,"children":[]}]},{"id":"1.2","name":"Graphs and Probabilities","full":"\u00a71.2  Graphs and Probabilities","type":"section","chapter":1,"pages":"12\u201320","depth":1,"children":[{"id":"1.2.1","name":"Graphical Notation and Terminology","full":"\u00a71.2.1  Graphical Notation and Terminology","type":"subsection","chapter":1,"pages":"12\u201312","depth":2,"children":[]},{"id":"1.2.2","name":"Bayesian Networks","full":"\u00a71.2.2  Bayesian Networks","type":"subsection","chapter":1,"pages":"13\u201315","depth":2,"children":[]},{"id":"1.2.3","name":"The d-Separation Criterion","full":"\u00a71.2.3  The d-Separation Criterion","type":"subsection","chapter":1,"pages":"16\u201319","depth":2,"children":[]},{"id":"1.2.4","name":"Inference with Bayesian Networks","full":"\u00a71.2.4  Inference with Bayesian Networks","type":"subsection","chapter":1,"pages":"20\u201320","depth":2,"children":[]}]},{"id":"1.3","name":"Causal Bayesian Networks","full":"\u00a71.3  Causal Bayesian Networks","type":"section","chapter":1,"pages":"21\u201325","depth":1,"children":[{"id":"1.3.1","name":"Causal Networks as Oracles for Interventions","full":"\u00a71.3.1  Causal Networks as Oracles for Interventions","type":"subsection","chapter":1,"pages":"22\u201323","depth":2,"children":[]},{"id":"1.3.2","name":"Causal Relationships and Their Stability","full":"\u00a71.3.2  Causal Relationships and Their Stability","type":"subsection","chapter":1,"pages":"24\u201325","depth":2,"children":[]}]},{"id":"1.4","name":"Functional Causal Models","full":"\u00a71.4  Functional Causal Models","type":"section","chapter":1,"pages":"26\u201337","depth":1,"children":[{"id":"1.4.1","name":"Structural Equations","full":"\u00a71.4.1  Structural Equations","type":"subsection","chapter":1,"pages":"27\u201329","depth":2,"children":[]},{"id":"1.4.2","name":"Probabilistic Predictions in Causal Models","full":"\u00a71.4.2  Probabilistic Predictions in Causal Models","type":"subsection","chapter":1,"pages":"30\u201331","depth":2,"children":[]},{"id":"1.4.3","name":"Interventions and Causal Effects in Functional Models","full":"\u00a71.4.3  Interventions and Causal Effects in Functional Models","type":"subsection","chapter":1,"pages":"32\u201332","depth":2,"children":[]},{"id":"1.4.4","name":"Counterfactuals in Functional Models","full":"\u00a71.4.4  Counterfactuals in Functional Models","type":"subsection","chapter":1,"pages":"33\u201337","depth":2,"children":[]}]},{"id":"1.5","name":"Causal versus Statistical Terminology","full":"\u00a71.5  Causal versus Statistical Terminology","type":"section","chapter":1,"pages":"38\u201340","depth":1,"children":[]}]},{"id":"2","name":"Inferred Causation","full":"\u00a72  A Theory of Inferred Causation","type":"chapter","chapter":2,"pages":"41\u201364","depth":0,"children":[{"id":"2.1","name":"Introduction \u2013 The Basic Intuitions","full":"\u00a72.1  Introduction \u2013 The Basic Intuitions","type":"section","chapter":2,"pages":"42\u201342","depth":1,"children":[]},{"id":"2.2","name":"The Causal Discovery Framework","full":"\u00a72.2  The Causal Discovery Framework","type":"section","chapter":2,"pages":"43\u201344","depth":1,"children":[]},{"id":"2.3","name":"Model Preference (Occam's Razor)","full":"\u00a72.3  Model Preference (Occam's Razor)","type":"section","chapter":2,"pages":"45\u201347","depth":1,"children":[]},{"id":"2.4","name":"Stable Distributions","full":"\u00a72.4  Stable Distributions","type":"section","chapter":2,"pages":"48\u201348","depth":1,"children":[]},{"id":"2.5","name":"Recovering DAG Structures","full":"\u00a72.5  Recovering DAG Structures","type":"section","chapter":2,"pages":"49\u201350","depth":1,"children":[]},{"id":"2.6","name":"Recovering Latent Structures","full":"\u00a72.6  Recovering Latent Structures","type":"section","chapter":2,"pages":"51\u201353","depth":1,"children":[]},{"id":"2.7","name":"Local Criteria for Inferring Causal Relations","full":"\u00a72.7  Local Criteria for Inferring Causal Relations","type":"section","chapter":2,"pages":"54\u201356","depth":1,"children":[]},{"id":"2.8","name":"Nontemporal Causation and Statistical Time","full":"\u00a72.8  Nontemporal Causation and Statistical Time","type":"section","chapter":2,"pages":"57\u201358","depth":1,"children":[]},{"id":"2.9","name":"Conclusions","full":"\u00a72.9  Conclusions","type":"section","chapter":2,"pages":"59\u201364","depth":1,"children":[{"id":"2.9.1","name":"On Minimality, Markov, and Stability","full":"\u00a72.9.1  On Minimality, Markov, and Stability","type":"subsection","chapter":2,"pages":"61\u201364","depth":2,"children":[]}]}]},{"id":"3","name":"Causal Diagrams","full":"\u00a73  Causal Diagrams and the Identification of Causal Effects","type":"chapter","chapter":3,"pages":"65\u2013106","depth":0,"children":[{"id":"3.1","name":"Introduction","full":"\u00a73.1  Introduction","type":"section","chapter":3,"pages":"66\u201367","depth":1,"children":[]},{"id":"3.2","name":"Intervention in Markovian Models","full":"\u00a73.2  Intervention in Markovian Models","type":"section","chapter":3,"pages":"68\u201377","depth":1,"children":[{"id":"3.2.1","name":"Graphs as Models of Interventions","full":"\u00a73.2.1  Graphs as Models of Interventions","type":"subsection","chapter":3,"pages":"68\u201369","depth":2,"children":[]},{"id":"3.2.2","name":"Interventions as Variables","full":"\u00a73.2.2  Interventions as Variables","type":"subsection","chapter":3,"pages":"70\u201371","depth":2,"children":[]},{"id":"3.2.3","name":"Computing the Effect of Interventions","full":"\u00a73.2.3  Computing the Effect of Interventions","type":"subsection","chapter":3,"pages":"72\u201376","depth":2,"children":[]},{"id":"3.2.4","name":"Identification of Causal Quantities","full":"\u00a73.2.4  Identification of Causal Quantities","type":"subsection","chapter":3,"pages":"77\u201377","depth":2,"children":[]}]},{"id":"3.3","name":"Controlling Confounding Bias","full":"\u00a73.3  Controlling Confounding Bias","type":"section","chapter":3,"pages":"78\u201384","depth":1,"children":[{"id":"3.3.1","name":"The Back-Door Criterion","full":"\u00a73.3.1  The Back-Door Criterion","type":"subsection","chapter":3,"pages":"79\u201380","depth":2,"children":[]},{"id":"3.3.2","name":"The Front-Door Criterion","full":"\u00a73.3.2  The Front-Door Criterion","type":"subsection","chapter":3,"pages":"81\u201382","depth":2,"children":[]},{"id":"3.3.3","name":"Example: Smoking and the Genotype Theory","full":"\u00a73.3.3  Example: Smoking and the Genotype Theory","type":"subsection","chapter":3,"pages":"83\u201384","depth":2,"children":[]}]},{"id":"3.4","name":"A Calculus of Intervention","full":"\u00a73.4  A Calculus of Intervention","type":"section","chapter":3,"pages":"85\u201388","depth":1,"children":[{"id":"3.4.1","name":"Preliminary Notation","full":"\u00a73.4.1  Preliminary Notation","type":"subsection","chapter":3,"pages":"85\u201385","depth":2,"children":[]},{"id":"3.4.2","name":"Inference Rules","full":"\u00a73.4.2  Inference Rules","type":"subsection","chapter":3,"pages":"85\u201385","depth":2,"children":[]},{"id":"3.4.3","name":"Symbolic Derivation of Causal Effects: An Example","full":"\u00a73.4.3  Symbolic Derivation of Causal Effects: An Example","type":"subsection","chapter":3,"pages":"86\u201387","depth":2,"children":[]},{"id":"3.4.4","name":"Causal Inference by Surrogate Experiments","full":"\u00a73.4.4  Causal Inference by Surrogate Experiments","type":"subsection","chapter":3,"pages":"88\u201388","depth":2,"children":[]}]},{"id":"3.5","name":"Graphical Tests of Identifiability","full":"\u00a73.5  Graphical Tests of Identifiability","type":"section","chapter":3,"pages":"89\u201393","depth":1,"children":[{"id":"3.5.1","name":"Identifying Models","full":"\u00a73.5.1  Identifying Models","type":"subsection","chapter":3,"pages":"91\u201392","depth":2,"children":[]},{"id":"3.5.2","name":"Nonidentifying Models","full":"\u00a73.5.2  Nonidentifying Models","type":"subsection","chapter":3,"pages":"93\u201393","depth":2,"children":[]}]},{"id":"3.6","name":"Discussion","full":"\u00a73.6  Discussion","type":"section","chapter":3,"pages":"94\u2013106","depth":1,"children":[{"id":"3.6.1","name":"Qualifications and Extensions","full":"\u00a73.6.1  Qualifications and Extensions","type":"subsection","chapter":3,"pages":"94\u201395","depth":2,"children":[]},{"id":"3.6.2","name":"Diagrams as a Mathematical Language","full":"\u00a73.6.2  Diagrams as a Mathematical Language","type":"subsection","chapter":3,"pages":"96\u201397","depth":2,"children":[]},{"id":"3.6.3","name":"Translation from Graphs to Potential Outcomes","full":"\u00a73.6.3  Translation from Graphs to Potential Outcomes","type":"subsection","chapter":3,"pages":"98\u2013101","depth":2,"children":[]},{"id":"3.6.4","name":"Relations to Robins's G-Estimation","full":"\u00a73.6.4  Relations to Robins's G-Estimation","type":"subsection","chapter":3,"pages":"102\u2013106","depth":2,"children":[]}]}]},{"id":"4","name":"Actions & Plans","full":"\u00a74  Actions, Plans, and Direct Effects","type":"chapter","chapter":4,"pages":"107\u2013132","depth":0,"children":[{"id":"4.1","name":"Introduction","full":"\u00a74.1  Introduction","type":"section","chapter":4,"pages":"108\u2013112","depth":1,"children":[{"id":"4.1.1","name":"Actions, Acts, and Probabilities","full":"\u00a74.1.1  Actions, Acts, and Probabilities","type":"subsection","chapter":4,"pages":"108\u2013109","depth":2,"children":[]},{"id":"4.1.2","name":"Actions in Decision Analysis","full":"\u00a74.1.2  Actions in Decision Analysis","type":"subsection","chapter":4,"pages":"110\u2013111","depth":2,"children":[]},{"id":"4.1.3","name":"Actions and Counterfactuals","full":"\u00a74.1.3  Actions and Counterfactuals","type":"subsection","chapter":4,"pages":"112\u2013112","depth":2,"children":[]}]},{"id":"4.2","name":"Conditional Actions and Stochastic Policies","full":"\u00a74.2  Conditional Actions and Stochastic Policies","type":"section","chapter":4,"pages":"113\u2013113","depth":1,"children":[]},{"id":"4.3","name":"When Is the Effect of an Action Identifiable?","full":"\u00a74.3  When Is the Effect of an Action Identifiable?","type":"section","chapter":4,"pages":"114\u2013117","depth":1,"children":[{"id":"4.3.1","name":"Graphical Conditions for Identification","full":"\u00a74.3.1  Graphical Conditions for Identification","type":"subsection","chapter":4,"pages":"114\u2013115","depth":2,"children":[]},{"id":"4.3.2","name":"Remarks on Efficiency","full":"\u00a74.3.2  Remarks on Efficiency","type":"subsection","chapter":4,"pages":"116\u2013116","depth":2,"children":[]},{"id":"4.3.3","name":"Deriving a Closed-Form Expression for Control Queries","full":"\u00a74.3.3  Deriving a Closed-Form Expression for Control Queries","type":"subsection","chapter":4,"pages":"117\u2013117","depth":2,"children":[]},{"id":"4.3.4","name":"Summary","full":"\u00a74.3.4  Summary","type":"subsection","chapter":4,"pages":"118\u2013118","depth":2,"children":[]}]},{"id":"4.4","name":"The Identification of Dynamic Plans","full":"\u00a74.4  The Identification of Dynamic Plans","type":"section","chapter":4,"pages":"118\u2013125","depth":1,"children":[{"id":"4.4.1","name":"Motivation","full":"\u00a74.4.1  Motivation","type":"subsection","chapter":4,"pages":"118\u2013119","depth":2,"children":[]},{"id":"4.4.2","name":"Plan Identification: Notation and Assumptions","full":"\u00a74.4.2  Plan Identification: Notation and Assumptions","type":"subsection","chapter":4,"pages":"120\u2013120","depth":2,"children":[]},{"id":"4.4.3","name":"Plan Identification: The Sequential Back-Door Criterion","full":"\u00a74.4.3  Plan Identification: The Sequential Back-Door Criterion","type":"subsection","chapter":4,"pages":"121\u2013123","depth":2,"children":[]},{"id":"4.4.4","name":"Plan Identification: A Procedure","full":"\u00a74.4.4  Plan Identification: A Procedure","type":"subsection","chapter":4,"pages":"124\u2013125","depth":2,"children":[]}]},{"id":"4.5","name":"Direct and Indirect Effects","full":"\u00a74.5  Direct and Indirect Effects","type":"section","chapter":4,"pages":"126\u2013132","depth":1,"children":[{"id":"4.5.1","name":"Direct versus Total Effects","full":"\u00a74.5.1  Direct versus Total Effects","type":"subsection","chapter":4,"pages":"126\u2013126","depth":2,"children":[]},{"id":"4.5.2","name":"Direct Effects, Definition, and Identification","full":"\u00a74.5.2  Direct Effects, Definition, and Identification","type":"subsection","chapter":4,"pages":"127\u2013127","depth":2,"children":[]},{"id":"4.5.3","name":"Example: Sex Discrimination in College Admission","full":"\u00a74.5.3  Example: Sex Discrimination in College Admission","type":"subsection","chapter":4,"pages":"128\u2013129","depth":2,"children":[]},{"id":"4.5.4","name":"Natural Direct Effects","full":"\u00a74.5.4  Natural Direct Effects","type":"subsection","chapter":4,"pages":"130\u2013131","depth":2,"children":[]},{"id":"4.5.5","name":"Indirect Effects and the Mediation Formula","full":"\u00a74.5.5  Indirect Effects and the Mediation Formula","type":"subsection","chapter":4,"pages":"132\u2013132","depth":2,"children":[]}]}]},{"id":"5","name":"Structural Models","full":"\u00a75  Causality and Structural Models in Social Science and Economics","type":"chapter","chapter":5,"pages":"133\u2013172","depth":0,"children":[{"id":"5.1","name":"Introduction","full":"\u00a75.1  Introduction","type":"section","chapter":5,"pages":"134\u2013139","depth":1,"children":[{"id":"5.1.1","name":"Causality in Search of a Language","full":"\u00a75.1.1  Causality in Search of a Language","type":"subsection","chapter":5,"pages":"134\u2013134","depth":2,"children":[]},{"id":"5.1.2","name":"SEM: How Its Meaning Became Obscured","full":"\u00a75.1.2  SEM: How Its Meaning Became Obscured","type":"subsection","chapter":5,"pages":"135\u2013137","depth":2,"children":[]},{"id":"5.1.3","name":"Graphs as a Mathematical Language","full":"\u00a75.1.3  Graphs as a Mathematical Language","type":"subsection","chapter":5,"pages":"138\u2013139","depth":2,"children":[]}]},{"id":"5.2","name":"Graphs and Model Testing","full":"\u00a75.2  Graphs and Model Testing","type":"section","chapter":5,"pages":"140\u2013148","depth":1,"children":[{"id":"5.2.1","name":"The Testable Implications of Structural Models","full":"\u00a75.2.1  The Testable Implications of Structural Models","type":"subsection","chapter":5,"pages":"140\u2013143","depth":2,"children":[]},{"id":"5.2.2","name":"Testing the Testable","full":"\u00a75.2.2  Testing the Testable","type":"subsection","chapter":5,"pages":"144\u2013144","depth":2,"children":[]},{"id":"5.2.3","name":"Model Equivalence","full":"\u00a75.2.3  Model Equivalence","type":"subsection","chapter":5,"pages":"145\u2013148","depth":2,"children":[]}]},{"id":"5.3","name":"Graphs and Identifiability","full":"\u00a75.3  Graphs and Identifiability","type":"section","chapter":5,"pages":"149\u2013158","depth":1,"children":[{"id":"5.3.1","name":"Parameter Identification in Linear Models","full":"\u00a75.3.1  Parameter Identification in Linear Models","type":"subsection","chapter":5,"pages":"149\u2013153","depth":2,"children":[]},{"id":"5.3.2","name":"Comparison to Nonparametric Identification","full":"\u00a75.3.2  Comparison to Nonparametric Identification","type":"subsection","chapter":5,"pages":"154\u2013156","depth":2,"children":[]},{"id":"5.3.3","name":"Causal Effects: The Interventional Interpretation of Structural Equation Models","full":"\u00a75.3.3  Causal Effects: The Interventional Interpretation of Structural Equation Models","type":"subsection","chapter":5,"pages":"157\u2013158","depth":2,"children":[]}]},{"id":"5.4","name":"Some Conceptual Underpinnings","full":"\u00a75.4  Some Conceptual Underpinnings","type":"section","chapter":5,"pages":"159\u2013169","depth":1,"children":[{"id":"5.4.1","name":"What Do Structural Parameters Really Mean?","full":"\u00a75.4.1  What Do Structural Parameters Really Mean?","type":"subsection","chapter":5,"pages":"159\u2013162","depth":2,"children":[]},{"id":"5.4.2","name":"Interpretation of Effect Decomposition","full":"\u00a75.4.2  Interpretation of Effect Decomposition","type":"subsection","chapter":5,"pages":"163\u2013164","depth":2,"children":[]},{"id":"5.4.3","name":"Exogeneity, Superexogeneity, and Other Frills","full":"\u00a75.4.3  Exogeneity, Superexogeneity, and Other Frills","type":"subsection","chapter":5,"pages":"165\u2013169","depth":2,"children":[]}]},{"id":"5.5","name":"Conclusion","full":"\u00a75.5  Conclusion","type":"section","chapter":5,"pages":"170\u2013170","depth":1,"children":[]},{"id":"5.6","name":"Postscript for the Second Edition","full":"\u00a75.6  Postscript for the Second Edition","type":"section","chapter":5,"pages":"171\u2013172","depth":1,"children":[{"id":"5.6.1","name":"An Econometric Awakening?","full":"\u00a75.6.1  An Econometric Awakening?","type":"subsection","chapter":5,"pages":"171\u2013171","depth":2,"children":[]},{"id":"5.6.2","name":"Identification in Linear Models","full":"\u00a75.6.2  Identification in Linear Models","type":"subsection","chapter":5,"pages":"171\u2013171","depth":2,"children":[]},{"id":"5.6.3","name":"Robustness of Causal Claims","full":"\u00a75.6.3  Robustness of Causal Claims","type":"subsection","chapter":5,"pages":"172\u2013172","depth":2,"children":[]}]}]},{"id":"6","name":"Simpson's Paradox","full":"\u00a76  Simpson's Paradox, Confounding, and Collapsibility","type":"chapter","chapter":6,"pages":"173\u2013200","depth":0,"children":[{"id":"6.1","name":"Simpson's Paradox: An Anatomy","full":"\u00a76.1  Simpson's Paradox: An Anatomy","type":"section","chapter":6,"pages":"174\u2013181","depth":1,"children":[{"id":"6.1.1","name":"A Tale of a Non-Paradox","full":"\u00a76.1.1  A Tale of a Non-Paradox","type":"subsection","chapter":6,"pages":"174\u2013174","depth":2,"children":[]},{"id":"6.1.2","name":"A Tale of Statistical Agony","full":"\u00a76.1.2  A Tale of Statistical Agony","type":"subsection","chapter":6,"pages":"175\u2013176","depth":2,"children":[]},{"id":"6.1.3","name":"Causality versus Exchangeability","full":"\u00a76.1.3  Causality versus Exchangeability","type":"subsection","chapter":6,"pages":"177\u2013179","depth":2,"children":[]},{"id":"6.1.4","name":"A Paradox Resolved (Or: What Kind of Machine Is Man?)","full":"\u00a76.1.4  A Paradox Resolved (Or: What Kind of Machine Is Man?)","type":"subsection","chapter":6,"pages":"180\u2013181","depth":2,"children":[]}]},{"id":"6.2","name":"Why There Is No Statistical Test for Confounding, Why Many Think There Is, and Why They Are Almost Right","full":"\u00a76.2  Why There Is No Statistical Test for Confounding, Why Many Think There Is, and Why They Are Almost Right","type":"section","chapter":6,"pages":"182\u2013184","depth":1,"children":[{"id":"6.2.1","name":"Introduction","full":"\u00a76.2.1  Introduction","type":"subsection","chapter":6,"pages":"182\u2013183","depth":2,"children":[]},{"id":"6.2.2","name":"Causal and Associational Definitions","full":"\u00a76.2.2  Causal and Associational Definitions","type":"subsection","chapter":6,"pages":"184\u2013184","depth":2,"children":[]}]},{"id":"6.3","name":"How the Associational Criterion Fails","full":"\u00a76.3  How the Associational Criterion Fails","type":"section","chapter":6,"pages":"185\u2013188","depth":1,"children":[{"id":"6.3.1","name":"Failing Sufficiency via Marginality","full":"\u00a76.3.1  Failing Sufficiency via Marginality","type":"subsection","chapter":6,"pages":"185\u2013185","depth":2,"children":[]},{"id":"6.3.2","name":"Failing Sufficiency via Closed-World Assumptions","full":"\u00a76.3.2  Failing Sufficiency via Closed-World Assumptions","type":"subsection","chapter":6,"pages":"186\u2013186","depth":2,"children":[]},{"id":"6.3.3","name":"Failing Necessity via Barren Proxies","full":"\u00a76.3.3  Failing Necessity via Barren Proxies","type":"subsection","chapter":6,"pages":"186\u2013187","depth":2,"children":[]},{"id":"6.3.4","name":"Failing Necessity via Incidental Cancellations","full":"\u00a76.3.4  Failing Necessity via Incidental Cancellations","type":"subsection","chapter":6,"pages":"188\u2013188","depth":2,"children":[]}]},{"id":"6.4","name":"Stable versus Incidental Unbiasedness","full":"\u00a76.4  Stable versus Incidental Unbiasedness","type":"section","chapter":6,"pages":"189\u2013192","depth":1,"children":[{"id":"6.4.1","name":"Motivation","full":"\u00a76.4.1  Motivation","type":"subsection","chapter":6,"pages":"189\u2013190","depth":2,"children":[]},{"id":"6.4.2","name":"Formal Definitions","full":"\u00a76.4.2  Formal Definitions","type":"subsection","chapter":6,"pages":"191\u2013191","depth":2,"children":[]},{"id":"6.4.3","name":"Operational Test for Stable No-Confounding","full":"\u00a76.4.3  Operational Test for Stable No-Confounding","type":"subsection","chapter":6,"pages":"192\u2013192","depth":2,"children":[]}]},{"id":"6.5","name":"Confounding, Collapsibility, and Exchangeability","full":"\u00a76.5  Confounding, Collapsibility, and Exchangeability","type":"section","chapter":6,"pages":"193\u2013198","depth":1,"children":[{"id":"6.5.1","name":"Confounding and Collapsibility","full":"\u00a76.5.1  Confounding and Collapsibility","type":"subsection","chapter":6,"pages":"193\u2013193","depth":2,"children":[]},{"id":"6.5.2","name":"Confounding versus Confounders","full":"\u00a76.5.2  Confounding versus Confounders","type":"subsection","chapter":6,"pages":"194\u2013195","depth":2,"children":[]},{"id":"6.5.3","name":"Exchangeability versus Structural Analysis of Confounding","full":"\u00a76.5.3  Exchangeability versus Structural Analysis of Confounding","type":"subsection","chapter":6,"pages":"196\u2013198","depth":2,"children":[]}]},{"id":"6.6","name":"Conclusions","full":"\u00a76.6  Conclusions","type":"section","chapter":6,"pages":"199\u2013200","depth":1,"children":[]}]},{"id":"7","name":"Counterfactuals","full":"\u00a77  The Logic of Structure-Based Counterfactuals","type":"chapter","chapter":7,"pages":"201\u2013258","depth":0,"children":[{"id":"7.1","name":"Structural Model Semantics","full":"\u00a77.1  Structural Model Semantics","type":"section","chapter":7,"pages":"202\u2013214","depth":1,"children":[{"id":"7.1.1","name":"Definitions: Causal Models, Actions, and Counterfactuals","full":"\u00a77.1.1  Definitions: Causal Models, Actions, and Counterfactuals","type":"subsection","chapter":7,"pages":"202\u2013206","depth":2,"children":[]},{"id":"7.1.2","name":"Evaluating Counterfactuals: Deterministic Analysis","full":"\u00a77.1.2  Evaluating Counterfactuals: Deterministic Analysis","type":"subsection","chapter":7,"pages":"207\u2013211","depth":2,"children":[]},{"id":"7.1.3","name":"Evaluating Counterfactuals: Probabilistic Analysis","full":"\u00a77.1.3  Evaluating Counterfactuals: Probabilistic Analysis","type":"subsection","chapter":7,"pages":"212\u2013212","depth":2,"children":[]},{"id":"7.1.4","name":"The Twin Network Method","full":"\u00a77.1.4  The Twin Network Method","type":"subsection","chapter":7,"pages":"213\u2013214","depth":2,"children":[]}]},{"id":"7.2","name":"Applications and Interpretation of Structural Models","full":"\u00a77.2  Applications and Interpretation of Structural Models","type":"section","chapter":7,"pages":"215\u2013227","depth":1,"children":[{"id":"7.2.1","name":"Policy Analysis in Linear Econometric Models: An Example","full":"\u00a77.2.1  Policy Analysis in Linear Econometric Models: An Example","type":"subsection","chapter":7,"pages":"215\u2013216","depth":2,"children":[]},{"id":"7.2.2","name":"The Empirical Content of Counterfactuals","full":"\u00a77.2.2  The Empirical Content of Counterfactuals","type":"subsection","chapter":7,"pages":"217\u2013220","depth":2,"children":[]},{"id":"7.2.3","name":"Causal Explanations, Utterances, and Their Interpretation","full":"\u00a77.2.3  Causal Explanations, Utterances, and Their Interpretation","type":"subsection","chapter":7,"pages":"221\u2013222","depth":2,"children":[]},{"id":"7.2.4","name":"From Mechanisms to Actions to Causation","full":"\u00a77.2.4  From Mechanisms to Actions to Causation","type":"subsection","chapter":7,"pages":"223\u2013225","depth":2,"children":[]},{"id":"7.2.5","name":"Simon's Causal Ordering","full":"\u00a77.2.5  Simon's Causal Ordering","type":"subsection","chapter":7,"pages":"226\u2013227","depth":2,"children":[]}]},{"id":"7.3","name":"Axiomatic Characterization","full":"\u00a77.3  Axiomatic Characterization","type":"section","chapter":7,"pages":"228\u2013237","depth":1,"children":[{"id":"7.3.1","name":"The Axioms of Structural Counterfactuals","full":"\u00a77.3.1  The Axioms of Structural Counterfactuals","type":"subsection","chapter":7,"pages":"228\u2013230","depth":2,"children":[]},{"id":"7.3.2","name":"Causal Effects from Counterfactual Logic: An Example","full":"\u00a77.3.2  Causal Effects from Counterfactual Logic: An Example","type":"subsection","chapter":7,"pages":"231\u2013233","depth":2,"children":[]},{"id":"7.3.3","name":"Axioms of Causal Relevance","full":"\u00a77.3.3  Axioms of Causal Relevance","type":"subsection","chapter":7,"pages":"234\u2013237","depth":2,"children":[]}]},{"id":"7.4","name":"Structural and Similarity-Based Counterfactuals","full":"\u00a77.4  Structural and Similarity-Based Counterfactuals","type":"section","chapter":7,"pages":"238\u2013248","depth":1,"children":[{"id":"7.4.1","name":"Relations to Lewis's Counterfactuals","full":"\u00a77.4.1  Relations to Lewis's Counterfactuals","type":"subsection","chapter":7,"pages":"238\u2013239","depth":2,"children":[]},{"id":"7.4.2","name":"Axiomatic Comparison","full":"\u00a77.4.2  Axiomatic Comparison","type":"subsection","chapter":7,"pages":"240\u2013241","depth":2,"children":[]},{"id":"7.4.3","name":"Imaging versus Conditioning","full":"\u00a77.4.3  Imaging versus Conditioning","type":"subsection","chapter":7,"pages":"242\u2013242","depth":2,"children":[]},{"id":"7.4.4","name":"Relations to the Neyman\u2013Rubin Framework","full":"\u00a77.4.4  Relations to the Neyman\u2013Rubin Framework","type":"subsection","chapter":7,"pages":"243\u2013244","depth":2,"children":[]},{"id":"7.4.5","name":"Exogeneity and Instruments: Counterfactual and Graphical Definitions","full":"\u00a77.4.5  Exogeneity and Instruments: Counterfactual and Graphical Definitions","type":"subsection","chapter":7,"pages":"245\u2013248","depth":2,"children":[]}]},{"id":"7.5","name":"Structural versus Probabilistic Causality","full":"\u00a77.5  Structural versus Probabilistic Causality","type":"section","chapter":7,"pages":"249\u2013258","depth":1,"children":[{"id":"7.5.1","name":"The Reliance on Temporal Ordering","full":"\u00a77.5.1  The Reliance on Temporal Ordering","type":"subsection","chapter":7,"pages":"249\u2013249","depth":2,"children":[]},{"id":"7.5.2","name":"The Perils of Circularity","full":"\u00a77.5.2  The Perils of Circularity","type":"subsection","chapter":7,"pages":"250\u2013251","depth":2,"children":[]},{"id":"7.5.3","name":"Challenging the Closed-World Assumption, with Children","full":"\u00a77.5.3  Challenging the Closed-World Assumption, with Children","type":"subsection","chapter":7,"pages":"252\u2013252","depth":2,"children":[]},{"id":"7.5.4","name":"Singular versus General Causes","full":"\u00a77.5.4  Singular versus General Causes","type":"subsection","chapter":7,"pages":"253\u2013255","depth":2,"children":[]},{"id":"7.5.5","name":"Summary","full":"\u00a77.5.5  Summary","type":"subsection","chapter":7,"pages":"256\u2013258","depth":2,"children":[]}]}]},{"id":"8","name":"Imperfect Experiments","full":"\u00a78  Imperfect Experiments: Bounding Effects and Counterfactuals","type":"chapter","chapter":8,"pages":"259\u2013282","depth":0,"children":[{"id":"8.1","name":"Introduction","full":"\u00a78.1  Introduction","type":"section","chapter":8,"pages":"259\u2013261","depth":1,"children":[{"id":"8.1.1","name":"Imperfect and Indirect Experiments","full":"\u00a78.1.1  Imperfect and Indirect Experiments","type":"subsection","chapter":8,"pages":"259\u2013260","depth":2,"children":[]},{"id":"8.1.2","name":"Noncompliance and Intent to Treat","full":"\u00a78.1.2  Noncompliance and Intent to Treat","type":"subsection","chapter":8,"pages":"261\u2013261","depth":2,"children":[]}]},{"id":"8.2","name":"Bounding Causal Effects with Instrumental Variables","full":"\u00a78.2  Bounding Causal Effects with Instrumental Variables","type":"section","chapter":8,"pages":"262\u2013270","depth":1,"children":[{"id":"8.2.1","name":"Problem Formulation: Constrained Optimization","full":"\u00a78.2.1  Problem Formulation: Constrained Optimization","type":"subsection","chapter":8,"pages":"262\u2013262","depth":2,"children":[]},{"id":"8.2.2","name":"Canonical Partitions: The Evolution of Finite-Response Variables","full":"\u00a78.2.2  Canonical Partitions: The Evolution of Finite-Response Variables","type":"subsection","chapter":8,"pages":"263\u2013265","depth":2,"children":[]},{"id":"8.2.3","name":"Linear Programming Formulation","full":"\u00a78.2.3  Linear Programming Formulation","type":"subsection","chapter":8,"pages":"266\u2013267","depth":2,"children":[]},{"id":"8.2.4","name":"The Natural Bounds","full":"\u00a78.2.4  The Natural Bounds","type":"subsection","chapter":8,"pages":"268\u2013268","depth":2,"children":[]},{"id":"8.2.5","name":"Effect of Treatment on the Treated (ETT)","full":"\u00a78.2.5  Effect of Treatment on the Treated (ETT)","type":"subsection","chapter":8,"pages":"269\u2013269","depth":2,"children":[]},{"id":"8.2.6","name":"Example: The Effect of Cholestyramine","full":"\u00a78.2.6  Example: The Effect of Cholestyramine","type":"subsection","chapter":8,"pages":"270\u2013270","depth":2,"children":[]}]},{"id":"8.3","name":"Counterfactuals and Legal Responsibility","full":"\u00a78.3  Counterfactuals and Legal Responsibility","type":"section","chapter":8,"pages":"271\u2013273","depth":1,"children":[]},{"id":"8.4","name":"A Test for Instruments","full":"\u00a78.4  A Test for Instruments","type":"section","chapter":8,"pages":"274\u2013274","depth":1,"children":[]},{"id":"8.5","name":"A Bayesian Approach to Noncompliance","full":"\u00a78.5  A Bayesian Approach to Noncompliance","type":"section","chapter":8,"pages":"275\u2013280","depth":1,"children":[{"id":"8.5.1","name":"Bayesian Methods and Gibbs Sampling","full":"\u00a78.5.1  Bayesian Methods and Gibbs Sampling","type":"subsection","chapter":8,"pages":"275\u2013276","depth":2,"children":[]},{"id":"8.5.2","name":"The Effects of Sample Size and Prior Distribution","full":"\u00a78.5.2  The Effects of Sample Size and Prior Distribution","type":"subsection","chapter":8,"pages":"277\u2013277","depth":2,"children":[]},{"id":"8.5.3","name":"Causal Effects from Clinical Data with Imperfect Compliance","full":"\u00a78.5.3  Causal Effects from Clinical Data with Imperfect Compliance","type":"subsection","chapter":8,"pages":"277\u2013279","depth":2,"children":[]},{"id":"8.5.4","name":"Bayesian Estimate of Single-Event Causation","full":"\u00a78.5.4  Bayesian Estimate of Single-Event Causation","type":"subsection","chapter":8,"pages":"280\u2013280","depth":2,"children":[]}]},{"id":"8.6","name":"Conclusion","full":"\u00a78.6  Conclusion","type":"section","chapter":8,"pages":"281\u2013282","depth":1,"children":[]}]},{"id":"9","name":"Probability of Causation","full":"\u00a79  Probability of Causation: Interpretation and Identification","type":"chapter","chapter":9,"pages":"283\u2013308","depth":0,"children":[{"id":"9.1","name":"Introduction","full":"\u00a79.1  Introduction","type":"section","chapter":9,"pages":"283\u2013285","depth":1,"children":[]},{"id":"9.2","name":"Necessary and Sufficient Causes: Conditions of Identification","full":"\u00a79.2  Necessary and Sufficient Causes: Conditions of Identification","type":"section","chapter":9,"pages":"286\u2013295","depth":1,"children":[{"id":"9.2.1","name":"Definitions, Notation, and Basic Relationships","full":"\u00a79.2.1  Definitions, Notation, and Basic Relationships","type":"subsection","chapter":9,"pages":"286\u2013288","depth":2,"children":[]},{"id":"9.2.2","name":"Bounds and Basic Relationships under Exogeneity","full":"\u00a79.2.2  Bounds and Basic Relationships under Exogeneity","type":"subsection","chapter":9,"pages":"289\u2013290","depth":2,"children":[]},{"id":"9.2.3","name":"Identifiability under Monotonicity and Exogeneity","full":"\u00a79.2.3  Identifiability under Monotonicity and Exogeneity","type":"subsection","chapter":9,"pages":"291\u2013292","depth":2,"children":[]},{"id":"9.2.4","name":"Identifiability under Monotonicity and Nonexogeneity","full":"\u00a79.2.4  Identifiability under Monotonicity and Nonexogeneity","type":"subsection","chapter":9,"pages":"293\u2013295","depth":2,"children":[]}]},{"id":"9.3","name":"Examples and Applications","full":"\u00a79.3  Examples and Applications","type":"section","chapter":9,"pages":"296\u2013303","depth":1,"children":[{"id":"9.3.1","name":"Example 1: Betting against a Fair Coin","full":"\u00a79.3.1  Example 1: Betting against a Fair Coin","type":"subsection","chapter":9,"pages":"296\u2013296","depth":2,"children":[]},{"id":"9.3.2","name":"Example 2: The Firing Squad","full":"\u00a79.3.2  Example 2: The Firing Squad","type":"subsection","chapter":9,"pages":"297\u2013298","depth":2,"children":[]},{"id":"9.3.3","name":"Example 3: The Effect of Radiation on Leukemia","full":"\u00a79.3.3  Example 3: The Effect of Radiation on Leukemia","type":"subsection","chapter":9,"pages":"299\u2013301","depth":2,"children":[]},{"id":"9.3.4","name":"Example 4: Legal Responsibility from Experimental and Nonexperimental Data","full":"\u00a79.3.4  Example 4: Legal Responsibility from Experimental and Nonexperimental Data","type":"subsection","chapter":9,"pages":"302\u2013302","depth":2,"children":[]},{"id":"9.3.5","name":"Summary of Results","full":"\u00a79.3.5  Summary of Results","type":"subsection","chapter":9,"pages":"303\u2013303","depth":2,"children":[]}]},{"id":"9.4","name":"Identification in Nonmonotonic Models","full":"\u00a79.4  Identification in Nonmonotonic Models","type":"section","chapter":9,"pages":"304\u2013306","depth":1,"children":[]},{"id":"9.5","name":"Conclusions","full":"\u00a79.5  Conclusions","type":"section","chapter":9,"pages":"307\u2013308","depth":1,"children":[]}]},{"id":"10","name":"The Actual Cause","full":"\u00a710  The Actual Cause","type":"chapter","chapter":10,"pages":"309\u2013330","depth":0,"children":[{"id":"10.1","name":"Introduction: The Insufficiency of Necessary Causation","full":"\u00a710.1  Introduction: The Insufficiency of Necessary Causation","type":"section","chapter":10,"pages":"309\u2013315","depth":1,"children":[{"id":"10.1.1","name":"Singular Causes Revisited","full":"\u00a710.1.1  Singular Causes Revisited","type":"subsection","chapter":10,"pages":"309\u2013310","depth":2,"children":[]},{"id":"10.1.2","name":"Preemption and the Role of Structural Information","full":"\u00a710.1.2  Preemption and the Role of Structural Information","type":"subsection","chapter":10,"pages":"311\u2013312","depth":2,"children":[]},{"id":"10.1.3","name":"Overdetermination and Quasi-Dependence","full":"\u00a710.1.3  Overdetermination and Quasi-Dependence","type":"subsection","chapter":10,"pages":"313\u2013313","depth":2,"children":[]},{"id":"10.1.4","name":"Mackie's INUS Condition","full":"\u00a710.1.4  Mackie's INUS Condition","type":"subsection","chapter":10,"pages":"313\u2013315","depth":2,"children":[]}]},{"id":"10.2","name":"Production, Dependence, and Sustenance","full":"\u00a710.2  Production, Dependence, and Sustenance","type":"section","chapter":10,"pages":"316\u2013317","depth":1,"children":[]},{"id":"10.3","name":"Causal Beams and Sustenance-Based Causation","full":"\u00a710.3  Causal Beams and Sustenance-Based Causation","type":"section","chapter":10,"pages":"318\u2013326","depth":1,"children":[{"id":"10.3.1","name":"Causal Beams: Definitions and Implications","full":"\u00a710.3.1  Causal Beams: Definitions and Implications","type":"subsection","chapter":10,"pages":"318\u2013319","depth":2,"children":[]},{"id":"10.3.2","name":"Examples: From Disjunction to General Formulas","full":"\u00a710.3.2  Examples: From Disjunction to General Formulas","type":"subsection","chapter":10,"pages":"320\u2013321","depth":2,"children":[]},{"id":"10.3.3","name":"Beams, Preemption, and the Probability of Single-Event Causation","full":"\u00a710.3.3  Beams, Preemption, and the Probability of Single-Event Causation","type":"subsection","chapter":10,"pages":"322\u2013323","depth":2,"children":[]},{"id":"10.3.4","name":"Path-Switching Causation","full":"\u00a710.3.4  Path-Switching Causation","type":"subsection","chapter":10,"pages":"324\u2013324","depth":2,"children":[]},{"id":"10.3.5","name":"Temporal Preemption","full":"\u00a710.3.5  Temporal Preemption","type":"subsection","chapter":10,"pages":"325\u2013326","depth":2,"children":[]}]},{"id":"10.4","name":"Conclusions","full":"\u00a710.4  Conclusions","type":"section","chapter":10,"pages":"327\u2013330","depth":1,"children":[]}]},{"id":"11","name":"Reflections","full":"\u00a711  Reflections, Elaborations, and Discussions with Readers","type":"chapter","chapter":11,"pages":"331\u2013460","depth":0,"children":[{"id":"11.1","name":"Causal, Statistical, and Graphical Vocabulary","full":"\u00a711.1  Causal, Statistical, and Graphical Vocabulary","type":"section","chapter":11,"pages":"331\u2013336","depth":1,"children":[{"id":"11.1.1","name":"Is the Causal-Statistical Dichotomy Necessary?","full":"\u00a711.1.1  Is the Causal-Statistical Dichotomy Necessary?","type":"subsection","chapter":11,"pages":"331\u2013334","depth":2,"children":[]},{"id":"11.1.2","name":"d-Separation without Tears (Chapter 1, pp. 16\u201318)","full":"\u00a711.1.2  d-Separation without Tears (Chapter 1, pp. 16\u201318)","type":"subsection","chapter":11,"pages":"335\u2013336","depth":2,"children":[]}]},{"id":"11.2","name":"Reversing Statistical Time (Chapter 2, p. 58\u201359)","full":"\u00a711.2  Reversing Statistical Time (Chapter 2, p. 58\u201359)","type":"section","chapter":11,"pages":"337\u2013337","depth":1,"children":[]},{"id":"11.3","name":"Estimating Causal Effects","full":"\u00a711.3  Estimating Causal Effects","type":"section","chapter":11,"pages":"338\u2013353","depth":1,"children":[{"id":"11.3.1","name":"The Intuition behind the Back-Door Criterion (Chapter 3, p. 79)","full":"\u00a711.3.1  The Intuition behind the Back-Door Criterion (Chapter 3, p. 79)","type":"subsection","chapter":11,"pages":"338\u2013340","depth":2,"children":[]},{"id":"11.3.2","name":"Demystifying \u201cStrong Ignorability\u201d","full":"\u00a711.3.2  Demystifying \u201cStrong Ignorability\u201d","type":"subsection","chapter":11,"pages":"341\u2013343","depth":2,"children":[]},{"id":"11.3.3","name":"Alternative Proof of the Back-Door Criterion","full":"\u00a711.3.3  Alternative Proof of the Back-Door Criterion","type":"subsection","chapter":11,"pages":"344\u2013345","depth":2,"children":[]},{"id":"11.3.4","name":"Data vs. Knowledge in Covariate Selection","full":"\u00a711.3.4  Data vs. Knowledge in Covariate Selection","type":"subsection","chapter":11,"pages":"346\u2013347","depth":2,"children":[]},{"id":"11.3.5","name":"Understanding Propensity Scores","full":"\u00a711.3.5  Understanding Propensity Scores","type":"subsection","chapter":11,"pages":"348\u2013351","depth":2,"children":[]},{"id":"11.3.6","name":"The Intuition behind do-Calculus","full":"\u00a711.3.6  The Intuition behind do-Calculus","type":"subsection","chapter":11,"pages":"352\u2013352","depth":2,"children":[]},{"id":"11.3.7","name":"The Validity of G-Estimation","full":"\u00a711.3.7  The Validity of G-Estimation","type":"subsection","chapter":11,"pages":"352\u2013353","depth":2,"children":[]}]},{"id":"11.4","name":"Policy Evaluation and the do-Operator","full":"\u00a711.4  Policy Evaluation and the do-Operator","type":"section","chapter":11,"pages":"354\u2013365","depth":1,"children":[{"id":"11.4.1","name":"Identifying Conditional Plans (Section 4.2, p. 113)","full":"\u00a711.4.1  Identifying Conditional Plans (Section 4.2, p. 113)","type":"subsection","chapter":11,"pages":"354\u2013354","depth":2,"children":[]},{"id":"11.4.2","name":"The Meaning of Indirect Effects","full":"\u00a711.4.2  The Meaning of Indirect Effects","type":"subsection","chapter":11,"pages":"355\u2013357","depth":2,"children":[]},{"id":"11.4.3","name":"Can do(x) Represent Practical Experiments?","full":"\u00a711.4.3  Can do(x) Represent Practical Experiments?","type":"subsection","chapter":11,"pages":"358\u2013358","depth":2,"children":[]},{"id":"11.4.4","name":"Is the do(x) Operator Universal?","full":"\u00a711.4.4  Is the do(x) Operator Universal?","type":"subsection","chapter":11,"pages":"359\u2013360","depth":2,"children":[]},{"id":"11.4.5","name":"Causation without Manipulation!!!","full":"\u00a711.4.5  Causation without Manipulation!!!","type":"subsection","chapter":11,"pages":"361\u2013361","depth":2,"children":[]},{"id":"11.4.6","name":"Hunting Causes with Cartwright","full":"\u00a711.4.6  Hunting Causes with Cartwright","type":"subsection","chapter":11,"pages":"362\u2013363","depth":2,"children":[]},{"id":"11.4.7","name":"The Illusion of Nonmodularity","full":"\u00a711.4.7  The Illusion of Nonmodularity","type":"subsection","chapter":11,"pages":"364\u2013365","depth":2,"children":[]}]},{"id":"11.5","name":"Causal Analysis in Linear Structural Models","full":"\u00a711.5  Causal Analysis in Linear Structural Models","type":"section","chapter":11,"pages":"366\u2013379","depth":1,"children":[{"id":"11.5.1","name":"General Criterion for Parameter Identification (Chapter 5, pp. 149\u201354)","full":"\u00a711.5.1  General Criterion for Parameter Identification (Chapter 5, pp. 149\u201354)","type":"subsection","chapter":11,"pages":"366\u2013366","depth":2,"children":[]},{"id":"11.5.2","name":"The Causal Interpretation of Structural Coefficients","full":"\u00a711.5.2  The Causal Interpretation of Structural Coefficients","type":"subsection","chapter":11,"pages":"366\u2013367","depth":2,"children":[]},{"id":"11.5.3","name":"Defending the Causal Interpretation of SEM (or, SEM Survival Kit)","full":"\u00a711.5.3  Defending the Causal Interpretation of SEM (or, SEM Survival Kit)","type":"subsection","chapter":11,"pages":"368\u2013373","depth":2,"children":[]},{"id":"11.5.4","name":"Where Is Economic Modeling Today? \u2013 Courting Causes with Heckman","full":"\u00a711.5.4  Where Is Economic Modeling Today? \u2013 Courting Causes with Heckman","type":"subsection","chapter":11,"pages":"374\u2013375","depth":2,"children":[]},{"id":"11.5.5","name":"External Variation versus Surgery","full":"\u00a711.5.5  External Variation versus Surgery","type":"subsection","chapter":11,"pages":"376\u2013379","depth":2,"children":[]}]},{"id":"11.6","name":"Decisions and Confounding (Chapter 6)","full":"\u00a711.6  Decisions and Confounding (Chapter 6)","type":"section","chapter":11,"pages":"380\u2013388","depth":1,"children":[{"id":"11.6.1","name":"Simpson\u2019s Paradox and Decision Trees","full":"\u00a711.6.1  Simpson\u2019s Paradox and Decision Trees","type":"subsection","chapter":11,"pages":"380\u2013381","depth":2,"children":[]},{"id":"11.6.2","name":"Is Chronological Information Sufficient for Decision Trees?","full":"\u00a711.6.2  Is Chronological Information Sufficient for Decision Trees?","type":"subsection","chapter":11,"pages":"382\u2013383","depth":2,"children":[]},{"id":"11.6.3","name":"Lindley on Causality, Decision Trees, and Bayesianism","full":"\u00a711.6.3  Lindley on Causality, Decision Trees, and Bayesianism","type":"subsection","chapter":11,"pages":"384\u2013386","depth":2,"children":[]},{"id":"11.6.4","name":"Why Isn\u2019t Confounding a Statistical Concept?","full":"\u00a711.6.4  Why Isn\u2019t Confounding a Statistical Concept?","type":"subsection","chapter":11,"pages":"387\u2013388","depth":2,"children":[]}]},{"id":"11.7","name":"The Calculus of Counterfactuals","full":"\u00a711.7  The Calculus of Counterfactuals","type":"section","chapter":11,"pages":"389\u2013394","depth":1,"children":[{"id":"11.7.1","name":"Counterfactuals in Linear Systems","full":"\u00a711.7.1  Counterfactuals in Linear Systems","type":"subsection","chapter":11,"pages":"389\u2013390","depth":2,"children":[]},{"id":"11.7.2","name":"The Meaning of Counterfactuals","full":"\u00a711.7.2  The Meaning of Counterfactuals","type":"subsection","chapter":11,"pages":"391\u2013392","depth":2,"children":[]},{"id":"11.7.3","name":"d-Separation of Counterfactuals","full":"\u00a711.7.3  d-Separation of Counterfactuals","type":"subsection","chapter":11,"pages":"393\u2013394","depth":2,"children":[]}]},{"id":"11.8","name":"Instrumental Variables and Noncompliance","full":"\u00a711.8  Instrumental Variables and Noncompliance","type":"section","chapter":11,"pages":"395\u2013395","depth":1,"children":[{"id":"11.8.1","name":"Tight Bounds under Noncompliance","full":"\u00a711.8.1  Tight Bounds under Noncompliance","type":"subsection","chapter":11,"pages":"395\u2013395","depth":2,"children":[]}]},{"id":"11.9","name":"More on Probabilities of Causation","full":"\u00a711.9  More on Probabilities of Causation","type":"section","chapter":11,"pages":"396\u2013460","depth":1,"children":[{"id":"11.9.1","name":"Is \u201cGuilty with Probability One\u201d Ever Possible?","full":"\u00a711.9.1  Is \u201cGuilty with Probability One\u201d Ever Possible?","type":"subsection","chapter":11,"pages":"396\u2013397","depth":2,"children":[]},{"id":"11.9.2","name":"Tightening the Bounds on Probabilities of Causation","full":"\u00a711.9.2  Tightening the Bounds on Probabilities of Causation","type":"subsection","chapter":11,"pages":"398\u2013460","depth":2,"children":[]}]}]}]};
+const CH_COLORS  = {"1":"#79c0ff","2":"#56d364","3":"#e3b341","4":"#ff7b72","5":"#d2a8ff","6":"#3fb950","7":"#ffa657","8":"#58a6ff","9":"#f78166","10":"#a5d6ff","11":"#7ee787","0":"#6e7681"};
+
+const nodeColor = d => {
+  if (d.data.type === 'root') return '#58a6ff';
+  const c = CH_COLORS[String(d.data.chapter)] || '#6e7681';
+  if (d.data.type === 'chapter')    return c;
+  if (d.data.type === 'section')    return c + 'cc';   // 80% opacity hex
+  return c + '88';                                      // 53%
+};
+
+const linkColor = d => {
+  const ch = d.target.data.chapter;
+  return CH_COLORS[String(ch)] || '#444';
+};
+
+// ── Layout ─────────────────────────────────────────────────────────────────────
+const W = window.innerWidth, H = window.innerHeight;
+const CX = W / 2, CY = H / 2;
+const BASE_R = Math.min(CX, CY) * 0.88;
+
+const tree = d3.tree()
+  .size([2 * Math.PI, BASE_R])
+  .separation((a, b) => (a.parent === b.parent ? 1 : 2) / a.depth);
+
+// ── SVG setup ──────────────────────────────────────────────────────────────────
+const svg = d3.select('#svg');
+
+// Subtle radial gradient background
+const defs = svg.append('defs');
+const grad = defs.append('radialGradient').attr('id','bg-grad')
+  .attr('cx','50%').attr('cy','50%').attr('r','70%');
+grad.append('stop').attr('offset','0%')  .attr('stop-color','#0d1220');
+grad.append('stop').attr('offset','100%').attr('stop-color','#050810');
+svg.append('rect').attr('width','100%').attr('height','100%').attr('fill','url(#bg-grad)');
+
+// Zoom group
+const g = svg.append('g').attr('transform', `translate(${CX},${CY})`);
+
+const zoom = d3.zoom()
+  .scaleExtent([0.15, 4])
+  .on('zoom', e => g.attr('transform', e.transform.translate(CX, CY)));
+svg.call(zoom);
+
+// ── Tree state ─────────────────────────────────────────────────────────────────
+let root, linkSel, nodeSel;
+let nodeId = 0;
+
+function buildRoot(data) {
+  root = d3.hierarchy(data, d => d.children);
+  root.x0 = 0; root.y0 = 0;
+  // Collapse sections and below initially
+  root.descendants().forEach(d => {
+    d.id = ++nodeId;
+    if (d.depth >= 1) collapse(d);   // hide sections/subsections on load
+  });
+}
+
+function collapse(d) {
+  if (d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
+  }
+}
+
+function expand(d) {
+  if (d._children) {
+    d.children = d._children;
+    d._children = null;
+  }
+}
+
+// ── Draw / update ──────────────────────────────────────────────────────────────
+function update(source, duration = 600) {
+  tree(root);
+
+  const nodes = root.descendants();
+  const links = root.links();
+
+  // ── Links ──────────────────────────────────────────────────────────────────
+  const link = g.selectAll('path.link')
+    .data(links, d => d.target.id);
+
+  const linkEnter = link.enter().append('path')
+    .attr('class', 'link')
+    .attr('d', () => {
+      const o = radialPoint(source.x0 ?? source.x, source.y0 ?? source.y);
+      return straight(o, o);
+    })
+    .attr('stroke', linkColor)
+    .attr('stroke-width', d => [1.8, 1.2, 0.7][Math.min(d.target.data.depth, 2)])
+    .attr('opacity', d => [0.55, 0.40, 0.28][Math.min(d.target.data.depth, 2)]);
+
+  linkEnter.merge(link).transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr('d', d => linkRadial(d));
+
+  link.exit().transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr('d', () => {
+      const o = radialPoint(source.x, source.y);
+      return straight(o, o);
+    })
+    .remove();
+
+  // ── Nodes ──────────────────────────────────────────────────────────────────
+  const node = g.selectAll('g.node')
+    .data(nodes, d => d.id);
+
+  const nodeEnter = node.enter().append('g')
+    .attr('class', d => 'node ' + (d._children ? 'has-children' : ''))
+    .attr('transform', () => `translate(${radialPoint(source.x0 ?? source.x, source.y0 ?? source.y).join(',')})`)
+    .attr('opacity', 0)
+    .on('click', (event, d) => { event.stopPropagation(); toggleNode(d); })
+    .on('mouseenter', showTooltip)
+    .on('mousemove',  moveTooltip)
+    .on('mouseleave', hideTooltip);
+
+  // Root: special pill shape
+  nodeEnter.filter(d => d.data.type === 'root')
+    .append('rect')
+    .attr('x', -48).attr('y', -22).attr('width', 96).attr('height', 44)
+    .attr('rx', 14)
+    .attr('fill', '#0d2044')
+    .attr('stroke', '#58a6ff')
+    .attr('stroke-width', 2);
+
+  nodeEnter.filter(d => d.data.type === 'root')
+    .append('text').attr('class','node-label')
+    .attr('text-anchor','middle').attr('dy','-5px')
+    .attr('fill','#79c0ff').attr('font-size','12px').attr('font-weight','700')
+    .text(d => d.data.name);
+
+  nodeEnter.filter(d => d.data.type === 'root')
+    .append('text').attr('class','node-label')
+    .attr('text-anchor','middle').attr('dy','10px')
+    .attr('fill','#8b949e').attr('font-size','10px')
+    .text(d => d.data.subtitle);
+
+  // Chapter nodes: circle with number
+  const chEnter = nodeEnter.filter(d => d.data.type === 'chapter');
+  chEnter.append('circle')
+    .attr('r', 18)
+    .attr('fill', d => CH_COLORS[String(d.data.chapter)] || '#6e7681')
+    .attr('fill-opacity', 0.18)
+    .attr('stroke', d => CH_COLORS[String(d.data.chapter)] || '#6e7681');
+
+  chEnter.append('text').attr('class','node-label')
+    .attr('text-anchor','middle').attr('dy','-2px')
+    .attr('fill', d => CH_COLORS[String(d.data.chapter)])
+    .attr('font-size','11px').attr('font-weight','700')
+    .text(d => d.data.id);
+
+  // Chapter label (outside ring)
+  chEnter.append('text').attr('class','node-label ch-label')
+    .attr('fill', d => CH_COLORS[String(d.data.chapter)])
+    .attr('font-size','11.5px').attr('font-weight','600')
+    .text(d => d.data.name);
+
+  // Section nodes: smaller circle
+  const secEnter = nodeEnter.filter(d => d.data.type === 'section');
+  secEnter.append('circle')
+    .attr('r', 6)
+    .attr('fill', d => CH_COLORS[String(d.data.chapter)] || '#6e7681')
+    .attr('fill-opacity', 0.25)
+    .attr('stroke', d => CH_COLORS[String(d.data.chapter)] || '#6e7681');
+
+  secEnter.append('text').attr('class','node-label sec-label')
+    .attr('fill', d => CH_COLORS[String(d.data.chapter)])
+    .attr('font-size','10.5px')
+    .text(d => d.data.name.length > 32 ? d.data.name.slice(0,30)+'…' : d.data.name);
+
+  // Subsection nodes: tiny dot
+  const subEnter = nodeEnter.filter(d => d.data.type === 'subsection');
+  subEnter.append('circle')
+    .attr('r', 3.5)
+    .attr('fill', d => CH_COLORS[String(d.data.chapter)] || '#6e7681')
+    .attr('fill-opacity', 0.5)
+    .attr('stroke', d => CH_COLORS[String(d.data.chapter)] || '#6e7681')
+    .attr('stroke-opacity', 0.6);
+
+  subEnter.append('text').attr('class','node-label sub-label')
+    .attr('fill', '#8b949e')
+    .attr('font-size','9.5px')
+    .text(d => d.data.name.length > 36 ? d.data.name.slice(0,34)+'…' : d.data.name);
+
+  // Collapsed-children pulse dot
+  nodeEnter.filter(d => d.data.type !== 'root')
+    .append('circle').attr('class','dot')
+    .attr('r', 0).attr('fill','white').attr('opacity',0);
+
+  // Merge enter + update
+  const nodeUpdate = nodeEnter.merge(node);
+
+  nodeUpdate.transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr('transform', d => `translate(${radialPoint(d.x, d.y).join(',')})`)
+    .attr('opacity', 1);
+
+  // Update class (has-children)
+  nodeUpdate.attr('class', d => 'node ' + (d._children ? 'has-children' : ''));
+
+  // Pulse dot visibility
+  nodeUpdate.select('circle.dot')
+    .transition().duration(duration)
+    .attr('r', d => d._children ? 4 : 0)
+    .attr('opacity', d => d._children ? 0.6 : 0);
+
+  // Position labels (radial aware)
+  nodeUpdate.select('.ch-label')
+    .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+    .attr('transform', d => {
+      const flip = d.x >= Math.PI;
+      return `translate(${flip ? -26 : 26},4) rotate(${flip ? 180 : 0})`;
+    });
+
+  nodeUpdate.select('.sec-label')
+    .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+    .attr('transform', d => {
+      const flip = d.x >= Math.PI;
+      return `translate(${flip ? -10 : 10},0) rotate(${flip ? 180 : 0})`;
+    });
+
+  nodeUpdate.select('.sub-label')
+    .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+    .attr('transform', d => {
+      const flip = d.x >= Math.PI;
+      return `translate(${flip ? -7 : 7},0) rotate(${flip ? 180 : 0})`;
+    });
+
+  // Exit
+  const nodeExit = node.exit().transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr('transform', () => `translate(${radialPoint(source.x, source.y).join(',')})`)
+    .attr('opacity', 0).remove();
+
+  // Save positions for next transition origin
+  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+}
+
+// ── Geometry helpers ────────────────────────────────────────────────────────────
+function radialPoint(angle, radius) {
+  return [radius * Math.cos(angle - Math.PI / 2), radius * Math.sin(angle - Math.PI / 2)];
+}
+
+function straight(a, b) {
+  return `M${a[0]},${a[1]}L${b[0]},${b[1]}`;
+}
+
+function linkRadial(d) {
+  const s = radialPoint(d.source.x, d.source.y);
+  const t = radialPoint(d.target.x, d.target.y);
+  const mx = (s[0] + t[0]) / 2, my = (s[1] + t[1]) / 2;
+  const dist = Math.sqrt((t[0]-s[0])**2 + (t[1]-s[1])**2);
+  const bulge = Math.min(dist * 0.35, 60);
+  const perp = [-((t[1]-s[1])/dist)*bulge, ((t[0]-s[0])/dist)*bulge];
+  return `M${s[0]},${s[1]} Q${mx+perp[0]},${my+perp[1]} ${t[0]},${t[1]}`;
+}
+
+// ── Interactions ────────────────────────────────────────────────────────────────
+function toggleNode(d) {
+  if (d.data.type === 'root') return;
+  if (d.children) {
+    d._children = d.children;
+    d.children = null;
+  } else if (d._children) {
+    d.children = d._children;
+    d._children = null;
+  }
+  updateBreadcrumb(d);
+  update(d);
+}
+
+function resetView() {
+  svg.transition().duration(500).call(
+    zoom.transform,
+    d3.zoomIdentity.translate(CX, CY).scale(1)
+  );
+}
+
+function expandAll() {
+  root.descendants().forEach(d => {
+    if (d._children) { d.children = d._children; d._children = null; }
+  });
+  update(root, 800);
+}
+
+function collapseAll() {
+  root.descendants().forEach(d => {
+    if (d.depth >= 1 && d.children) {
+      d._children = d.children; d.children = null;
+    }
+  });
+  update(root, 800);
+}
+
+// ── Tooltip ─────────────────────────────────────────────────────────────────────
+function showTooltip(event, d) {
+  const tt = document.getElementById('tooltip');
+  document.getElementById('tt-title').textContent = d.data.full || d.data.name;
+  document.getElementById('tt-pages').innerHTML =
+    `Pages: <span>${d.data.pages}</span>`;
+  const nc = (d.children || d._children || []).length;
+  document.getElementById('tt-children').innerHTML = nc > 0
+    ? `Sub-items: <span>${nc}</span>  ${d.children ? '(expanded)' : '(collapsed)'}`
+    : '';
+  tt.classList.add('show');
+  moveTooltip(event);
+}
+
+function moveTooltip(event) {
+  const tt = document.getElementById('tooltip');
+  const x = event.clientX + 16, y = event.clientY - 10;
+  tt.style.left = (x + tt.offsetWidth > window.innerWidth ? x - tt.offsetWidth - 32 : x) + 'px';
+  tt.style.top  = (y + tt.offsetHeight > window.innerHeight ? y - tt.offsetHeight : y) + 'px';
+}
+
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('show');
+}
+
+// ── Breadcrumb ───────────────────────────────────────────────────────────────────
+function updateBreadcrumb(d) {
+  const path = d.ancestors().reverse();
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = path.map((n, i) =>
+    i === 0 ? `<span>${n.data.name}</span>` :
+    `<span class="sep">›</span><span>${n.data.name}</span>`
+  ).join('');
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────────
+buildRoot(RAW_TREE);
+update(root, 0);
+// Fit initial view with a slight zoom-out
+svg.call(zoom.transform, d3.zoomIdentity.translate(CX, CY).scale(0.72));
+</script>
+</body>
+</html>

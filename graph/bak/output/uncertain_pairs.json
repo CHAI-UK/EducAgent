@@ -1,0 +1,370 @@
+[
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "probability theory",
+    "target": "conditional independence",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "conditional independence",
+    "target": "bayesian networks probabilistic",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "conditional independence",
+    "target": "graphoids",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "bayesian networks probabilistic",
+    "target": "markov condition",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "d separation",
+    "target": "model equivalence",
+    "evidence_score": 1,
+    "evidence_label": "WEAK",
+    "flags": [],
+    "notes": [
+      "page order OK: d separation p16 < model equivalence p145"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "d separation",
+    "target": "causal discovery",
+    "evidence_score": 1,
+    "evidence_label": "WEAK",
+    "flags": [],
+    "notes": [
+      "page order OK: d separation p16 < causal discovery p41"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "back door criterion",
+    "target": "confounding bias",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "back door criterion",
+    "target": "do calculus",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "confounding bias",
+    "target": "adjustment for covariates",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "adjustment for covariates",
+    "target": "propensity score",
+    "evidence_score": 1,
+    "evidence_label": "WEAK",
+    "flags": [],
+    "notes": [
+      "page order OK: adjustment for covariates p78 < propensity score p95"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "structural equations",
+    "target": "causal models",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "causal models",
+    "target": "counterfactuals",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "causal models",
+    "target": "causal effect",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "causal effect",
+    "target": "direct effects",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "causal effect",
+    "target": "indirect effects",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "do calculus",
+    "target": "front door criterion",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "identification",
+    "target": "do calculus",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "bayesian networks causal",
+    "target": "identification",
+    "evidence_score": 1,
+    "evidence_label": "WEAK",
+    "flags": [],
+    "notes": [
+      "page order OK: bayesian networks causal p21 < identification p77"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "counterfactuals",
+    "target": "probability of causation",
+    "evidence_score": 2,
+    "evidence_label": "MODERATE",
+    "flags": [
+      "reversed"
+    ],
+    "notes": [
+      "shared pages: [33]",
+      "ORDER REVERSED: counterfactuals p33 > probability of causation p33"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "counterfactuals",
+    "target": "actual causation",
+    "evidence_score": 1,
+    "evidence_label": "WEAK",
+    "flags": [],
+    "notes": [
+      "page order OK: counterfactuals p33 < actual causation p309"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "probability of causation",
+    "target": "singular causes",
+    "evidence_score": 1,
+    "evidence_label": "WEAK",
+    "flags": [],
+    "notes": [
+      "page order OK: probability of causation p33 < singular causes p222"
+    ]
+  },
+  {
+    "edge_type": "PREREQUISITE_OF",
+    "source": "instrumental variables",
+    "target": "identification",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [
+      "reversed"
+    ],
+    "notes": [
+      "ORDER REVERSED: instrumental variables p274 > identification p77"
+    ]
+  },
+  {
+    "edge_type": "COMMONLY_CONFUSED",
+    "source": "confounders",
+    "target": "collider",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "COMMONLY_CONFUSED",
+    "source": "simpsons paradox",
+    "target": "confounding bias",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "COMMONLY_CONFUSED",
+    "source": "causal effect",
+    "target": "correlation",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "COMMONLY_CONFUSED",
+    "source": "direct effects",
+    "target": "indirect effects",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "COMMONLY_CONFUSED",
+    "source": "intervention",
+    "target": "conditioning",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "COMMONLY_CONFUSED",
+    "source": "causal discovery",
+    "target": "causal inference",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "ALIAS",
+    "source": "concomitants",
+    "target": "covariates",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "ALIAS",
+    "source": "dag isomorph",
+    "target": "stability",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "ALIAS",
+    "source": "set operator",
+    "target": "do calculus",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "ALIAS",
+    "source": "standardize",
+    "target": "adjustment for covariates",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  },
+  {
+    "edge_type": "SEE_ALSO",
+    "source": "adjustment for covariates",
+    "target": "confounding bias",
+    "evidence_score": 0,
+    "evidence_label": "NONE",
+    "flags": [],
+    "notes": [
+      "no index evidence"
+    ]
+  }
+]
