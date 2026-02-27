@@ -20,9 +20,9 @@ So that I can understand the full scope of what I'm learning and navigate to any
 **When** a learner clicks on a concept
 **Then** they are navigated to that concept's content page
 
-**Given** Chapter 1 contains 159 concepts
+**Given** Chapter 1 contains 4 concepts (per ECI graph: random_variable, structural_causal_model_scm, conditional_independence, directed_acyclic_graph_dag)
 **When** the learner browses Chapter 1
-**Then** all 159 concepts are accessible from the navigation view
+**Then** all 4 concepts are accessible from the navigation view
 
 **Given** the navigation view is rendered
 **When** accessed via keyboard

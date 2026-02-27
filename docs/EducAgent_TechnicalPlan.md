@@ -164,7 +164,7 @@ Output each concept as structured JSON that the frontend renders:
 
 | Layer | Choice |
 |---|---|
-| Frontend | **Next.js 14+** (App Router, TypeScript) |
+| Frontend | ** next.js 16+** (App Router, TypeScript) |
 | Content rendering | **MDX** or custom JSON renderer |
 | Backend API | **FastAPI** (Python) — keeps it in same ecosystem as agents |
 | Auth | **Clerk** (easiest Next.js integration) |

@@ -22,6 +22,16 @@ build/
 *.egg
 .eggs/
 
+# Generated graph outputs — large/reproducible files, do not commit
+*.pkl
+src/graph/output/
+graph/output/
+
+# Secrets — never commit
+.env
+.env.*
+!.env.example
+
 # Virtual environments
 .venv/
 venv/
@@ -43,3 +53,5 @@ Thumbs.db
 
 # Logs
 *.log
+
+docker/

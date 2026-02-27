@@ -245,14 +245,14 @@ Cache key: `hash(concept_id + background + level)` → cached content JSON.
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 App Router (TypeScript) + Vercel AI SDK |
+| Frontend |  next.js 16 App Router (TypeScript) + Vercel AI SDK |
 | Backend API | FastAPI (Python) |
 | Content streaming | Server-Sent Events |
 | Auth (Growth) | Clerk (OAuth, magic link) |
 | DB (Growth) | PostgreSQL via Supabase |
 | Vector store | Qdrant (self-hosted) |
-| Graph (MVP) | NetworkX in-memory (`graph.pkl` loaded at startup) |
-| Graph (Production) | Neo4j |
+| Graph (MVP) | Neo4j (Docker or AuraDB Free) — Story 1.2 upgraded from original NetworkX plan |
+| Graph (Production) | Neo4j (same; Story 1.2 skips the NetworkX interim step) |
 
 ### Content JSON Format
 

@@ -7,7 +7,7 @@ source: '_bmad-output/planning-artifacts/epics.md'
 ### Story 1.3: Next.js Frontend Scaffold with API Connectivity
 
 As a **developer**,
-I want a Next.js 14 App Router frontend scaffold connected to the FastAPI backend,
+I want a  next.js 16 App Router frontend scaffold connected to the FastAPI backend,
 So that the UI layer is ready for feature development with consistent API access patterns.
 
 **Acceptance Criteria:**

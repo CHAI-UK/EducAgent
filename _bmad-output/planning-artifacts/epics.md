@@ -80,7 +80,7 @@ NFR12: LangGraph checkpointing preserves session state across network interrupti
 
 ### Additional Requirements
 
-- Greenfield project — no starter template; stack is Next.js 14 App Router (TypeScript) + FastAPI (Python)
+- Greenfield project — no starter template; stack is  next.js 16 App Router (TypeScript) + FastAPI (Python)
 - **Textbook:** *Elements of Causal Inference* (Peters, Janzing & Schölkopf, 2017) — 266 pages, 10 chapters + 3 appendices
 - Knowledge Graph build pipeline: `python graph/eci_graph_builder.py` → produces `graph/output/eci_graph.pkl`, `eci_graph.json`, `eci_graph.html` (vis.js), `eci_uni.html` (D3 universe)
 - NetworkX in-memory graph (189 nodes: 79 Section + 9 Category + 101 Concept, 332 edges) loaded at FastAPI startup from `eci_graph.pkl`
@@ -252,7 +252,7 @@ So that frontend and agent components can retrieve concept data reliably.
 ### Story 1.3: Next.js Frontend Scaffold with API Connectivity
 
 As a **developer**,
-I want a Next.js 14 App Router frontend scaffold connected to the FastAPI backend,
+I want a  next.js 16 App Router frontend scaffold connected to the FastAPI backend,
 So that the UI layer is ready for feature development with consistent API access patterns.
 
 **Acceptance Criteria:**
