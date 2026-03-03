@@ -55,3 +55,12 @@ Thumbs.db
 *.log
 
 docker/
+
+src/frontend/__tests__/*
+src/frontend/.next/*
+src/frontend/node_modules/*
+
+
+.env.example
+
+qdrant_storage

@@ -4,8 +4,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from neo4j import GraphDatabase
+from qdrant_client import QdrantClient
 
-from backend.routers import chapters, concepts, health, query
+from backend.routers import chapters, concepts, health, query, retrieve
 from backend.settings import settings
 
 
@@ -16,8 +17,14 @@ async def lifespan(app: FastAPI):
         auth=(settings.neo4j_user, settings.neo4j_password),
     )
     app.state.neo4j.verify_connectivity()
+    app.state.qdrant = QdrantClient(
+        host=settings.qdrant_host,
+        port=settings.qdrant_port,
+        api_key=settings.qdrant_api_key,
+    )
     yield
     app.state.neo4j.close()
+    app.state.qdrant.close()
 
 
 app = FastAPI(title="EducAgent API", lifespan=lifespan)
@@ -33,3 +40,4 @@ app.include_router(health.router)
 app.include_router(concepts.router, prefix="/api/v1")
 app.include_router(chapters.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
+app.include_router(retrieve.router, prefix="/api/v1")
