@@ -173,6 +173,7 @@ def chunk_section(
         segments.append((page_num, seg_text))
 
     chunks: list[PassageChunk] = []
+    current_heading = ""          # carry last seen heading forward
     for idx, (page_num, seg_text) in enumerate(segments):
         # Prefix overlap: prepend tail of the previous segment's raw text
         if idx > 0:
@@ -181,8 +182,11 @@ def chunk_section(
         else:
             seg_with_prefix = seg_text
 
-        # section_heading from raw segment (before prefix injection)
-        section_heading = _extract_section_heading(seg_text)
+        # section_heading from raw segment; carry forward when page has no heading
+        found = _extract_section_heading(seg_text)
+        if found:
+            current_heading = found
+        section_heading = current_heading
         content, content_for_embed = _resolve_images(seg_with_prefix, dir_name)
 
         if _is_embed_empty(content_for_embed):

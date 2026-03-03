@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from neo4j import GraphDatabase
 from qdrant_client import QdrantClient
 
-from backend.routers import chapters, concepts, health, query, retrieve
+from backend.routers import chapters, concepts, graph_router, health, query, retrieve
 from backend.settings import settings
 
 
@@ -41,3 +41,4 @@ app.include_router(concepts.router, prefix="/api/v1")
 app.include_router(chapters.router, prefix="/api/v1")
 app.include_router(query.router, prefix="/api/v1")
 app.include_router(retrieve.router, prefix="/api/v1")
+app.include_router(graph_router.router, prefix="/api/v1")
