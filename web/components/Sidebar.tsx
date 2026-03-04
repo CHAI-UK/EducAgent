@@ -52,6 +52,30 @@ const ALL_NAV_ITEMS: Record<string, { icon: LucideIcon; nameKey: string }> = {
   "/co_writer": { icon: Edit3, nameKey: "Co-Writer" },
 };
 
+const MINIMAL_VISIBLE_NAV_ITEMS = new Set([
+  "/",
+  "/knowledge",
+  "/solver",
+  "/guide",
+]);
+const DEFAULT_GROUP_ORDER = {
+  start: ["/", "/history", "/knowledge", "/notebook"],
+  learnResearch: [
+    "/question",
+    "/solver",
+    "/guide",
+    "/ideagen",
+    "/research",
+    "/co_writer",
+  ],
+} as const;
+
+const SIDEBAR_MENU_MODE = (() => {
+  const mode = process.env.NEXT_PUBLIC_SIDEBAR_MENU_MODE;
+  return mode === "full" ? "full" : "minimal";
+})();
+const SHOW_EDITABLE_DESCRIPTION = false;
+
 export default function Sidebar() {
   const pathname = usePathname();
   const {
@@ -65,8 +89,6 @@ export default function Sidebar() {
   const { t } = useTranslation();
 
   const [showTooltip, setShowTooltip] = useState<string | null>(null);
-
-  // Editable description state
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editingDescriptionValue, setEditingDescriptionValue] =
     useState(sidebarDescription);
@@ -81,9 +103,26 @@ export default function Sidebar() {
 
   // Build navigation items from saved order - defined inside useMemo to properly capture dependencies
   const navGroups = useMemo(() => {
-    const buildNavItems = (hrefs: string[]): NavItem[] => {
-      return hrefs
+    const buildNavItems = (
+      hrefs: string[],
+      groupId: "start" | "learnResearch",
+    ): NavItem[] => {
+      const order =
+        SIDEBAR_MENU_MODE === "full"
+          ? [
+              ...hrefs,
+              ...DEFAULT_GROUP_ORDER[groupId].filter(
+                (href) => !hrefs.includes(href),
+              ),
+            ]
+          : hrefs;
+
+      return order
         .filter((href) => ALL_NAV_ITEMS[href])
+        .filter(
+          (href) =>
+            SIDEBAR_MENU_MODE === "full" || MINIMAL_VISIBLE_NAV_ITEMS.has(href),
+        )
         .map((href) => ({
           name: t(ALL_NAV_ITEMS[href].nameKey),
           href,
@@ -95,17 +134,16 @@ export default function Sidebar() {
       {
         id: "start" as const,
         name: t("Workspace"),
-        items: buildNavItems(sidebarNavOrder.start),
+        items: buildNavItems(sidebarNavOrder.start, "start"),
       },
       {
         id: "learnResearch" as const,
         name: t("Learn & Research"),
-        items: buildNavItems(sidebarNavOrder.learnResearch),
+        items: buildNavItems(sidebarNavOrder.learnResearch, "learnResearch"),
       },
-    ];
+    ].filter((group) => group.items.length > 0);
   }, [sidebarNavOrder, t]);
 
-  // Handle description edit
   const handleDescriptionEdit = () => {
     setEditingDescriptionValue(sidebarDescription);
     setIsEditingDescription(true);
@@ -131,7 +169,6 @@ export default function Sidebar() {
     }
   };
 
-  // Focus input when editing starts
   useEffect(() => {
     if (isEditingDescription && descriptionInputRef.current) {
       descriptionInputRef.current.focus();
@@ -228,8 +265,8 @@ export default function Sidebar() {
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                 <Image
-                  src="/logo.png"
-                  alt={t("DeepTutor Logo")}
+                  src="/chai-logo.webp"
+                  alt={t("EducAgent Logo")}
                   width={32}
                   height={32}
                   className="object-contain"
@@ -243,7 +280,7 @@ export default function Sidebar() {
                     : "opacity-100"
                 }`}
               >
-                DeepTutor
+                EducAgent
               </h1>
             </div>
             <div
@@ -262,16 +299,16 @@ export default function Sidebar() {
                 <ChevronsLeft className="w-4 h-4" />
               </button>
               <a
-                href="https://hkuds.github.io/DeepTutor/"
+                href="https://www.chai.ac.uk/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
-                title={t("Visit DeepTutor Homepage")}
+                title={t("Visit CHAI Homepage")}
               >
                 <Globe className="w-4 h-4" />
               </a>
               <a
-                href="https://github.com/HKUDS/DeepTutor"
+                href="https://github.com/CHAI-UK/EducAgent"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
@@ -282,51 +319,55 @@ export default function Sidebar() {
             </div>
           </div>
 
-          {/* Editable Description - only show when expanded */}
-          <div
-            className={`transition-all duration-300 ${
-              sidebarCollapsed ? "opacity-0 h-0 overflow-hidden" : "opacity-100"
-            }`}
-          >
-            {isEditingDescription ? (
-              <div className="flex items-center gap-1">
-                <input
-                  ref={descriptionInputRef}
-                  type="text"
-                  value={editingDescriptionValue}
-                  onChange={(e) => setEditingDescriptionValue(e.target.value)}
-                  onKeyDown={handleDescriptionKeyDown}
-                  className="flex-1 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-600 px-2 py-1.5 rounded-md border border-blue-300 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  placeholder={t("Enter your description...")}
-                />
-                <button
-                  onClick={handleDescriptionSave}
-                  className="p-1 text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300"
-                  title={t("Save")}
+          {/* Editable Description - hidden by default */}
+          {SHOW_EDITABLE_DESCRIPTION && (
+            <div
+              className={`transition-all duration-300 ${
+                sidebarCollapsed
+                  ? "opacity-0 h-0 overflow-hidden"
+                  : "opacity-100"
+              }`}
+            >
+              {isEditingDescription ? (
+                <div className="flex items-center gap-1">
+                  <input
+                    ref={descriptionInputRef}
+                    type="text"
+                    value={editingDescriptionValue}
+                    onChange={(e) => setEditingDescriptionValue(e.target.value)}
+                    onKeyDown={handleDescriptionKeyDown}
+                    className="flex-1 text-[10px] font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-600 px-2 py-1.5 rounded-md border border-blue-300 dark:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    placeholder={t("Enter your description...")}
+                  />
+                  <button
+                    onClick={handleDescriptionSave}
+                    className="p-1 text-green-500 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300"
+                    title={t("Save")}
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={handleDescriptionCancel}
+                    className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                    title={t("Cancel")}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={handleDescriptionEdit}
+                  className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100/50 dark:bg-slate-700/50 px-2 py-1.5 rounded-md border border-slate-100 dark:border-slate-600 truncate cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-500 transition-colors group"
+                  title={t("Click to edit")}
                 >
-                  <Check className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={handleDescriptionCancel}
-                  className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                  title={t("Cancel")}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ) : (
-              <div
-                onClick={handleDescriptionEdit}
-                className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100/50 dark:bg-slate-700/50 px-2 py-1.5 rounded-md border border-slate-100 dark:border-slate-600 truncate cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-500 transition-colors group"
-                title={t("Click to edit")}
-              >
-                <span className="group-hover:hidden">{sidebarDescription}</span>
-                <span className="hidden group-hover:inline text-blue-500 dark:text-blue-400">
-                  ✏️ {t("Click to edit")}
-                </span>
-              </div>
-            )}
-          </div>
+                  <span className="group-hover:hidden">{sidebarDescription}</span>
+                  <span className="hidden group-hover:inline text-blue-500 dark:text-blue-400">
+                    ✏️ {t("Click to edit")}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

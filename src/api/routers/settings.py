@@ -22,8 +22,8 @@ SETTINGS_FILE = (
 
 # Default sidebar navigation order
 DEFAULT_SIDEBAR_NAV_ORDER = {
-    "start": ["/", "/history", "/knowledge", "/notebook"],
-    "learnResearch": ["/question", "/solver", "/guide", "/ideagen", "/research", "/co_writer"],
+    "start": ["/", "/knowledge"],
+    "learnResearch": ["/solver", "/guide"],
 }
 
 # Default UI settings
@@ -162,3 +162,4 @@ async def update_sidebar_nav_order(update: SidebarNavOrderUpdate):
     current_ui["sidebar_nav_order"] = update.nav_order.model_dump()
     save_ui_settings(current_ui)
     return {"nav_order": update.nav_order.model_dump()}
+

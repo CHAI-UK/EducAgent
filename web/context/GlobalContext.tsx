@@ -303,7 +303,10 @@ interface GlobalContextType {
   newChatSession: () => void;
 
   // UI Settings
-  uiSettings: { theme: "light" | "dark"; language: "en" | "zh" };
+  uiSettings: {
+    theme: "light" | "dark";
+    language: "en" | "zh";
+  };
   refreshSettings: () => Promise<void>;
   updateTheme: (theme: "light" | "dark") => Promise<void>;
   updateLanguage: (language: "en" | "zh") => Promise<void>;
@@ -609,15 +612,8 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   // --- Sidebar Customization State ---
   const DEFAULT_DESCRIPTION = "✨ Data Intelligence Lab @ HKU";
   const DEFAULT_NAV_ORDER: SidebarNavOrder = {
-    start: ["/", "/history", "/knowledge", "/notebook"],
-    learnResearch: [
-      "/question",
-      "/solver",
-      "/guide",
-      "/ideagen",
-      "/research",
-      "/co_writer",
-    ],
+    start: ["/", "/knowledge"],
+    learnResearch: ["/solver", "/guide"],
   };
 
   const [sidebarDescription, setSidebarDescriptionState] =
