@@ -16,6 +16,7 @@ import {
   Settings,
   Book,
   GraduationCap,
+  Brain,
   Lightbulb,
   Github,
   Globe,
@@ -47,6 +48,7 @@ const ALL_NAV_ITEMS: Record<string, { icon: LucideIcon; nameKey: string }> = {
   "/question": { icon: PenTool, nameKey: "Question Generator" },
   "/solver": { icon: Calculator, nameKey: "Smart Solver" },
   "/guide": { icon: GraduationCap, nameKey: "Guided Learning" },
+  "/study": { icon: Brain, nameKey: "Study Mode" },
   "/ideagen": { icon: Lightbulb, nameKey: "IdeaGen" },
   "/research": { icon: Microscope, nameKey: "Deep Research" },
   "/co_writer": { icon: Edit3, nameKey: "Co-Writer" },
@@ -57,6 +59,7 @@ const MINIMAL_VISIBLE_NAV_ITEMS = new Set([
   "/knowledge",
   "/solver",
   "/guide",
+  "/study",
 ]);
 const DEFAULT_GROUP_ORDER = {
   start: ["/", "/history", "/knowledge", "/notebook"],
@@ -64,6 +67,7 @@ const DEFAULT_GROUP_ORDER = {
     "/question",
     "/solver",
     "/guide",
+    "/study",
     "/ideagen",
     "/research",
     "/co_writer",
@@ -107,15 +111,10 @@ export default function Sidebar() {
       hrefs: string[],
       groupId: "start" | "learnResearch",
     ): NavItem[] => {
-      const order =
-        SIDEBAR_MENU_MODE === "full"
-          ? [
-              ...hrefs,
-              ...DEFAULT_GROUP_ORDER[groupId].filter(
-                (href) => !hrefs.includes(href),
-              ),
-            ]
-          : hrefs;
+      const order = [
+        ...hrefs,
+        ...DEFAULT_GROUP_ORDER[groupId].filter((href) => !hrefs.includes(href)),
+      ];
 
       return order
         .filter((href) => ALL_NAV_ITEMS[href])
