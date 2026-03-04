@@ -172,6 +172,19 @@
   color: #e2e8f0;
 }
 
+/* Improve math readability in markdown content */
+.prose .katex {
+  font-size: 1.02em;
+}
+
+.prose .katex-display {
+  @apply my-5 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 px-4 py-3;
+}
+
+.dark .prose .katex-display {
+  @apply border-slate-700 bg-slate-900;
+}
+
 /* Tables in dark mode */
 .prose table {
   @apply border-collapse;
