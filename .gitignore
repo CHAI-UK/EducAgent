@@ -272,3 +272,9 @@ celerybeat.pid
 *.wav
 *.ogg
 !demo/*.mp4
+
+# ============================================
+# Agent Skills
+# ============================================
+.agents
+skills-lock.json
