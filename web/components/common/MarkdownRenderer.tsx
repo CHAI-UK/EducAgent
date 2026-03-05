@@ -1,9 +1,11 @@
 "use client";
 
 import ReactMarkdown from "react-markdown";
+import Image from "next/image";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
 import { processLatexContent } from "@/lib/latex";
 
@@ -103,6 +105,21 @@ export default function MarkdownRenderer({
     ),
   };
 
+  const mediaComponents = {
+    img: ({ node, alt, src, ...props }: any) =>
+      typeof src === "string" ? (
+        <Image
+          src={src}
+          alt={alt || ""}
+          width={1400}
+          height={900}
+          className="my-4 h-auto w-full rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+          loading="lazy"
+          {...props}
+        />
+      ) : null,
+  };
+
   const proseClasses =
     variant === "prose"
       ? "prose prose-slate dark:prose-invert prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl max-w-none"
@@ -112,10 +129,11 @@ export default function MarkdownRenderer({
     <div className={`${proseClasses} ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
+        rehypePlugins={[rehypeRaw, rehypeKatex]}
         components={{
           ...tableComponents,
           ...codeComponents,
+          ...mediaComponents,
         }}
       >
         {processLatexContent(content)}

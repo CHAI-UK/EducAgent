@@ -15,8 +15,8 @@ const font = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "DeepTutor Platform",
-  description: "Multi-Agent Teaching & Research Copilot",
+  title: "EducAgent – An Agentic Causality Tutor",
+  description: "An Agentic Causality Tutor Embedded in Modern Copilots",
 };
 
 export default function RootLayout({

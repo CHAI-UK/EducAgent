@@ -205,7 +205,7 @@ app.include_router(agent_config.router, prefix="/api/v1/agent-config", tags=["ag
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to DeepTutor API"}
+    return {"message": "Welcome to EducAgent API"}
 
 
 if __name__ == "__main__":

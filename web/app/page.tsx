@@ -10,16 +10,17 @@ import {
   Globe,
   Calculator,
   FileText,
-  Microscope,
-  Lightbulb,
   Trash2,
   ExternalLink,
   BookOpen,
   Sparkles,
-  Edit3,
   GraduationCap,
-  PenTool,
+  Brain,
   Save,
+  PenTool,
+  Lightbulb,
+  Microscope,
+  Edit3,
 } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -136,34 +137,17 @@ export default function HomePage() {
     }
   };
 
-  const quickActions = [
+  const isFullMenu =
+    process.env.NEXT_PUBLIC_SIDEBAR_MENU_MODE === "full";
+
+  const allQuickActions = [
     {
       icon: Calculator,
-      label: t("Smart Problem Solving"),
+      label: t("Smart Solver"),
       href: "/solver",
       color: "blue",
       description: t("Multi-agent reasoning"),
-    },
-    {
-      icon: PenTool,
-      label: t("Generate Practice Questions"),
-      href: "/question",
-      color: "purple",
-      description: t("Auto-validated quizzes"),
-    },
-    {
-      icon: Microscope,
-      label: t("Deep Research Reports"),
-      href: "/research",
-      color: "emerald",
-      description: t("Comprehensive analysis"),
-    },
-    {
-      icon: Lightbulb,
-      label: t("Generate Novel Ideas"),
-      href: "/ideagen",
-      color: "amber",
-      description: t("Brainstorm & synthesize"),
+      minimal: true,
     },
     {
       icon: GraduationCap,
@@ -171,6 +155,39 @@ export default function HomePage() {
       href: "/guide",
       color: "indigo",
       description: t("Step-by-step tutoring"),
+      minimal: true,
+    },
+    {
+      icon: Brain,
+      label: t("Study Mode"),
+      href: "/study",
+      color: "violet",
+      description: t("Causality Learning Path"),
+      minimal: true,
+    },
+    {
+      icon: PenTool,
+      label: t("Generate Practice Questions"),
+      href: "/question",
+      color: "purple",
+      description: t("Auto-validated quizzes"),
+      minimal: false,
+    },
+    {
+      icon: Lightbulb,
+      label: t("Generate Novel Ideas"),
+      href: "/ideagen",
+      color: "amber",
+      description: t("Brainstorm & synthesize"),
+      minimal: false,
+    },
+    {
+      icon: Microscope,
+      label: t("Deep Research Reports"),
+      href: "/research",
+      color: "emerald",
+      description: t("Comprehensive analysis"),
+      minimal: false,
     },
     {
       icon: Edit3,
@@ -178,8 +195,13 @@ export default function HomePage() {
       href: "/co_writer",
       color: "pink",
       description: t("Collaborative writing"),
+      minimal: false,
     },
   ];
+
+  const quickActions = isFullMenu
+    ? allQuickActions
+    : allQuickActions.filter((a) => a.minimal);
 
   const hasMessages = chatState.messages.length > 0;
 
@@ -187,10 +209,10 @@ export default function HomePage() {
     <div className="h-screen flex flex-col animate-fade-in">
       {/* Empty State / Welcome Screen */}
       {!hasMessages && (
-        <div className="flex-1 flex flex-col items-center justify-center px-6">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 pt-16">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
-              {t("Welcome to DeepTutor")}
+              {t("Welcome to EducAgent")}
             </h1>
             <p className="text-lg text-slate-500 dark:text-slate-400">
               {t("How can I help you today?")}
@@ -291,7 +313,7 @@ export default function HomePage() {
             <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 text-center">
               {t("Explore Modules")}
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className={`grid grid-cols-1 ${isFullMenu ? "sm:grid-cols-3 lg:grid-cols-4 max-w-4xl" : "sm:grid-cols-3 max-w-2xl"} gap-4 mx-auto w-full`}>
               {quickActions.map((action, i) => (
                 <Link
                   key={i}

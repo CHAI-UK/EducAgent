@@ -6,6 +6,13 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
+  // Safelist dynamic color classes used in quickActions module cards (page.tsx)
+  safelist: [
+    {
+      pattern: /^(bg|text|border)-(blue|indigo|violet)-(100|300|400|600|900)(\/\d+)?$/,
+      variants: ["dark", "hover", "group-hover", "dark:hover"],
+    },
+  ],
   theme: {
     extend: {
       colors: {
