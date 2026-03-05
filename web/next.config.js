@@ -1,6 +1,25 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  // Redirect hidden sidebar routes to home unless full menu mode is enabled
+  async redirects() {
+    if (process.env.NEXT_PUBLIC_SIDEBAR_MENU_MODE === "full") {
+      return [];
+    }
+    return [
+      "/co_writer",
+      "/research",
+      "/question",
+      "/ideagen",
+      "/history",
+      "/notebook",
+    ].map((source) => ({
+      source,
+      destination: "/",
+      permanent: false,
+    }));
+  },
+
   // Move dev indicator to bottom-right corner
   devIndicators: {
     position: "bottom-right",

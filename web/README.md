@@ -274,7 +274,6 @@ Set in `.env.local`:
 ```bash
 NEXT_PUBLIC_API_BASE=http://localhost:8001
 NEXT_PUBLIC_WS_BASE=ws://localhost:8001
-NEXT_PUBLIC_SIDEBAR_MENU_MODE=minimal
 ```
 
 ### Next.js Configuration
