@@ -17,6 +17,7 @@ import {
   Book,
   GraduationCap,
   Brain,
+  Share2,
   Lightbulb,
   Github,
   Globe,
@@ -48,6 +49,7 @@ const ALL_NAV_ITEMS: Record<string, { icon: LucideIcon; nameKey: string }> = {
   "/question": { icon: PenTool, nameKey: "Question Generator" },
   "/solver": { icon: Calculator, nameKey: "Smart Solver" },
   "/guide": { icon: GraduationCap, nameKey: "Guided Learning" },
+  "/knowledge-graph": { icon: Share2, nameKey: "Knowledge Graph" },
   "/study": { icon: Brain, nameKey: "Study Mode" },
   "/ideagen": { icon: Lightbulb, nameKey: "IdeaGen" },
   "/research": { icon: Microscope, nameKey: "Deep Research" },
@@ -58,7 +60,7 @@ const MINIMAL_VISIBLE_NAV_ITEMS = new Set([
   "/",
   "/knowledge",
   "/solver",
-  "/guide",
+  "/knowledge-graph",
   "/study",
 ]);
 const DEFAULT_GROUP_ORDER = {
@@ -66,6 +68,7 @@ const DEFAULT_GROUP_ORDER = {
   learnResearch: [
     "/question",
     "/solver",
+    "/knowledge-graph",
     "/guide",
     "/study",
     "/ideagen",
