@@ -162,4 +162,3 @@ async def update_sidebar_nav_order(update: SidebarNavOrderUpdate):
     current_ui["sidebar_nav_order"] = update.nav_order.model_dump()
     save_ui_settings(current_ui)
     return {"nav_order": update.nav_order.model_dump()}
-

@@ -362,7 +362,9 @@ export default function Sidebar() {
                   className="text-[10px] font-medium text-slate-500 dark:text-slate-400 bg-slate-100/50 dark:bg-slate-700/50 px-2 py-1.5 rounded-md border border-slate-100 dark:border-slate-600 truncate cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-200 dark:hover:border-slate-500 transition-colors group"
                   title={t("Click to edit")}
                 >
-                  <span className="group-hover:hidden">{sidebarDescription}</span>
+                  <span className="group-hover:hidden">
+                    {sidebarDescription}
+                  </span>
                   <span className="hidden group-hover:inline text-blue-500 dark:text-blue-400">
                     ✏️ {t("Click to edit")}
                   </span>

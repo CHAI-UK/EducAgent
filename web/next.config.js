@@ -13,7 +13,7 @@ const nextConfig = {
       "/ideagen",
       "/history",
       "/notebook",
-      "/guide"
+      "/guide",
     ].map((source) => ({
       source,
       destination: "/",

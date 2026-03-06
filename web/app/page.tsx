@@ -138,8 +138,7 @@ export default function HomePage() {
     }
   };
 
-  const isFullMenu =
-    process.env.NEXT_PUBLIC_SIDEBAR_MENU_MODE === "full";
+  const isFullMenu = process.env.NEXT_PUBLIC_SIDEBAR_MENU_MODE === "full";
 
   const allQuickActions = [
     {
@@ -322,7 +321,9 @@ export default function HomePage() {
             <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 text-center">
               {t("Explore Modules")}
             </h3>
-            <div className={`grid grid-cols-1 ${isFullMenu ? "sm:grid-cols-3 lg:grid-cols-4 max-w-4xl" : "sm:grid-cols-3 max-w-2xl"} gap-4 mx-auto w-full`}>
+            <div
+              className={`grid grid-cols-1 ${isFullMenu ? "sm:grid-cols-3 lg:grid-cols-4 max-w-4xl" : "sm:grid-cols-3 max-w-2xl"} gap-4 mx-auto w-full`}
+            >
               {quickActions.map((action, i) => (
                 <Link
                   key={i}

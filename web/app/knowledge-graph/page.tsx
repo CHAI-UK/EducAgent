@@ -30,15 +30,17 @@ export default function KnowledgeGraphPage() {
     ]);
   };
 
-  const chapterNodes = STUDY_CHAPTERS.filter((item) => item.level === "chapter").map(
-    (chapter, index) => ({
-      id: chapter.id,
-      title: chapter.title,
-      subtitle: `Chapter ${index + 1}`,
-      subtopics: getSubtopics(chapter),
-    }),
+  const chapterNodes = STUDY_CHAPTERS.filter(
+    (item) => item.level === "chapter",
+  ).map((chapter, index) => ({
+    id: chapter.id,
+    title: chapter.title,
+    subtitle: `Chapter ${index + 1}`,
+    subtopics: getSubtopics(chapter),
+  }));
+  const selectedChapter = chapterNodes.find(
+    (node) => node.id === selectedChapterId,
   );
-  const selectedChapter = chapterNodes.find((node) => node.id === selectedChapterId);
 
   return (
     <div className="min-h-screen p-4">
@@ -58,11 +60,16 @@ export default function KnowledgeGraphPage() {
           <div className="relative flex flex-col md:flex-row gap-6">
             <div className="relative flex-1 flex flex-col items-center justify-center py-6">
               {chapterNodes.map((node, index) => (
-                <div key={node.id} className="w-full flex flex-col items-center">
+                <div
+                  key={node.id}
+                  className="w-full flex flex-col items-center"
+                >
                   <button
                     type="button"
                     onClick={() =>
-                      setSelectedChapterId((prev) => (prev === node.id ? null : node.id))
+                      setSelectedChapterId((prev) =>
+                        prev === node.id ? null : node.id,
+                      )
                     }
                     className={`rounded-2xl border p-4 md:p-5 shadow-sm text-left transition-colors ${
                       selectedChapterId === node.id
