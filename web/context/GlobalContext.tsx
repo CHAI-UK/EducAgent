@@ -613,7 +613,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   const DEFAULT_DESCRIPTION = "✨ Data Intelligence Lab @ HKU";
   const DEFAULT_NAV_ORDER: SidebarNavOrder = {
     start: ["/", "/knowledge"],
-    learnResearch: ["/solver", "/guide", "/study"],
+    learnResearch: ["/solver", "/knowledge-graph", "/guide", "/study"],
   };
 
   const [sidebarDescription, setSidebarDescriptionState] =

@@ -15,6 +15,7 @@ import {
   BookOpen,
   Sparkles,
   GraduationCap,
+  Share2,
   Brain,
   Save,
   PenTool,
@@ -150,11 +151,11 @@ export default function HomePage() {
       minimal: true,
     },
     {
-      icon: GraduationCap,
-      label: t("Guided Learning"),
-      href: "/guide",
+      icon: Share2,
+      label: t("Knowledge Graph"),
+      href: "/knowledge-graph",
       color: "indigo",
-      description: t("Step-by-step tutoring"),
+      description: t("Causality Learning Path"),
       minimal: true,
     },
     {
@@ -164,6 +165,14 @@ export default function HomePage() {
       color: "violet",
       description: t("Causality Learning Path"),
       minimal: true,
+    },
+    {
+      icon: GraduationCap,
+      label: t("Guided Learning"),
+      href: "/guide",
+      color: "sky",
+      description: t("Step-by-step tutoring"),
+      minimal: false,
     },
     {
       icon: PenTool,
