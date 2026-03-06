@@ -368,6 +368,24 @@ docker compose logs -f    # View logs
 docker compose up --build # Rebuild after changes
 ```
 
+**Keep Deployment Up To Date (VM):**
+
+```bash
+# One-command update (pull + rebuild + restart)
+./scripts/update-deploy.sh          # default branch: main
+./scripts/update-deploy.sh develop  # optional custom branch
+```
+
+Optional auto-update with cron (every 15 minutes):
+
+```bash
+crontab -e
+```
+
+```cron
+*/15 * * * * cd /path/to/EducAgent && /bin/bash ./scripts/update-deploy.sh >> /var/log/educagent-deploy-update.log 2>&1
+```
+
 <details>
 <summary>📋 <b>More Docker Options</b> (Pre-built images, Cloud deployment, Custom ports)</summary>
 
