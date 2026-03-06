@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { BookOpen, ChevronRight, ChevronDown } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -29,7 +29,7 @@ function findPathToItem(items: StudyItem[], targetId: string): StudyItem[] | nul
   return null;
 }
 
-export default function StudyPage() {
+function StudyPageContent() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const requestedItemId = searchParams.get("item") ?? "";
@@ -217,5 +217,13 @@ export default function StudyPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function StudyPage() {
+  return (
+    <Suspense fallback={<div className="h-screen p-4" />}>
+      <StudyPageContent />
+    </Suspense>
   );
 }
