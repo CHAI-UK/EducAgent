@@ -2,9 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { BookOpen, ChevronRight, ChevronDown } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
-import { STUDY_CHAPTERS, type StudyItem } from "@/content/study/ch1";
+import { STUDY_CHAPTERS, type StudyItem } from "@/content/study";
 
 function flattenItems(items: StudyItem[]): StudyItem[] {
   return items.flatMap((item) => [
@@ -13,15 +14,44 @@ function flattenItems(items: StudyItem[]): StudyItem[] {
   ]);
 }
 
+function findPathToItem(items: StudyItem[], targetId: string): StudyItem[] | null {
+  for (const item of items) {
+    if (item.id === targetId) {
+      return [item];
+    }
+    if (item.children?.length) {
+      const childPath = findPathToItem(item.children, targetId);
+      if (childPath) {
+        return [item, ...childPath];
+      }
+    }
+  }
+  return null;
+}
+
 export default function StudyPage() {
   const { t } = useTranslation();
-  const [expandedChapterId, setExpandedChapterId] = useState<string>(
-    STUDY_CHAPTERS[0].id,
-  );
-  const [activeItemId, setActiveItemId] = useState<string>(STUDY_CHAPTERS[0].id);
-  const [expandedSectionIds, setExpandedSectionIds] = useState<string[]>([]);
-
+  const searchParams = useSearchParams();
+  const requestedItemId = searchParams.get("item") ?? "";
   const allItems = useMemo(() => flattenItems(STUDY_CHAPTERS), []);
+  const requestedPath = useMemo(
+    () =>
+      requestedItemId
+        ? findPathToItem(STUDY_CHAPTERS, requestedItemId)
+        : null,
+    [requestedItemId],
+  );
+
+  const [expandedChapterId, setExpandedChapterId] = useState<string>(
+    requestedPath?.[0]?.id ?? STUDY_CHAPTERS[0].id,
+  );
+  const [activeItemId, setActiveItemId] = useState<string>(
+    requestedPath?.[requestedPath.length - 1]?.id ?? STUDY_CHAPTERS[0].id,
+  );
+  const [expandedSectionIds, setExpandedSectionIds] = useState<string[]>(
+    requestedPath && requestedPath.length >= 3 ? [requestedPath[1].id] : [],
+  );
+
   const activeItem = useMemo(
     () =>
       allItems.find((item) => item.id === activeItemId) ?? STUDY_CHAPTERS[0],
