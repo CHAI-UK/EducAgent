@@ -226,14 +226,20 @@ export default function SolverPage() {
               </h3>
               <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
                 {t(
-                  "I can help you solve complex STEM problems using multi-step reasoning. Try asking about calculus, physics, or coding algorithms.",
+                  "I can help you understand causal relationships and inference methods using rigorous reasoning. Try asking about correlation vs causation, confounding variables, or causal graphs.",
                 )}
               </p>
               <div className="grid grid-cols-1 gap-3 w-full text-sm">
                 {[
-                  "Calculate the linear convolution of x=[1,2,3] and h=[4,5]",
-                  "Explain the backpropagation algorithm in neural networks",
-                  "Solve the differential equation dy/dx = x^2",
+                  t(
+                    "How do we establish causal relationships between drug molecules and their therapeutic effects?",
+                  ),
+                  t(
+                    "What role does causal inference play in identifying drug side effect vs. coincidental outcomes?",
+                  ),
+                  t(
+                    "How can we use causal graphs to model drug-target interactions?",
+                  ),
                 ].map((q, i) => (
                   <button
                     key={i}
