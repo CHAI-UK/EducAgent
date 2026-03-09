@@ -376,14 +376,14 @@ docker compose up --build # Rebuild after changes
 ./scripts/update-deploy.sh develop  # optional custom branch
 ```
 
-Optional auto-update with cron (every 15 minutes):
+Optional auto-update with cron (every hour):
 
 ```bash
 crontab -e
 ```
 
 ```cron
-*/15 * * * * cd /path/to/EducAgent && /bin/bash ./scripts/update-deploy.sh >> /var/log/educagent-deploy-update.log 2>&1
+0 * * * * cd /path/to/EducAgent && /bin/bash ./scripts/update-deploy.sh >> "$HOME/educagent-deploy-update.log" 2>&1
 ```
 
 <details>
