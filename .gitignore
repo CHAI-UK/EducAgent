@@ -4,6 +4,7 @@ _bmad/
 .agents/
 .claude/
 .github/
+.augment/
 
 # Assets and skills
 assets/
@@ -21,6 +22,7 @@ dist/
 build/
 *.egg
 .eggs/
+.pytest_cache/
 
 # Generated graph outputs — large/reproducible files, do not commit
 *.pkl
@@ -59,8 +61,11 @@ docker/
 src/frontend/__tests__/*
 src/frontend/.next/*
 src/frontend/node_modules/*
+*.tsbuildinfo
 
 
 .env.example
 
 qdrant_storage
+
+slides/
