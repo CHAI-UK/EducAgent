@@ -3,10 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { apiUrl } from "@/lib/api";
-
-// JWT token localStorage key (convention established in Story 1.2, used by 1-3+)
-const AUTH_TOKEN_KEY = "educagent_access_token";
+import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -71,11 +68,15 @@ export default function SignupPage() {
       } else {
         const data = await response.json().catch(() => ({}));
         setServerError(
-          typeof data.detail === "string" ? data.detail : "Registration failed. Please try again.",
+          typeof data.detail === "string"
+            ? data.detail
+            : "Registration failed. Please try again.",
         );
       }
     } catch {
-      setServerError("Network error. Please check your connection and try again.");
+      setServerError(
+        "Network error. Please check your connection and try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

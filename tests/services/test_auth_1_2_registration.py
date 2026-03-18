@@ -9,11 +9,10 @@ Test strategy:
 
 from __future__ import annotations
 
-import pytest
 from pydantic import ValidationError
+import pytest
 
 from src.services.auth.schemas import UserCreate
-
 
 # ── Task 1a: Schema validation — password minimum length ─────────────────────
 
