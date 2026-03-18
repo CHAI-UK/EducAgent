@@ -1,0 +1,204 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { apiUrl } from "@/lib/api";
+
+// JWT token localStorage key (convention established in Story 1.2, used by 1-3+)
+const AUTH_TOKEN_KEY = "educagent_access_token";
+
+export default function SignupPage() {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [serverError, setServerError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // AC4: redirect already-authenticated users to home (FR5d)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
+      if (token) {
+        router.replace("/");
+      }
+    }
+  }, [router]);
+
+  // AC3: inline password-length validation
+  const handlePasswordChange = (value: string) => {
+    setPassword(value);
+    if (value.length > 0 && value.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+    } else {
+      setPasswordError("");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError("");
+
+    // Client-side guard before submitting
+    if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+      return;
+    }
+
+    if (!ageConfirmed) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(apiUrl("/auth/register"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, username, password }),
+      });
+
+      if (response.status === 201) {
+        // AC1: successful registration → redirect to home
+        // (profile wizard is Story 2 — redirected there once implemented)
+        router.push("/");
+      } else if (response.status === 400) {
+        // AC2: duplicate email
+        setServerError("An account with this email already exists");
+      } else {
+        const data = await response.json().catch(() => ({}));
+        setServerError(
+          typeof data.detail === "string" ? data.detail : "Registration failed. Please try again.",
+        );
+      }
+    } catch {
+      setServerError("Network error. Please check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
+      <div className="w-full max-w-md p-8 bg-white dark:bg-slate-800 rounded-lg shadow">
+        <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
+          Create your account
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+          Join EducAgent and start your learning journey.
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="you@example.com"
+            />
+          </div>
+
+          {/* Username */}
+          <div>
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              required
+              autoComplete="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Choose a username"
+            />
+          </div>
+
+          {/* Password */}
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+            >
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              required
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => handlePasswordChange(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="At least 8 characters"
+            />
+            {/* AC3: inline password-length error */}
+            {passwordError && (
+              <p className="mt-1 text-sm text-red-500" role="alert">
+                {passwordError}
+              </p>
+            )}
+          </div>
+
+          {/* AC5: COPPA minimum age acknowledgement */}
+          <div className="flex items-start gap-3">
+            <input
+              id="age-confirmation"
+              type="checkbox"
+              checked={ageConfirmed}
+              onChange={(e) => setAgeConfirmed(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label
+              htmlFor="age-confirmation"
+              className="text-sm text-slate-600 dark:text-slate-400"
+            >
+              I confirm that I am at least 13 years old
+            </label>
+          </div>
+
+          {/* Server error (AC2 + general) */}
+          {serverError && (
+            <p className="text-sm text-red-500" role="alert">
+              {serverError}
+            </p>
+          )}
+
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={isSubmitting || !ageConfirmed}
+            className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            {isSubmitting ? "Creating account…" : "Create account"}
+          </button>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
+          Already have an account?{" "}
+          <a href="/login" className="text-blue-600 hover:underline">
+            Sign in
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+}
