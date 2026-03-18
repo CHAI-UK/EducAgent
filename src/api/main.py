@@ -193,6 +193,7 @@ async def auth_guard_middleware(request: Request, call_next):
 
     return await call_next(request)
 
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,

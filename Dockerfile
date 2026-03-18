@@ -26,7 +26,7 @@ ARG BACKEND_PORT=8001
 COPY web/package.json web/package-lock.json* ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Copy frontend source code
 COPY web/ ./
