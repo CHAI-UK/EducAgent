@@ -1,6 +1,6 @@
 # Tools Module
 
-This module provides a collection of various tools used in the DeepTutor system, including code execution, knowledge retrieval, web search, paper search, and more.
+This module provides a collection of various tools used in the EducAgent system, including code execution, knowledge retrieval, web search, paper search, and more.
 
 ## 📁 Directory Structure
 

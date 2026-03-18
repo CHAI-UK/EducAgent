@@ -364,7 +364,7 @@ async def websocket_question_generate(websocket: WebSocket):
         )
 
         # 2. Initialize Coordinator
-        # Define unified output directory (DeepTutor/data/user/question)
+        # Define unified output directory (EducAgent/data/user/question)
         root_dir = Path(__file__).parent.parent.parent.parent
         output_base = root_dir / "data" / "user" / "question"
 

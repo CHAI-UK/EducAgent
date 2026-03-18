@@ -23,8 +23,8 @@ class HistoryManager:
                       when uvicorn / IDE start differently.
         """
         if base_dir is None:
-            # Current file: DeepTutor/src/api/utils/history.py
-            # Project root should be three levels up: DeepTutor/
+            # Current file: EducAgent/src/api/utils/history.py
+            # Project root should be three levels up: EducAgent/
             project_root = Path(__file__).resolve().parents[3]
             base_dir_path = project_root / "data" / "user"
         else:

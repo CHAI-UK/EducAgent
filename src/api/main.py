@@ -1,9 +1,11 @@
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 
 from src.api.routers import (
     agent_config,
@@ -22,6 +24,8 @@ from src.api.routers import (
     system,
 )
 from src.logging import get_logger
+from src.services.auth import engine, get_auth_routers
+from src.services.auth.jwt_utils import decode_access_token
 
 # Note: Don't set service_prefix here - start_web.py already adds [Backend] prefix
 logger = get_logger("API")
@@ -148,15 +152,46 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="DeepTutor API",
+    title="EducAgent API",
     version="1.0.0",
     lifespan=lifespan,
     # Disable automatic trailing slash redirects to prevent protocol downgrade issues
     # when deployed behind HTTPS reverse proxies (e.g., nginx).
     # Without this, FastAPI's 307 redirects may change HTTPS to HTTP.
-    # See: https://github.com/HKUDS/DeepTutor/issues/112
+    # See: https://github.com/HKUDS/EducAgent/issues/112
     redirect_slashes=False,
 )
+
+PROTECTED_API_PREFIX = "/api/v1"
+
+
+@app.middleware("http")
+async def auth_guard_middleware(request: Request, call_next):
+    path = request.url.path
+
+    if request.method == "OPTIONS":
+        return await call_next(request)
+
+    # Protect all versioned API routes; auth endpoints are mounted outside this prefix.
+    if not path.startswith(PROTECTED_API_PREFIX):
+        return await call_next(request)
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+
+    token = auth_header.split(" ", 1)[1].strip()
+    if not token:
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+
+    try:
+        payload = decode_access_token(token)
+        if not payload.get("sub"):
+            return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+    except ValueError:
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+
+    return await call_next(request)
 
 # Configure CORS
 app.add_middleware(
@@ -170,7 +205,7 @@ app.add_middleware(
 # Mount user directory as static root for generated artifacts
 # This allows frontend to access generated artifacts (images, PDFs, etc.)
 # URL: /api/outputs/solve/solve_xxx/artifacts/image.png
-# Physical Path: DeepTutor/data/user/solve/solve_xxx/artifacts/image.png
+# Physical Path: EducAgent/data/user/solve/solve_xxx/artifacts/image.png
 project_root = Path(__file__).parent.parent.parent
 user_dir = project_root / "data" / "user"
 
@@ -185,6 +220,12 @@ except Exception:
         user_dir.mkdir(parents=True)
 
 app.mount("/api/outputs", StaticFiles(directory=str(user_dir)), name="outputs")
+
+# Auth routers (unprotected entry points)
+auth_router, register_router, users_router = get_auth_routers()
+app.include_router(auth_router, prefix="/auth/jwt", tags=["auth"])
+app.include_router(register_router, prefix="/auth", tags=["auth"])
+app.include_router(users_router, prefix="/users", tags=["users"])
 
 # Include routers
 app.include_router(solve.router, prefix="/api/v1", tags=["solve"])
@@ -206,6 +247,17 @@ app.include_router(agent_config.router, prefix="/api/v1/agent-config", tags=["ag
 @app.get("/")
 async def root():
     return {"message": "Welcome to EducAgent API"}
+
+
+@app.get("/health")
+async def health():
+    try:
+        async with engine.connect() as connection:
+            await connection.execute(text("SELECT 1"))
+        return {"status": "ok", "db": "connected"}
+    except Exception as exc:
+        logger.warning(f"Health check DB probe failed: {exc}")
+        return JSONResponse(status_code=503, content={"status": "degraded", "db": "disconnected"})
 
 
 if __name__ == "__main__":

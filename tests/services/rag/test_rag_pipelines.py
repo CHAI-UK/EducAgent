@@ -28,7 +28,7 @@ sys.path.insert(0, str(project_root))
 
 from dotenv import load_dotenv
 
-load_dotenv(project_root / "DeepTutor.env", override=False)
+load_dotenv(project_root / "EducAgent.env", override=False)
 load_dotenv(project_root / ".env", override=False)
 
 
