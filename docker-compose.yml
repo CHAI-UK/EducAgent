@@ -1,7 +1,7 @@
 # ============================================
-# EducAgent Docker Compose Configuration
+# DeepTutor Docker Compose Configuration
 # ============================================
-# This file provides orchestration for EducAgent services
+# This file provides orchestration for DeepTutor services
 #
 # Usage:
 #   Production:  docker compose up -d
@@ -14,30 +14,10 @@
 # ============================================
 
 services:
-  postgres:
-    image: postgres:16
-    container_name: educagent-postgres
-    restart: unless-stopped
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB:-educagent}
-      - POSTGRES_USER=${POSTGRES_USER:-educagent}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-educagent}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-educagent} -d ${POSTGRES_DB:-educagent}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - educagent-network
-
   # ============================================
-  # All-in-One EducAgent Service
+  # All-in-One DeepTutor Service
   # ============================================
-  educagent:
+  deeptutor:
     build:
       context: .
       dockerfile: Dockerfile
@@ -45,7 +25,7 @@ services:
       args:
         # Pass backend port at build time for Next.js static optimization
         - BACKEND_PORT=${BACKEND_PORT:-8001}
-    container_name: educagent
+    container_name: deeptutor
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-8001}:${BACKEND_PORT:-8001}"
@@ -94,15 +74,6 @@ services:
       - NEXT_PUBLIC_API_BASE_EXTERNAL=${NEXT_PUBLIC_API_BASE_EXTERNAL:-}
       # Alternative: Direct API base URL (same priority as NEXT_PUBLIC_API_BASE_EXTERNAL)
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-}
-      # Auth + DB configuration
-      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://educagent:educagent@postgres:5432/educagent}
-      - AUTH_SECRET=${AUTH_SECRET:-change-me-in-production}
-      - AUTH_ALGORITHM=${AUTH_ALGORITHM:-HS256}
-      - AUTH_TOKEN_LIFETIME_SECONDS=${AUTH_TOKEN_LIFETIME_SECONDS:-3600}
-
-    depends_on:
-      postgres:
-        condition: service_healthy
 
     volumes:
       # Mount local config directory (read-only)
@@ -120,14 +91,11 @@ services:
       start_period: 60s
 
     networks:
-      - educagent-network
+      - deeptutor-network
 
 # ============================================
 # Networks
 # ============================================
 networks:
-  educagent-network:
+  deeptutor-network:
     driver: bridge
-
-volumes:
-  postgres_data:

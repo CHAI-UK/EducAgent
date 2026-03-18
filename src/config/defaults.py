@@ -1,5 +1,5 @@
 """
-Default configuration values for EducAgent.
+Default configuration values for DeepTutor.
 """
 
 from pathlib import Path

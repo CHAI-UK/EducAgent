@@ -3,7 +3,7 @@
 Embedding Service
 =================
 
-Unified embedding client for all EducAgent modules.
+Unified embedding client for all DeepTutor modules.
 Supports multiple providers: OpenAI, Azure, Google, Cohere, Ollama, Jina, HuggingFace.
 
 Usage:

@@ -1,5 +1,5 @@
 """
-Configuration Settings for EducAgent
+Configuration Settings for DeepTutor
 
 Environment Variables:
     LLM_RETRY__MAX_RETRIES: Maximum retry attempts for LLM calls (default: 3)

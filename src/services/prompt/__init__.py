@@ -3,7 +3,7 @@
 Prompt Service
 ==============
 
-Unified prompt management for all EducAgent modules.
+Unified prompt management for all DeepTutor modules.
 
 Usage:
     from src.services.prompt import get_prompt_manager, PromptManager

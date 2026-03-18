@@ -1,5 +1,5 @@
 # ============================================
-# EducAgent Python Dependencies
+# DeepTutor Python Dependencies
 # ============================================
 # Python >= 3.10 required
 # Install: pip install -r requirements.txt
@@ -17,6 +17,9 @@ jinja2>=3.1.0              # Template engine for search consolidation
 # ============================================
 requests>=2.32.2
 openai>=1.30.0
+anthropic>=0.30.0          # Anthropic Claude API
+perplexityai>=0.1.0
+dashscope>=1.14.0
 aiohttp>=3.9.4
 httpx>=0.27.0
 urllib3>=2.2.1
@@ -35,25 +38,17 @@ uvicorn[standard]>=0.24.0
 websockets>=12.0
 python-multipart>=0.0.6
 pydantic>=2.0.0
-pydantic-settings>=2.0.0
-fastapi-users[sqlalchemy]>=14.0.1
-fastapi-users-db-sqlalchemy>=7.0.0
-sqlalchemy>=2.0.0
-alembic>=1.13.0
-asyncpg>=0.29.0
-psycopg2-binary>=2.9.0
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
 
 # ============================================
 # RAG and knowledge base
 # ============================================
-lightrag-hku>=1.3.0            # Default RAG provider (graph-based, no heavy ML deps)
+raganything>=0.1.0
+docling>=2.31.0                # Document parser for Office/HTML (alternative to MinerU)
 
-# Optional heavy pipelines — installed via Dockerfile RAG_PROVIDER build arg:
-#   raganything:          pip install raganything
-#   raganything_docling:  pip install raganything docling
-#   llamaindex:           pip install llama-index
+# ============================================
+# LlamaIndex
+# ============================================
+llama-index>=0.14.12
 
 # ============================================
 # Academic and research tools

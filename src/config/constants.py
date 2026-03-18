@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Constants for EducAgent
+Constants for DeepTutor
 """
 
 from pathlib import Path

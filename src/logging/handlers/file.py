@@ -165,7 +165,7 @@ def create_task_logger(
     log_path.mkdir(parents=True, exist_ok=True)
 
     # Create logger
-    logger = logging.getLogger(f"educagent.{module_name}.{task_id}")
+    logger = logging.getLogger(f"deeptutor.{module_name}.{task_id}")
     logger.setLevel(logging.DEBUG)
     logger.handlers.clear()
     logger.propagate = False

@@ -7,8 +7,8 @@ and configuration issues.
 from typing import Any, Dict, Optional
 
 
-class EducAgentError(Exception):
-    """Base class for all application errors in EducAgent."""
+class DeepTutorError(Exception):
+    """Base class for all application errors in DeepTutor."""
 
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
         super().__init__(message)
@@ -21,19 +21,19 @@ class EducAgentError(Exception):
         return self.message
 
 
-class ConfigurationError(EducAgentError):
+class ConfigurationError(DeepTutorError):
     """Raised when there's a configuration-related error."""
 
     pass
 
 
-class ValidationError(EducAgentError):
+class ValidationError(DeepTutorError):
     """Raised when input validation fails."""
 
     pass
 
 
-class ServiceError(EducAgentError):
+class ServiceError(DeepTutorError):
     """Base class for service layer errors."""
 
     pass

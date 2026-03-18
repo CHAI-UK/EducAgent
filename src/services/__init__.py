@@ -3,7 +3,7 @@
 Services Layer
 ==============
 
-Unified service layer for EducAgent providing:
+Unified service layer for DeepTutor providing:
 - LLM client and configuration
 - Embedding client and configuration
 - RAG pipelines and components

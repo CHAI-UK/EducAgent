@@ -23,14 +23,14 @@ knowledge/
 **Recommended usage (direct execution):**
 
 ```bash
-# Run from project root directory (EducAgent/)
+# Run from project root directory (DeepTutor/)
 python -m src.knowledge.start_kb [command]
 ```
 
 **Or using module import:**
 
 ```bash
-# Ensure in project root directory (EducAgent/)
+# Ensure in project root directory (DeepTutor/)
 python -m src.knowledge.start_kb [command]
 ```
 

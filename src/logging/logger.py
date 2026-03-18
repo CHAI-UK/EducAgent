@@ -128,7 +128,7 @@ class FileFormatter(logging.Formatter):
 
 class Logger:
     """
-    Unified logger for EducAgent.
+    Unified logger for DeepTutor.
 
     Features:
     - Consistent format across all modules
@@ -170,7 +170,7 @@ class Logger:
         self.service_prefix = service_prefix
 
         # Create underlying Python logger
-        self.logger = logging.getLogger(f"educagent.{name}")
+        self.logger = logging.getLogger(f"deeptutor.{name}")
         self.logger.setLevel(logging.DEBUG)  # Capture all, filter at handlers
         self.logger.handlers.clear()
         self.logger.propagate = False  # Prevent duplicate logs from root logger
@@ -197,7 +197,7 @@ class Logger:
         # File handler
         if file_output:
             timestamp = datetime.now().strftime("%Y%m%d")
-            log_file = log_dir_path / f"educagent_{timestamp}.log"
+            log_file = log_dir_path / f"deeptutor_{timestamp}.log"
 
             file_handler = logging.FileHandler(log_file, encoding="utf-8")
             file_handler.setLevel(logging.DEBUG)  # Log everything to file

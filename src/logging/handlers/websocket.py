@@ -97,7 +97,7 @@ class LogInterceptor:
 
     Usage:
         queue = asyncio.Queue()
-        logger = logging.getLogger("educagent.Solver")
+        logger = logging.getLogger("deeptutor.Solver")
 
         with LogInterceptor(logger, queue):
             # All logs from this logger will be streamed to queue

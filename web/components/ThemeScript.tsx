@@ -8,7 +8,7 @@ export default function ThemeScript() {
   const themeScript = `
     (function() {
       try {
-        const stored = localStorage.getItem('educagent-theme');
+        const stored = localStorage.getItem('deeptutor-theme');
 
         if (stored === 'dark') {
           document.documentElement.classList.add('dark');
@@ -18,9 +18,9 @@ export default function ThemeScript() {
           // Use system preference if not set
           if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
             document.documentElement.classList.add('dark');
-            localStorage.setItem('educagent-theme', 'dark');
+            localStorage.setItem('deeptutor-theme', 'dark');
           } else {
-            localStorage.setItem('educagent-theme', 'light');
+            localStorage.setItem('deeptutor-theme', 'light');
           }
         }
       } catch (e) {

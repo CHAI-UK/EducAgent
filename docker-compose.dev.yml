@@ -1,5 +1,5 @@
 # ============================================
-# EducAgent Docker Compose - Development Override
+# DeepTutor Docker Compose - Development Override
 # ============================================
 # Use with: docker compose -f docker-compose.yml -f docker-compose.dev.yml up
 #
@@ -10,7 +10,7 @@
 # ============================================
 
 services:
-  educagent:
+  deeptutor:
     build:
       target: development
 
@@ -46,4 +46,4 @@ services:
     #     max-file: "3"
 
     networks:
-      - educagent-network
+      - deeptutor-network

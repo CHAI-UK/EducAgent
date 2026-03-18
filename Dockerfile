@@ -1,7 +1,7 @@
 # ============================================
-# EducAgent Multi-Stage Dockerfile
+# DeepTutor Multi-Stage Dockerfile
 # ============================================
-# This Dockerfile builds a production-ready image for EducAgent
+# This Dockerfile builds a production-ready image for DeepTutor
 # containing both the FastAPI backend and Next.js frontend
 #
 # Build: docker compose build
@@ -26,7 +26,7 @@ ARG BACKEND_PORT=8001
 COPY web/package.json web/package-lock.json* ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Copy frontend source code
 COPY web/ ./
@@ -42,16 +42,7 @@ RUN npm run build
 # ============================================
 # Stage 2: Python Base with Dependencies
 # ============================================
-# RAG_PROVIDER controls which optional heavy ML packages are installed:
-#   lightrag (default) — no extra installs
-#   llamaindex         — installs llama-index
-#   raganything        — installs raganything (MinerU parser)
-#   raganything_docling — installs raganything + docling (PyTorch, transformers)
-ARG RAG_PROVIDER=lightrag
-
 FROM python:3.11-slim AS python-base
-
-ARG RAG_PROVIDER
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -63,41 +54,38 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install system dependencies
-# libgl1 and libglib2.0-0 are required for OpenCV (used by raganything/MinerU)
+# Note: libgl1 and libglib2.0-0 are required for OpenCV (used by mineru)
+# Rust is required for building tiktoken and other packages without pre-built wheels
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    git \
     build-essential \
     libgl1 \
     libglib2.0-0 \
     libsm6 \
     libxext6 \
     libxrender1 \
-    && rm -rf /var/lib/apt/lists/*
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+# Add Rust to PATH
+ENV PATH="/root/.cargo/bin:${PATH}"
 
 # Copy requirements and install Python dependencies
 COPY requirements.txt ./
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-# Install RAG pipeline dependencies based on RAG_PROVIDER
-RUN if [ "$RAG_PROVIDER" = "llamaindex" ]; then \
-        pip install llama-index; \
-    elif [ "$RAG_PROVIDER" = "raganything" ]; then \
-        pip install raganything; \
-    elif [ "$RAG_PROVIDER" = "raganything_docling" ]; then \
-        pip install raganything docling; \
-    fi
-
 # ============================================
 # Stage 3: Production Image
 # ============================================
 FROM python:3.11-slim AS production
 
-ARG RAG_PROVIDER=lightrag
-
 # Labels
-LABEL maintainer="EducAgent Team" \
-      description="EducAgent: AI-Powered Personalized Learning Assistant" \
+LABEL maintainer="DeepTutor Team" \
+      description="DeepTutor: AI-Powered Personalized Learning Assistant" \
       version="0.1.0"
 
 # Set environment variables
@@ -107,8 +95,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     NODE_ENV=production \
     # Default ports (can be overridden)
     BACKEND_PORT=8001 \
-    FRONTEND_PORT=3782 \
-    RAG_PROVIDER=${RAG_PROVIDER}
+    FRONTEND_PORT=3782
 
 WORKDIR /app
 
@@ -137,11 +124,12 @@ RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
 COPY --from=python-base /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=python-base /usr/local/bin /usr/local/bin
 
-# Copy built frontend from frontend-builder stage (standalone output)
-# .next/standalone is self-contained with a minimal node_modules — no full copy needed
-COPY --from=frontend-builder /app/web/.next/standalone ./web/
-COPY --from=frontend-builder /app/web/.next/static ./web/.next/static
+# Copy built frontend from frontend-builder stage
+COPY --from=frontend-builder /app/web/.next ./web/.next
 COPY --from=frontend-builder /app/web/public ./web/public
+COPY --from=frontend-builder /app/web/package.json ./web/package.json
+COPY --from=frontend-builder /app/web/next.config.js ./web/next.config.js
+COPY --from=frontend-builder /app/web/node_modules ./web/node_modules
 
 # Copy application source code
 COPY src/ ./src/
@@ -149,7 +137,6 @@ COPY config/ ./config/
 COPY scripts/ ./scripts/
 COPY pyproject.toml ./
 COPY requirements.txt ./
-COPY alembic.ini ./
 
 # Create necessary directories (these will be overwritten by volume mounts)
 RUN mkdir -p \
@@ -170,7 +157,7 @@ RUN mkdir -p \
 # Log output goes to stdout/stderr so docker logs can capture them
 RUN mkdir -p /etc/supervisor/conf.d
 
-RUN cat > /etc/supervisor/conf.d/educagent.conf <<'EOF'
+RUN cat > /etc/supervisor/conf.d/deeptutor.conf <<'EOF'
 [supervisord]
 nodaemon=true
 logfile=/dev/null
@@ -201,7 +188,7 @@ stderr_logfile_maxbytes=0
 environment=NODE_ENV="production"
 EOF
 
-RUN sed -i 's/\r$//' /etc/supervisor/conf.d/educagent.conf
+RUN sed -i 's/\r$//' /etc/supervisor/conf.d/deeptutor.conf
 
 # Create backend startup script
 RUN cat > /app/start-backend.sh <<'EOF'
@@ -259,8 +246,8 @@ find /app/web/.next -type f \( -name "*.js" -o -name "*.json" \) -exec \
 # Also update .env.local for any runtime reads
 echo "NEXT_PUBLIC_API_BASE=${API_BASE}" > /app/web/.env.local
 
-# Start Next.js standalone server
-HOSTNAME=0.0.0.0 PORT=${FRONTEND_PORT} exec node /app/web/server.js
+# Start Next.js
+cd /app/web && exec node node_modules/next/dist/bin/next start -H 0.0.0.0 -p ${FRONTEND_PORT}
 EOF
 
 RUN sed -i 's/\r$//' /app/start-frontend.sh && chmod +x /app/start-frontend.sh
@@ -271,7 +258,7 @@ RUN cat > /app/entrypoint.sh <<'EOF'
 set -e
 
 echo "============================================"
-echo "🚀 Starting EducAgent"
+echo "🚀 Starting DeepTutor"
 echo "============================================"
 
 # Set default ports if not provided
@@ -310,12 +297,8 @@ echo "   - config/main.yaml"
 echo "   - config/agents.yaml"
 echo "============================================"
 
-# Run database migrations
-echo "🗄️  Running database migrations..."
-alembic upgrade head || echo "⚠️  Migration failed or no migrations to run"
-
 # Start supervisord
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/educagent.conf
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/deeptutor.conf
 EOF
 
 RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
@@ -349,7 +332,7 @@ RUN pip install --no-cache-dir \
 
 # Override supervisord config for development (with reload)
 # Log output goes to stdout/stderr so docker logs can capture them
-RUN cat > /etc/supervisor/conf.d/educagent.conf <<'EOF'
+RUN cat > /etc/supervisor/conf.d/deeptutor.conf <<'EOF'
 [supervisord]
 nodaemon=true
 logfile=/dev/null
@@ -380,7 +363,7 @@ stderr_logfile_maxbytes=0
 environment=NODE_ENV="development"
 EOF
 
-RUN sed -i 's/\r$//' /etc/supervisor/conf.d/educagent.conf
+RUN sed -i 's/\r$//' /etc/supervisor/conf.d/deeptutor.conf
 
 # Development ports
 EXPOSE 8001 3782

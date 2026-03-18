@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Unified Logging System for EducAgent
+Unified Logging System for DeepTutor
 =====================================
 
 A clean, consistent logging system with:

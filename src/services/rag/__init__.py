@@ -3,7 +3,7 @@
 RAG Service
 ===========
 
-Unified RAG pipeline service for EducAgent.
+Unified RAG pipeline service for DeepTutor.
 
 Provides:
 - RAGService: Unified entry point for all RAG operations
