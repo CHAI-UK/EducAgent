@@ -222,9 +222,6 @@ export default function HomePage() {
             <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
               {t("Welcome to EducAgent")}
             </h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400">
-              {t("How can I help you today?")}
-            </p>
           </div>
 
           {/* Input Box - Centered */}
