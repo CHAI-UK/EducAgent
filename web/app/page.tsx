@@ -30,7 +30,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { useGlobal } from "@/context/GlobalContext";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, apiFetch } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { useTranslation } from "react-i18next";
@@ -94,7 +94,7 @@ export default function HomePage() {
 
   // Fetch knowledge bases
   useEffect(() => {
-    fetch(apiUrl("/api/v1/knowledge/list"))
+    apiFetch("/api/v1/knowledge/list")
       .then((res) => res.json())
       .then((data) => {
         // Ensure data is an array before processing

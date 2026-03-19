@@ -172,7 +172,9 @@ async def auth_guard_middleware(request: Request, call_next):
     if request.method == "OPTIONS":
         return await call_next(request)
 
-    # Protect all versioned API routes; auth endpoints are mounted outside this prefix.
+    # Protect only versioned API routes (/api/v1/*).
+    # Auth entry points like /auth/jwt/login and /auth/register are intentionally
+    # mounted outside this prefix and must remain publicly accessible.
     if not path.startswith(PROTECTED_API_PREFIX):
         return await call_next(request)
 
