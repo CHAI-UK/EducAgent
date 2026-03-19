@@ -1,78 +1,78 @@
-'use client'
+"use client";
 
-import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { apiUrl, AUTH_TOKEN_KEY } from '@/lib/api'
+import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
 
 function LoginForm() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [sessionExpired, setSessionExpired] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // AC3: redirect already-authenticated users to home (FR5d)
   // AC4: show session-expired message when redirected here with ?session_expired=1
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem(AUTH_TOKEN_KEY)
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem(AUTH_TOKEN_KEY);
       if (token) {
-        router.replace('/')
-        return
+        router.replace("/");
+        return;
       }
-      if (searchParams.get('session_expired') === '1') {
-        setSessionExpired(true)
+      if (searchParams.get("session_expired") === "1") {
+        setSessionExpired(true);
       }
     }
-  }, [router, searchParams])
+  }, [router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setSessionExpired(false)
+    e.preventDefault();
+    setError("");
+    setSessionExpired(false);
 
     // Guard against a quick submit before the auth-redirect effect completes.
-    if (typeof window !== 'undefined' && localStorage.getItem(AUTH_TOKEN_KEY)) {
-      router.replace('/')
-      return
+    if (typeof window !== "undefined" && localStorage.getItem(AUTH_TOKEN_KEY)) {
+      router.replace("/");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       // FastAPI-Users BearerTransport requires application/x-www-form-urlencoded
       // with field name "username" (OAuth2 spec) — NOT JSON
-      const response = await fetch(apiUrl('/auth/jwt/login'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      const response = await fetch(apiUrl("/auth/jwt/login"), {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ username: email, password }),
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
-        localStorage.setItem(AUTH_TOKEN_KEY, data.access_token)
+        const data = await response.json();
+        localStorage.setItem(AUTH_TOKEN_KEY, data.access_token);
 
         // AC1: redirect to ?redirect= target (same-origin only) or home
-        const redirectTo = searchParams.get('redirect')
-        if (redirectTo && redirectTo.startsWith('/')) {
-          router.push(redirectTo)
+        const redirectTo = searchParams.get("redirect");
+        if (redirectTo && redirectTo.startsWith("/")) {
+          router.push(redirectTo);
         } else {
-          router.push('/')
+          router.push("/");
         }
       } else {
         // AC2: display generic message — do not reveal which field failed
-        setError('Invalid email or password')
+        setError("Invalid email or password");
       }
     } catch {
-      setError('Network error. Please check your connection and try again.')
+      setError("Network error. Please check your connection and try again.");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
@@ -109,7 +109,7 @@ function LoginForm() {
               required
               autoComplete="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="you@example.com"
             />
@@ -129,7 +129,7 @@ function LoginForm() {
               required
               autoComplete="current-password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Your password"
             />
@@ -148,19 +148,19 @@ function LoginForm() {
             disabled={isSubmitting}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            {isSubmitting ? 'Signing in…' : 'Sign in'}
+            {isSubmitting ? "Signing in…" : "Sign in"}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
-          Don&apos;t have an account?{' '}
+          Don&apos;t have an account?{" "}
           <a href="/signup" className="text-blue-600 hover:underline">
             Sign up
           </a>
         </p>
       </div>
     </div>
-  )
+  );
 }
 
 export default function LoginPage() {
@@ -168,5 +168,5 @@ export default function LoginPage() {
     <Suspense>
       <LoginForm />
     </Suspense>
-  )
+  );
 }

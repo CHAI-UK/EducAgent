@@ -19,8 +19,8 @@ from __future__ import annotations
 
 import socket
 
-import pytest
 from fastapi.testclient import TestClient
+import pytest
 
 from src.api.main import app
 from src.services.auth.db import engine
