@@ -1,7 +1,6 @@
 // API configuration and utility functions
 
-// JWT token localStorage key — shared by login, signup, and apiFetch
-export const AUTH_TOKEN_KEY = "educagent_access_token";
+export { AUTH_TOKEN_KEY } from "./auth-constants";
 
 // Get API base URL from environment variable
 // This is automatically set by start_web.py based on config/main.yaml
@@ -52,6 +51,9 @@ export async function apiFetch(
   const response = await fetch(apiUrl(path), init);
   if (response.status === 401 && typeof window !== "undefined") {
     localStorage.removeItem(AUTH_TOKEN_KEY);
+    // Expire the middleware cookie in sync with localStorage
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `${AUTH_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secure}`;
     window.location.href = "/login?session_expired=1";
     // Never resolve — navigation is in progress; prevents callers from
     // double-handling the 401 response body after the redirect fires.

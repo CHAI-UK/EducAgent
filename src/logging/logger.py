@@ -199,12 +199,19 @@ class Logger:
             timestamp = datetime.now().strftime("%Y%m%d")
             log_file = log_dir_path / f"educagent_{timestamp}.log"
 
-            file_handler = logging.FileHandler(log_file, encoding="utf-8")
-            file_handler.setLevel(logging.DEBUG)  # Log everything to file
-            file_handler.setFormatter(FileFormatter())
-            self.logger.addHandler(file_handler)
-
-            self._log_file = log_file
+            try:
+                file_handler = logging.FileHandler(log_file, encoding="utf-8")
+                file_handler.setLevel(logging.DEBUG)  # Log everything to file
+                file_handler.setFormatter(FileFormatter())
+                self.logger.addHandler(file_handler)
+                self._log_file = log_file
+            except (PermissionError, OSError) as e:
+                # Fall back to console-only logging (e.g. read-only volume mount)
+                print(
+                    f"[Logger] WARNING: cannot write log file {log_file}: {e}. "
+                    "Falling back to console-only logging.",
+                    file=sys.stderr,
+                )
 
         # For backwards compatibility with task-specific logging
         self._task_handlers: List[logging.Handler] = []

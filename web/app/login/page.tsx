@@ -55,6 +55,10 @@ function LoginForm() {
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem(AUTH_TOKEN_KEY, data.access_token);
+        // Sync to cookie so Next.js Edge middleware can read it (localStorage is
+        // not accessible on the server/Edge runtime).
+        const secure = window.location.protocol === "https:" ? "; Secure" : "";
+        document.cookie = `${AUTH_TOKEN_KEY}=${data.access_token}; path=/; SameSite=Lax${secure}`;
 
         // AC1: redirect to ?redirect= target (same-origin only) or home
         const redirectTo = searchParams.get("redirect");

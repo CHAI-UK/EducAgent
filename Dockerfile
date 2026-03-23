@@ -310,6 +310,10 @@ echo "   - config/main.yaml"
 echo "   - config/agents.yaml"
 echo "============================================"
 
+# Ensure log directory exists and is writable (survives volume-mount overrides)
+mkdir -p /app/data/user/logs
+chmod 777 /app/data/user/logs 2>/dev/null || echo "   ⚠️ Cannot chmod log directory (volume mount permissions)"
+
 # Run database migrations
 echo "🗄️  Running database migrations..."
 alembic upgrade head || echo "⚠️  Migration failed or no migrations to run"
