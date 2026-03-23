@@ -1,6 +1,7 @@
 // API configuration and utility functions
 
 export { AUTH_TOKEN_KEY } from "./auth-constants";
+import { AUTH_TOKEN_KEY } from "./auth-constants";
 
 // Get API base URL from environment variable
 // This is automatically set by start_web.py based on config/main.yaml
