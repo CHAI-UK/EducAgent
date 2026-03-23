@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { Notebook, NotebookRecord, SelectedRecord } from "../types";
 
 /**
@@ -23,7 +23,7 @@ export function useNotebookSelection() {
 
   const fetchNotebooks = useCallback(async () => {
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/list"));
+      const res = await apiFetch("/api/v1/notebook/list");
       const data = await res.json();
       const notebooksWithRecords = (data.notebooks || []).filter(
         (nb: Notebook) => nb.record_count > 0,
@@ -46,7 +46,7 @@ export function useNotebookSelection() {
         return newSet;
       });
       try {
-        const res = await fetch(apiUrl(`/api/v1/notebook/${notebookId}`));
+        const res = await apiFetch(`/api/v1/notebook/${notebookId}`);
         const data = await res.json();
         setNotebookRecordsMap((prev) =>
           new Map(prev).set(notebookId, data.records || []),

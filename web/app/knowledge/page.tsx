@@ -45,7 +45,7 @@ import {
   AlertCircle,
   Star,
 } from "lucide-react";
-import { apiUrl, wsUrl } from "@/lib/api";
+import { apiUrl, apiFetch, wsUrl } from "@/lib/api";
 import { useGlobal } from "@/context/GlobalContext";
 import { useTranslation } from "react-i18next";
 
@@ -480,17 +480,15 @@ export default function KnowledgePage() {
       setError(null);
 
       const baseUrl = apiUrl("");
-      const listUrl = apiUrl("/api/v1/knowledge/list");
-      const healthUrl = apiUrl("/api/v1/knowledge/health");
 
       console.log("🔍 Fetching knowledge bases...");
       console.log("  Base URL:", baseUrl);
-      console.log("  List URL:", listUrl);
-      console.log("  Health URL:", healthUrl);
+      console.log("  List URL:", apiUrl("/api/v1/knowledge/list"));
+      console.log("  Health URL:", apiUrl("/api/v1/knowledge/health"));
 
       // Test health check endpoint first
       try {
-        const healthRes = await fetch(healthUrl);
+        const healthRes = await apiFetch("/api/v1/knowledge/health");
         const healthData = await healthRes.json();
         console.log("✅ Health check response:", healthData);
       } catch (healthErr) {
@@ -498,11 +496,8 @@ export default function KnowledgePage() {
       }
 
       // Fetch knowledge base list
-      const res = await fetch(listUrl, {
+      const res = await apiFetch("/api/v1/knowledge/list", {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
       });
 
       console.log("📡 Response status:", res.status, res.statusText);
@@ -587,7 +582,7 @@ export default function KnowledgePage() {
   useEffect(() => {
     const fetchRagProviders = async () => {
       try {
-        const res = await fetch(apiUrl("/api/v1/knowledge/rag-providers"));
+        const res = await apiFetch("/api/v1/knowledge/rag-providers");
         if (res.ok) {
           const data = await res.json();
           setRagProviders(data.providers || []);
@@ -774,7 +769,7 @@ export default function KnowledgePage() {
       return;
 
     try {
-      const res = await fetch(apiUrl(`/api/v1/knowledge/${name}`), {
+      const res = await apiFetch(`/api/v1/knowledge/${name}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete knowledge base");
@@ -805,7 +800,7 @@ export default function KnowledgePage() {
 
     // Clear backend progress file
     try {
-      await fetch(apiUrl(`/api/v1/knowledge/${kbName}/progress/clear`), {
+      await apiFetch(`/api/v1/knowledge/${kbName}/progress/clear`, {
         method: "POST",
       });
       console.log(`[Progress] Cleared backend progress for KB: ${kbName}`);
@@ -849,7 +844,7 @@ export default function KnowledgePage() {
     }
 
     try {
-      const res = await fetch(apiUrl(`/api/v1/knowledge/${targetKb}/upload`), {
+      const res = await apiFetch(`/api/v1/knowledge/${targetKb}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -884,7 +879,7 @@ export default function KnowledgePage() {
     });
 
     try {
-      const res = await fetch(apiUrl("/api/v1/knowledge/create"), {
+      const res = await apiFetch("/api/v1/knowledge/create", {
         method: "POST",
         body: formData,
       });
@@ -1059,8 +1054,8 @@ export default function KnowledgePage() {
                     <button
                       onClick={async () => {
                         try {
-                          const res = await fetch(
-                            apiUrl(`/api/v1/knowledge/default/${kb.name}`),
+                          const res = await apiFetch(
+                            `/api/v1/knowledge/default/${kb.name}`,
                             {
                               method: "PUT",
                             },

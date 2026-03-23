@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import AddToNotebookModal from "./AddToNotebookModal";
 import NotebookImportModal from "./NotebookImportModal";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, apiFetch } from "@/lib/api";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
@@ -185,7 +185,7 @@ export default function CoWriterEditor({
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000); // 3s timeout
 
-        const response = await fetch(apiUrl("/api/v1/co_writer/history"), {
+        const response = await apiFetch("/api/v1/co_writer/history", {
           method: "GET",
           signal: controller.signal,
         });
@@ -223,7 +223,7 @@ export default function CoWriterEditor({
   useEffect(() => {
     const fetchTtsConfig = async () => {
       try {
-        const statusRes = await fetch(apiUrl("/api/v1/co_writer/tts/status"));
+        const statusRes = await apiFetch("/api/v1/co_writer/tts/status");
         if (statusRes.ok) {
           const statusData = await statusRes.json();
           if (statusData.available) {
@@ -232,8 +232,8 @@ export default function CoWriterEditor({
               setSelectedVoice(statusData.default_voice);
             }
             // Further fetch available voice list
-            const voicesRes = await fetch(
-              apiUrl("/api/v1/co_writer/tts/voices"),
+            const voicesRes = await apiFetch(
+              "/api/v1/co_writer/tts/voices",
             );
             if (voicesRes.ok) {
               const voicesData = await voicesRes.json();
@@ -268,7 +268,7 @@ export default function CoWriterEditor({
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-            const res = await fetch(apiUrl("/api/v1/knowledge/list"), {
+            const res = await apiFetch("/api/v1/knowledge/list", {
               signal: controller.signal,
             });
 
@@ -307,7 +307,7 @@ export default function CoWriterEditor({
   }, [checkBackendConnection]);
 
   const fetchHistory = () => {
-    fetch(apiUrl("/api/v1/co_writer/history"))
+    apiFetch("/api/v1/co_writer/history")
       .then((res) => {
         if (res.ok) {
           return res.json();
@@ -786,7 +786,7 @@ export default function CoWriterEditor({
         const requestBody = { text: selection.text };
         console.log("Sending automark request to:", requestUrl, requestBody);
 
-        const res = await fetch(requestUrl, {
+        const res = await apiFetch(apiEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
@@ -822,7 +822,7 @@ export default function CoWriterEditor({
 
         console.log("Sending edit request to:", requestUrl, requestBody);
 
-        const res = await fetch(requestUrl, {
+        const res = await apiFetch(apiEndpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(requestBody),
@@ -1964,8 +1964,8 @@ export default function CoWriterEditor({
                         setNarrationLoading(true);
                         setNarrationError(null);
                         try {
-                          const res = await fetch(
-                            apiUrl("/api/v1/co_writer/narrate"),
+                          const res = await apiFetch(
+                            "/api/v1/co_writer/narrate",
                             {
                               method: "POST",
                               headers: { "Content-Type": "application/json" },

@@ -14,7 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 
 interface SystemStatusData {
   backend: {
@@ -77,7 +77,7 @@ export default function SystemStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-        const response = await fetch(apiUrl("/api/v1/knowledge/health"), {
+        const response = await apiFetch("/api/v1/knowledge/health", {
           method: "GET",
           signal: controller.signal,
         });
@@ -105,7 +105,7 @@ export default function SystemStatus() {
 
   const fetchSystemStatus = async () => {
     try {
-      const response = await fetch(apiUrl("/api/v1/system/status"));
+      const response = await apiFetch("/api/v1/system/status");
       if (response.ok) {
         const data = await response.json();
         setStatusData(data);
@@ -120,7 +120,7 @@ export default function SystemStatus() {
     setTestResults((prev) => ({ ...prev, [modelType]: null }));
 
     try {
-      const response = await fetch(apiUrl(`/api/v1/system/test/${modelType}`), {
+      const response = await apiFetch(`/api/v1/system/test/${modelType}`, {
         method: "POST",
       });
 

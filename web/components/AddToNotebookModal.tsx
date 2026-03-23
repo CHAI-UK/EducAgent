@@ -11,7 +11,7 @@ import {
   FolderOpen,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 
 interface NotebookOption {
   id: string;
@@ -80,7 +80,7 @@ export default function AddToNotebookModal({
   const fetchNotebooks = async () => {
     setLoading(true);
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/list"));
+      const res = await apiFetch("/api/v1/notebook/list");
       const data = await res.json();
       setNotebooks(data.notebooks || []);
     } catch (err) {
@@ -100,7 +100,7 @@ export default function AddToNotebookModal({
     if (!newNotebook.name.trim()) return;
 
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/create"), {
+      const res = await apiFetch("/api/v1/notebook/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newNotebook),
@@ -122,7 +122,7 @@ export default function AddToNotebookModal({
 
     setSaving(true);
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/add_record"), {
+      const res = await apiFetch("/api/v1/notebook/add_record", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

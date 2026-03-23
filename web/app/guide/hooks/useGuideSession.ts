@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from "react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import {
   SessionState,
   ChatMessage,
@@ -144,7 +144,7 @@ export function useGuideSession() {
           type: r.type,
         }));
 
-        const res = await fetch(apiUrl("/api/v1/guide/create_session"), {
+        const res = await apiFetch("/api/v1/guide/create_session", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ records: recordsArray }),
@@ -219,7 +219,7 @@ export function useGuideSession() {
     );
 
     try {
-      const res = await fetch(apiUrl("/api/v1/guide/start"), {
+      const res = await apiFetch("/api/v1/guide/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionState.session_id }),
@@ -280,7 +280,7 @@ export function useGuideSession() {
     const loadingId = addLoadingMessage("Generating next knowledge point...");
 
     try {
-      const res = await fetch(apiUrl("/api/v1/guide/next"), {
+      const res = await apiFetch("/api/v1/guide/next", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session_id: sessionState.session_id }),
@@ -353,7 +353,7 @@ export function useGuideSession() {
       const loadingId = addLoadingMessage("Thinking...");
 
       try {
-        const res = await fetch(apiUrl("/api/v1/guide/chat"), {
+        const res = await apiFetch("/api/v1/guide/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -403,7 +403,7 @@ export function useGuideSession() {
       const loadingId = addLoadingMessage("Fixing HTML page...");
 
       try {
-        const res = await fetch(apiUrl("/api/v1/guide/fix_html"), {
+        const res = await apiFetch("/api/v1/guide/fix_html", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

@@ -10,7 +10,7 @@ import {
   ChevronDown,
   TestTube,
 } from "lucide-react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { ConfigItem, ConfigType } from "../types";
 import {
   PROVIDER_OPTIONS,
@@ -136,7 +136,7 @@ export default function ConfigForm({
     setTestResult(null);
 
     try {
-      const res = await fetch(apiUrl(`/api/v1/config/${configType}/test`), {
+      const res = await apiFetch(`/api/v1/config/${configType}/test`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -204,12 +204,12 @@ export default function ConfigForm({
         payload.voice = voice;
       }
 
-      const url = isEditMode
-        ? apiUrl(`/api/v1/config/${configType}/${editConfig.id}`)
-        : apiUrl(`/api/v1/config/${configType}`);
+      const path = isEditMode
+        ? `/api/v1/config/${configType}/${editConfig.id}`
+        : `/api/v1/config/${configType}`;
       const method = isEditMode ? "PUT" : "POST";
 
-      const res = await fetch(url, {
+      const res = await apiFetch(path, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

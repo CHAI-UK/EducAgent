@@ -9,7 +9,7 @@ import React, {
   useRef,
   startTransition,
 } from "react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { initializeTheme, setTheme, getStoredTheme } from "@/lib/theme";
 import { UISettings, Theme, Language } from "@/types/common";
 
@@ -50,7 +50,7 @@ export function UISettingsProvider({
   const refreshSettings = useCallback(async () => {
     // Try to load from backend API first, fallback to localStorage
     try {
-      const res = await fetch(apiUrl("/api/v1/settings"));
+      const res = await apiFetch("/api/v1/settings");
       if (res.ok) {
         const data = await res.json();
         const serverTheme = data.ui?.theme || "light";
@@ -99,7 +99,7 @@ export function UISettingsProvider({
 
     // Persist to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/theme"), {
+      await apiFetch("/api/v1/settings/theme", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ theme: newTheme }),
@@ -118,7 +118,7 @@ export function UISettingsProvider({
 
     // Persist to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/language"), {
+      await apiFetch("/api/v1/settings/language", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ language: newLanguage }),

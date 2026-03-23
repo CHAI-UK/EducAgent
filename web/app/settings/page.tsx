@@ -14,7 +14,7 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { useGlobal } from "@/context/GlobalContext";
 import { useTranslation } from "react-i18next";
 import { OverviewTab, ConfigTab } from "./components";
@@ -50,7 +50,7 @@ export default function SettingsPage() {
 
   const loadStatus = async () => {
     try {
-      const res = await fetch(apiUrl("/api/v1/config/status"));
+      const res = await apiFetch("/api/v1/config/status");
       if (res.ok) {
         const data = await res.json();
         setStatus(data);
@@ -64,7 +64,7 @@ export default function SettingsPage() {
 
   const loadPorts = async () => {
     try {
-      const res = await fetch(apiUrl("/api/v1/config/ports"));
+      const res = await apiFetch("/api/v1/config/ports");
       if (res.ok) {
         const data = await res.json();
         setPorts(data);

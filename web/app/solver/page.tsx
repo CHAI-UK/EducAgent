@@ -23,7 +23,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { useGlobal } from "@/context/GlobalContext";
-import { API_BASE_URL, apiUrl } from "@/lib/api";
+import { API_BASE_URL, apiFetch, apiUrl } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { useTranslation } from "react-i18next";
@@ -80,7 +80,7 @@ export default function SolverPage() {
 
   useEffect(() => {
     // Fetch knowledge bases on mount only
-    fetch(apiUrl("/api/v1/knowledge/list"))
+    apiFetch("/api/v1/knowledge/list")
       .then((res) => res.json())
       .then((data) => {
         const names = data.map((kb: any) => kb.name);

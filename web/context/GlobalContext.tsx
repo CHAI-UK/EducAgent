@@ -8,7 +8,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { wsUrl, apiUrl } from "@/lib/api";
+import { wsUrl, apiFetch } from "@/lib/api";
 import {
   initializeTheme,
   setTheme,
@@ -458,7 +458,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   const refreshSettings = async () => {
     // Try to load from backend API first, fallback to localStorage
     try {
-      const res = await fetch(apiUrl("/api/v1/settings"));
+      const res = await apiFetch("/api/v1/settings");
       if (res.ok) {
         const data = await res.json();
         const serverTheme = data.ui?.theme || "light";
@@ -503,7 +503,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
     // Persist to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/theme"), {
+      await apiFetch("/api/v1/settings/theme", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ theme: newTheme }),
@@ -522,7 +522,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
     // Persist to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/language"), {
+      await apiFetch("/api/v1/settings/language", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ language: newLanguage }),
@@ -625,7 +625,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadSidebarSettings = async () => {
       try {
-        const response = await fetch(apiUrl("/api/v1/settings/sidebar"));
+        const response = await apiFetch("/api/v1/settings/sidebar");
         if (response.ok) {
           const data = await response.json();
           if (data.description) {
@@ -646,7 +646,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
     setSidebarDescriptionState(description);
     // Save to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/sidebar/description"), {
+      await apiFetch("/api/v1/settings/sidebar/description", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),
@@ -660,7 +660,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
     setSidebarNavOrderState(order);
     // Save to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/sidebar/nav-order"), {
+      await apiFetch("/api/v1/settings/sidebar/nav-order", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nav_order: order }),
@@ -874,8 +874,8 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   // Load a solver session from history
   const loadSolverSession = async (sessionId: string) => {
     try {
-      const response = await fetch(
-        apiUrl(`/api/v1/solve/sessions/${sessionId}`),
+      const response = await apiFetch(
+        `/api/v1/solve/sessions/${sessionId}`,
       );
       if (!response.ok) {
         throw new Error("Session not found");
@@ -2067,8 +2067,8 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
   const loadChatSession = async (sessionId: string) => {
     try {
-      const response = await fetch(
-        apiUrl(`/api/v1/chat/sessions/${sessionId}`),
+      const response = await apiFetch(
+        `/api/v1/chat/sessions/${sessionId}`,
       );
       if (!response.ok) {
         throw new Error("Session not found");
