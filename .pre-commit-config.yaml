@@ -96,11 +96,10 @@ repos:
     hooks:
       - id: typescript-check
         name: TypeScript type check
-        language: node
-        entry: bash -c 'cd web && npx tsc --noEmit'
+        language: system
+        entry: bash -c 'cd web && ./node_modules/.bin/tsc --noEmit'
         files: ^web/.*\.(ts|tsx)$
         pass_filenames: false
-        additional_dependencies: []
 
   # ============================================
   # Type checking
