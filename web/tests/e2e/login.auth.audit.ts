@@ -5,6 +5,47 @@ import { AUTH_TOKEN_KEY } from "../../lib/api";
 // defaulting to http://localhost:3782). All page.goto() calls use relative paths.
 
 test.describe("Auth :: Login UX and session behavior", () => {
+  test("AC1: successful login with ?redirect= param redirects to target", async ({
+    page,
+  }) => {
+    await page.route("**/auth/jwt/login", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ access_token: "fake-token-ac1", token_type: "bearer" }),
+      }),
+    );
+
+    await page.goto("/login?redirect=%2F");
+
+    await page.getByLabel("Email").fill("user@example.com");
+    await page.getByLabel("Password").fill("password123");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    // Should redirect to "/" (the decoded redirect target)
+    await expect(page).toHaveURL(/\/$/, { timeout: 5000 });
+  });
+
+  test("AC1b: successful login without ?redirect= param redirects to home", async ({
+    page,
+  }) => {
+    await page.route("**/auth/jwt/login", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ access_token: "fake-token-ac1b", token_type: "bearer" }),
+      }),
+    );
+
+    await page.goto("/login");
+
+    await page.getByLabel("Email").fill("user@example.com");
+    await page.getByLabel("Password").fill("password123");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page).toHaveURL(/\/$/, { timeout: 5000 });
+  });
+
   test("AC3: authenticated user navigating to /login is redirected home", async ({
     page,
   }) => {

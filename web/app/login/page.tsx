@@ -1,12 +1,11 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
@@ -21,14 +20,14 @@ function LoginForm() {
     if (typeof window !== "undefined") {
       const token = localStorage.getItem(AUTH_TOKEN_KEY);
       if (token) {
-        router.replace("/");
+        window.location.href = "/";
         return;
       }
       if (searchParams.get("session_expired") === "1") {
         setSessionExpired(true);
       }
     }
-  }, [router, searchParams]);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +36,7 @@ function LoginForm() {
 
     // Guard against a quick submit before the auth-redirect effect completes.
     if (typeof window !== "undefined" && localStorage.getItem(AUTH_TOKEN_KEY)) {
-      router.replace("/");
+      window.location.href = "/";
       return;
     }
 
@@ -60,13 +59,12 @@ function LoginForm() {
         const secure = window.location.protocol === "https:" ? "; Secure" : "";
         document.cookie = `${AUTH_TOKEN_KEY}=${data.access_token}; path=/; SameSite=Lax${secure}`;
 
-        // AC1: redirect to ?redirect= target (same-origin only) or home
+        // AC1: redirect to ?redirect= target (same-origin only) or home.
+        // Hard-navigate (window.location.href) so the fresh auth cookie is
+        // sent with the next request and the middleware cache is bypassed.
         const redirectTo = searchParams.get("redirect");
-        if (redirectTo && redirectTo.startsWith("/")) {
-          router.push(redirectTo);
-        } else {
-          router.push("/");
-        }
+        window.location.href =
+          redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
       } else {
         // AC2: display generic message — do not reveal which field failed
         setError("Invalid email or password");

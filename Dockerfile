@@ -312,7 +312,14 @@ echo "============================================"
 
 # Ensure log directory exists and is writable (survives volume-mount overrides)
 mkdir -p /app/data/user/logs
-chmod 777 /app/data/user/logs 2>/dev/null || echo "   ⚠️ Cannot chmod log directory (volume mount permissions)"
+chmod 777 /app/data/user/logs 2>/dev/null || true
+# Verify writability; warn once if the filesystem (e.g. NFS with root_squash) blocks writes
+if touch /app/data/user/logs/.write-test 2>/dev/null; then
+    rm -f /app/data/user/logs/.write-test
+else
+    echo "   ⚠️  Log directory not writable — backend will use console-only logging."
+    echo "      Fix: ensure the host path mounted at /app/data/user/logs is writable by the container user."
+fi
 
 # Run database migrations
 echo "🗄️  Running database migrations..."

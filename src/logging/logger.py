@@ -206,10 +206,9 @@ class Logger:
                 self.logger.addHandler(file_handler)
                 self._log_file = log_file
             except (PermissionError, OSError) as e:
-                # Fall back to console-only logging (e.g. read-only volume mount)
+                # Fall back to console-only logging (e.g. read-only volume mount in Docker)
                 print(
-                    f"[Logger] WARNING: cannot write log file {log_file}: {e}. "
-                    "Falling back to console-only logging.",
+                    f"[Logger] INFO: log directory not writable ({e}); using console-only logging.",
                     file=sys.stderr,
                 )
 

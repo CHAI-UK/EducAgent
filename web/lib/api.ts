@@ -42,15 +42,30 @@ export function apiUrl(path: string): string {
 }
 
 /**
- * Fetch wrapper that intercepts 401 responses (expired/invalid JWT) and
- * redirects to /login?session_expired=1, clearing the stored token first.
+ * Fetch wrapper that:
+ * - Automatically injects the stored JWT as an Authorization: Bearer header
+ *   (callers that pass their own Authorization header take precedence)
+ * - Intercepts 401 responses (expired/invalid JWT) and redirects to
+ *   /login?session_expired=1, clearing the stored token first.
  */
 export async function apiFetch(
   path: string,
   init?: RequestInit,
 ): Promise<Response> {
-  const response = await fetch(apiUrl(path), init);
+  // Auto-inject auth token if available and caller hasn't provided their own
+  let headers = new Headers(init?.headers);
+  if (!headers.has("Authorization") && typeof window !== "undefined") {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) headers.set("Authorization", `Bearer ${token}`);
+  }
+  const response = await fetch(apiUrl(path), { ...init, headers });
   if (response.status === 401 && typeof window !== "undefined") {
+    // Skip redirect if already on a public page to avoid infinite reload loop
+    // (e.g. GlobalContext fetches settings on /login with no token → 401)
+    const publicPaths = new Set(["/login", "/signup"]);
+    if (publicPaths.has(window.location.pathname)) {
+      return response;
+    }
     localStorage.removeItem(AUTH_TOKEN_KEY);
     // Expire the middleware cookie in sync with localStorage
     const secure = window.location.protocol === "https:" ? "; Secure" : "";
