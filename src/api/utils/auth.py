@@ -28,9 +28,9 @@ def extract_websocket_token(websocket: WebSocket) -> str | None:
     Browsers cannot set custom Authorization headers on native WebSocket
     connections, so we support a query-string fallback used by the frontend.
     """
-    return extract_bearer_token(websocket.headers.get("Authorization")) or websocket.query_params.get(
-        "access_token"
-    )
+    return extract_bearer_token(
+        websocket.headers.get("Authorization")
+    ) or websocket.query_params.get("access_token")
 
 
 async def require_websocket_auth(websocket: WebSocket) -> dict | None:

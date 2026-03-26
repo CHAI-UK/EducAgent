@@ -34,6 +34,4 @@ def validate_auth_settings() -> None:
         )
 
     if len(AUTH_SECRET) < MIN_AUTH_SECRET_LENGTH:
-        raise ValueError(
-            f"AUTH_SECRET must be at least {MIN_AUTH_SECRET_LENGTH} characters long."
-        )
+        raise ValueError(f"AUTH_SECRET must be at least {MIN_AUTH_SECRET_LENGTH} characters long.")

@@ -12,7 +12,10 @@ test.describe("Auth :: Login UX and session behavior", () => {
       route.fulfill({
         status: 200,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ access_token: "fake-token-ac1", token_type: "bearer" }),
+        body: JSON.stringify({
+          access_token: "fake-token-ac1",
+          token_type: "bearer",
+        }),
       }),
     );
 
@@ -33,7 +36,10 @@ test.describe("Auth :: Login UX and session behavior", () => {
       route.fulfill({
         status: 200,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ access_token: "fake-token-ac1b", token_type: "bearer" }),
+        body: JSON.stringify({
+          access_token: "fake-token-ac1b",
+          token_type: "bearer",
+        }),
       }),
     );
 

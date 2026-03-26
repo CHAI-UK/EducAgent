@@ -907,9 +907,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   // Load a solver session from history
   const loadSolverSession = async (sessionId: string) => {
     try {
-      const response = await apiFetch(
-        `/api/v1/solve/sessions/${sessionId}`,
-      );
+      const response = await apiFetch(`/api/v1/solve/sessions/${sessionId}`);
       if (!response.ok) {
         throw new Error("Session not found");
       }
@@ -2100,9 +2098,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
   const loadChatSession = async (sessionId: string) => {
     try {
-      const response = await apiFetch(
-        `/api/v1/chat/sessions/${sessionId}`,
-      );
+      const response = await apiFetch(`/api/v1/chat/sessions/${sessionId}`);
       if (!response.ok) {
         throw new Error("Session not found");
       }

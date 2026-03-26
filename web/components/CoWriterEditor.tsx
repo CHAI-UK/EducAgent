@@ -232,9 +232,7 @@ export default function CoWriterEditor({
               setSelectedVoice(statusData.default_voice);
             }
             // Further fetch available voice list
-            const voicesRes = await apiFetch(
-              "/api/v1/co_writer/tts/voices",
-            );
+            const voicesRes = await apiFetch("/api/v1/co_writer/tts/voices");
             if (voicesRes.ok) {
               const voicesData = await voicesRes.json();
               setTtsVoices(voicesData.voices || []);

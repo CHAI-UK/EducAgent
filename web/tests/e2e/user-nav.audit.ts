@@ -71,7 +71,9 @@ test.describe("UserNav :: Avatar and username in nav bar (Story 1.5)", () => {
 
     await page.getByRole("button", { name: /user menu/i }).click();
 
-    await expect(page.getByRole("menuitem", { name: /view profile/i })).toBeVisible();
+    await expect(
+      page.getByRole("menuitem", { name: /view profile/i }),
+    ).toBeVisible();
     await expect(page.getByRole("menuitem", { name: /logout/i })).toBeVisible();
   });
 

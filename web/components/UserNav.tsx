@@ -66,8 +66,7 @@ export default function UserNav() {
     // the backend round-trip which can take seconds.
     if (typeof window !== "undefined") {
       localStorage.removeItem(AUTH_TOKEN_KEY);
-      const secure =
-        window.location.protocol === "https:" ? "; Secure" : "";
+      const secure = window.location.protocol === "https:" ? "; Secure" : "";
       document.cookie = `${AUTH_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax${secure}`;
     }
 

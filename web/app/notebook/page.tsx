@@ -242,18 +242,15 @@ export default function NotebookPage() {
     if (!editingNotebook || !editingNotebook.name.trim()) return;
 
     try {
-      const res = await apiFetch(
-        `/api/v1/notebook/${editingNotebook.id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: editingNotebook.name,
-            description: editingNotebook.description,
-            color: editingNotebook.color,
-          }),
-        },
-      );
+      const res = await apiFetch(`/api/v1/notebook/${editingNotebook.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editingNotebook.name,
+          description: editingNotebook.description,
+          color: editingNotebook.color,
+        }),
+      });
       const data = await res.json();
       if (data.success) {
         fetchNotebooks();

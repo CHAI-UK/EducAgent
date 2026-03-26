@@ -77,12 +77,9 @@ export default function ConfigTab({
       return;
 
     try {
-      const res = await apiFetch(
-        `/api/v1/config/${configType}/${configId}`,
-        {
-          method: "DELETE",
-        },
-      );
+      const res = await apiFetch(`/api/v1/config/${configType}/${configId}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         loadConfigs();
         onUpdate();
