@@ -10,6 +10,7 @@ from pydantic import BaseModel
 
 from src.agents.research.agents import RephraseAgent
 from src.agents.research.research_pipeline import ResearchPipeline
+from src.api.utils.auth import require_websocket_auth
 from src.api.utils.history import ActivityType, history_manager
 from src.api.utils.task_id_manager import TaskIDManager
 from src.logging import get_logger
@@ -81,6 +82,9 @@ async def optimize_topic(request: OptimizeRequest):
 
 @router.websocket("/run")
 async def websocket_research_run(websocket: WebSocket):
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     # Get task ID manager

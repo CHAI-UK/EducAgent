@@ -481,16 +481,10 @@ export default function KnowledgePage() {
 
       const baseUrl = apiUrl("");
 
-      console.log("🔍 Fetching knowledge bases...");
-      console.log("  Base URL:", baseUrl);
-      console.log("  List URL:", apiUrl("/api/v1/knowledge/list"));
-      console.log("  Health URL:", apiUrl("/api/v1/knowledge/health"));
-
       // Test health check endpoint first
       try {
         const healthRes = await apiFetch("/api/v1/knowledge/health");
-        const healthData = await healthRes.json();
-        console.log("✅ Health check response:", healthData);
+        await healthRes.json();
       } catch (healthErr) {
         console.warn("⚠️ Health check failed:", healthErr);
       }
@@ -499,12 +493,6 @@ export default function KnowledgePage() {
       const res = await apiFetch("/api/v1/knowledge/list", {
         method: "GET",
       });
-
-      console.log("📡 Response status:", res.status, res.statusText);
-      console.log(
-        "📡 Response headers:",
-        Object.fromEntries(res.headers.entries()),
-      );
 
       if (!res.ok) {
         let errorMessage = `HTTP ${res.status}: Failed to fetch knowledge bases`;
@@ -523,9 +511,6 @@ export default function KnowledgePage() {
       }
 
       const data = await res.json();
-      console.log("✅ Received knowledge bases:", data);
-      console.log("✅ Data type:", Array.isArray(data) ? "array" : typeof data);
-      console.log("✅ Data length:", Array.isArray(data) ? data.length : "N/A");
 
       if (!Array.isArray(data)) {
         throw new Error(

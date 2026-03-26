@@ -323,7 +323,14 @@ fi
 
 # Run database migrations
 echo "🗄️  Running database migrations..."
-alembic upgrade head || echo "⚠️  Migration failed or no migrations to run"
+if alembic upgrade head; then
+    echo "✅ Database migrations completed"
+elif [ "${ALLOW_MIGRATION_FAILURE:-false}" = "true" ]; then
+    echo "⚠️  Migration failed, but continuing because ALLOW_MIGRATION_FAILURE=true"
+else
+    echo "❌ Database migrations failed. Refusing to start with an unknown schema state."
+    exit 1
+fi
 
 # Start supervisord
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/educagent.conf

@@ -5,14 +5,55 @@ import { useRouter } from "next/navigation";
 
 import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
 
+type ValidationErrorDetail = {
+  msg?: string;
+  loc?: Array<string | number>;
+};
+
+function getRegistrationErrorMessage(detail: unknown): string {
+  if (typeof detail === "string" && detail.trim().length > 0) {
+    return detail;
+  }
+
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((item) => {
+        if (!item || typeof item !== "object") {
+          return null;
+        }
+
+        const error = item as ValidationErrorDetail;
+        if (typeof error.msg !== "string" || error.msg.trim().length === 0) {
+          return null;
+        }
+
+        const field = error.loc?.[error.loc.length - 1];
+        if (typeof field === "string" && field !== "body") {
+          const label = field.charAt(0).toUpperCase() + field.slice(1);
+          return `${label}: ${error.msg}`;
+        }
+
+        return error.msg;
+      })
+      .filter((message): message is string => Boolean(message));
+
+    if (messages.length > 0) {
+      return messages.join(" ");
+    }
+  }
+
+  return "Registration failed. Please try again.";
+}
+
 export default function SignupPage() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [serverError, setServerError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -27,6 +68,20 @@ export default function SignupPage() {
   }, [router]);
 
   // AC3: inline password-length validation
+  const validateConfirmPassword = (
+    nextPassword: string,
+    nextConfirmPassword: string,
+  ) => {
+    if (
+      nextConfirmPassword.length > 0 &&
+      nextPassword !== nextConfirmPassword
+    ) {
+      setConfirmPasswordError("Passwords do not match");
+    } else {
+      setConfirmPasswordError("");
+    }
+  };
+
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     if (value.length > 0 && value.length < 8) {
@@ -34,19 +89,40 @@ export default function SignupPage() {
     } else {
       setPasswordError("");
     }
+
+    validateConfirmPassword(value, confirmPassword);
+  };
+
+  const handleConfirmPasswordChange = (value: string) => {
+    setConfirmPassword(value);
+    validateConfirmPassword(password, value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setServerError("");
 
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedUsername = username.trim();
+
     // Client-side guard before submitting
+    if (!normalizedEmail) {
+      setServerError("Email is required");
+      return;
+    }
+
+    if (!normalizedUsername) {
+      setServerError("Username is required");
+      return;
+    }
+
     if (password.length < 8) {
       setPasswordError("Password must be at least 8 characters");
       return;
     }
 
-    if (!ageConfirmed) {
+    if (password !== confirmPassword) {
+      setConfirmPasswordError("Passwords do not match");
       return;
     }
 
@@ -55,8 +131,14 @@ export default function SignupPage() {
       const response = await fetch(apiUrl("/auth/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, username, password }),
+        body: JSON.stringify({
+          email: normalizedEmail,
+          username: normalizedUsername,
+          password,
+        }),
       });
+
+      const data = await response.json().catch(() => ({}));
 
       if (response.status === 201) {
         // AC1: successful registration → redirect to home
@@ -64,14 +146,17 @@ export default function SignupPage() {
         router.push("/");
       } else if (response.status === 400) {
         // AC2: duplicate email
-        setServerError("An account with this email already exists");
+        if (typeof data.detail === "string") {
+          setServerError(
+            data.detail === "REGISTER_USER_ALREADY_EXISTS"
+              ? "An account with this email already exists"
+              : data.detail,
+          );
+        } else {
+          setServerError("An account with this email already exists");
+        }
       } else {
-        const data = await response.json().catch(() => ({}));
-        setServerError(
-          typeof data.detail === "string"
-            ? data.detail
-            : "Registration failed. Please try again.",
-        );
+        setServerError(getRegistrationErrorMessage(data.detail));
       }
     } catch {
       setServerError(
@@ -159,21 +244,28 @@ export default function SignupPage() {
             )}
           </div>
 
-          {/* AC5: COPPA minimum age acknowledgement */}
-          <div className="flex items-start gap-3">
-            <input
-              id="age-confirmation"
-              type="checkbox"
-              checked={ageConfirmed}
-              onChange={(e) => setAgeConfirmed(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-            />
+          <div>
             <label
-              htmlFor="age-confirmation"
-              className="text-sm text-slate-600 dark:text-slate-400"
+              htmlFor="confirm-password"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              I confirm that I am at least 13 years old
+              Confirm password
             </label>
+            <input
+              id="confirm-password"
+              type="password"
+              required
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Retype your password"
+            />
+            {confirmPasswordError && (
+              <p className="mt-1 text-sm text-red-500" role="alert">
+                {confirmPasswordError}
+              </p>
+            )}
           </div>
 
           {/* Server error (AC2 + general) */}
@@ -186,7 +278,7 @@ export default function SignupPage() {
           {/* Submit */}
           <button
             type="submit"
-            disabled={isSubmitting || !ageConfirmed}
+            disabled={isSubmitting}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             {isSubmitting ? "Creating account…" : "Create account"}

@@ -17,6 +17,7 @@ if str(project_root) not in sys.path:
 
 from src.agents.base_agent import BaseAgent
 from src.agents.guide.guide_manager import GuideManager
+from src.api.utils.auth import require_websocket_auth
 from src.api.utils.notebook_manager import notebook_manager
 from src.api.utils.task_id_manager import TaskIDManager
 from src.logging import get_logger
@@ -258,6 +259,9 @@ async def websocket_guide(websocket: WebSocket, session_id: str):
     - fix_html: Fix HTML
     - get_session: Get session state
     """
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     task_manager = TaskIDManager.get_instance()

@@ -14,6 +14,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect
 
 from src.agents.solve import MainSolver, SolverSessionManager
+from src.api.utils.auth import require_websocket_auth
 from src.api.utils.history import ActivityType, history_manager
 from src.api.utils.log_interceptor import LogInterceptor
 from src.api.utils.task_id_manager import TaskIDManager
@@ -96,6 +97,9 @@ async def delete_solver_session(session_id: str):
 
 @router.websocket("/solve")
 async def websocket_solve(websocket: WebSocket):
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     task_manager = TaskIDManager.get_instance()

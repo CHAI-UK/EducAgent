@@ -46,6 +46,27 @@ def test_user_create_accepts_long_password() -> None:
     assert user.email == "test@example.com"
 
 
+def test_user_create_normalizes_email_and_username_whitespace() -> None:
+    """Email and username should be trimmed before validation/storage."""
+    user = UserCreate(
+        email="  Test@Example.com  ",
+        password="password123",
+        username="  testuser  ",
+    )
+    assert user.email == "test@example.com"
+    assert user.username == "testuser"
+
+
+def test_user_create_rejects_blank_username_after_trimming() -> None:
+    """Whitespace-only usernames must be rejected with a clear validation error."""
+    with pytest.raises(ValidationError, match="Username is required"):
+        UserCreate(
+            email="test@example.com",
+            password="password123",
+            username="   ",
+        )
+
+
 # ── Task 1c: Auth middleware exclusion ────────────────────────────────────────
 
 

@@ -140,6 +140,13 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
 
+      - name: Run auth service tests
+        run: |
+          echo "🔐 Running auth service tests with Python ${{ matrix.python-version }}"
+          pytest tests/services/test_auth_* -v --tb=short
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
   # ============================================
   # Test Summary
   # ============================================

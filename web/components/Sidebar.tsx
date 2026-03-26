@@ -265,14 +265,15 @@ export default function Sidebar() {
             className={`flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between"}`}
           >
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
+              <div className="relative w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden flex-shrink-0">
                 <Image
                   src="/chai-logo.webp"
                   alt={t("EducAgent Logo")}
-                  width={32}
-                  height={32}
+                  fill
+                  sizes="32px"
                   className="object-contain"
                   priority
+                  unoptimized
                 />
               </div>
               <h1

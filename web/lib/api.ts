@@ -3,12 +3,25 @@
 export { AUTH_TOKEN_KEY } from "./auth-constants";
 import { AUTH_TOKEN_KEY } from "./auth-constants";
 
+const LOCAL_API_FALLBACK = "http://localhost:8001";
+
 // Get API base URL from environment variable
 // This is automatically set by start_web.py based on config/main.yaml
 // The .env.local file is auto-generated on startup with the correct backend port
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE ||
   (() => {
+    const isLocalDevOrTest = process.env.NODE_ENV !== "production";
+
+    if (isLocalDevOrTest) {
+      if (typeof window !== "undefined") {
+        console.warn(
+          `NEXT_PUBLIC_API_BASE is not set. Falling back to ${LOCAL_API_FALLBACK} for local development/testing.`,
+        );
+      }
+      return LOCAL_API_FALLBACK;
+    }
+
     if (typeof window !== "undefined") {
       console.error("NEXT_PUBLIC_API_BASE is not set.");
       console.error(
@@ -18,7 +31,7 @@ export const API_BASE_URL =
         "The .env.local file will be automatically generated with the correct backend port.",
       );
     }
-    // No fallback - port must be configured in config/main.yaml
+    // Keep production fail-closed so deployments don't accidentally point to localhost.
     throw new Error(
       "NEXT_PUBLIC_API_BASE is not configured. Please set server ports in config/main.yaml and restart.",
     );
@@ -95,5 +108,14 @@ export function wsUrl(path: string): string {
   // Remove trailing slash from base URL if present
   const normalizedBase = base.endsWith("/") ? base.slice(0, -1) : base;
 
-  return `${normalizedBase}${normalizedPath}`;
+  const url = new URL(`${normalizedBase}${normalizedPath}`);
+
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (token) {
+      url.searchParams.set("access_token", token);
+    }
+  }
+
+  return url.toString();
 }

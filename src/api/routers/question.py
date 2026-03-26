@@ -9,6 +9,7 @@ import traceback
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
 from src.agents.question import AgentCoordinator
+from src.api.utils.auth import require_websocket_auth
 from src.api.utils.history import ActivityType, history_manager
 from src.api.utils.log_interceptor import LogInterceptor
 from src.api.utils.task_id_manager import TaskIDManager
@@ -64,6 +65,9 @@ async def websocket_mimic_generate(websocket: WebSocket):
         "max_questions": 5  // optional
     }
     """
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     pusher_task = None
@@ -329,6 +333,9 @@ async def websocket_mimic_generate(websocket: WebSocket):
 
 @router.websocket("/generate")
 async def websocket_question_generate(websocket: WebSocket):
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     # Get task ID manager

@@ -18,6 +18,7 @@ Implementation notes:
 from __future__ import annotations
 
 import socket
+import uuid
 
 from fastapi.testclient import TestClient
 import pytest
@@ -146,3 +147,38 @@ def test_login_success_returns_access_token() -> None:
     assert "access_token" in data
     assert data["token_type"] == "bearer"
     assert len(data["access_token"]) > 20  # sanity check it's a real token
+
+
+def test_login_token_allows_access_to_protected_api() -> None:
+    """Register + login should produce a JWT accepted by protected /api/v1 routes.
+
+    Requires DB. Skipped gracefully when DB is unavailable.
+    """
+    if not _is_db_available():
+        pytest.skip("PostgreSQL not available — skipping live-DB login test")
+
+    unique = uuid.uuid4().hex[:8]
+    email = f"authflow_{unique}@example.com"
+    password = "correctpassword123"
+    username = f"authflow_{unique}"
+
+    with TestClient(app) as client:
+        reg = client.post(
+            "/auth/register",
+            json={"email": email, "password": password, "username": username},
+        )
+        assert reg.status_code == 201
+
+        login = client.post(
+            "/auth/jwt/login",
+            data={"username": email, "password": password},
+        )
+        assert login.status_code == 200
+
+        token = login.json()["access_token"]
+        protected = client.get(
+            "/api/v1/solve/sessions",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+    assert protected.status_code == 200

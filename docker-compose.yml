@@ -96,9 +96,12 @@ services:
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-}
       # Auth + DB configuration
       - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://educagent:educagent@postgres:5432/educagent}
-      - AUTH_SECRET=${AUTH_SECRET:-change-me-in-production}
+      - AUTH_SECRET=${AUTH_SECRET}
       - AUTH_ALGORITHM=${AUTH_ALGORITHM:-HS256}
       - AUTH_TOKEN_LIFETIME_SECONDS=${AUTH_TOKEN_LIFETIME_SECONDS:-3600}
+      # Optional escape hatch for local/dev debugging only.
+      # Default behavior is fail-closed when Alembic migrations fail.
+      - ALLOW_MIGRATION_FAILURE=${ALLOW_MIGRATION_FAILURE:-false}
 
     depends_on:
       postgres:

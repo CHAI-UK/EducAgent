@@ -1,10 +1,13 @@
 from contextlib import asynccontextmanager
+import json
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.exception_handlers import request_validation_exception_handler
 from sqlalchemy import text
 
 from src.api.routers import (
@@ -23,9 +26,10 @@ from src.api.routers import (
     solve,
     system,
 )
+from src.api.utils.auth import extract_bearer_token, validate_access_token
 from src.logging import get_logger
 from src.services.auth import engine, get_auth_routers
-from src.services.auth.jwt_utils import decode_access_token
+from src.services.auth.config import validate_auth_settings
 
 # Note: Don't set service_prefix here - start_web.py already adds [Backend] prefix
 logger = get_logger("API")
@@ -132,6 +136,9 @@ async def lifespan(app: FastAPI):
     # Execute on startup
     logger.info("Application startup")
 
+    # Fail fast on unsafe JWT signing configuration.
+    validate_auth_settings()
+
     # Validate configuration consistency
     validate_tool_consistency()
 
@@ -158,11 +165,43 @@ app = FastAPI(
     # Disable automatic trailing slash redirects to prevent protocol downgrade issues
     # when deployed behind HTTPS reverse proxies (e.g., nginx).
     # Without this, FastAPI's 307 redirects may change HTTPS to HTTP.
-    # See: https://github.com/HKUDS/EducAgent/issues/112
+    # See: https://github.com/HKUDS/DeepTutor/issues/112
     redirect_slashes=False,
 )
 
 PROTECTED_API_PREFIX = "/api/v1"
+AUTH_ROUTE_PREFIX = "/auth"
+
+
+def _sanitize_request_body_for_logs(body: bytes) -> str:
+    if not body:
+        return "<empty>"
+
+    try:
+        payload = json.loads(body)
+    except json.JSONDecodeError:
+        return "<non-json body>"
+
+    if isinstance(payload, dict):
+        sanitized = {
+            key: ("<redacted>" if "password" in key.lower() else value)
+            for key, value in payload.items()
+        }
+        return json.dumps(sanitized, ensure_ascii=True, sort_keys=True)
+
+    return json.dumps(payload, ensure_ascii=True)
+
+
+def _unauthorized_response(*, invalid_token: bool = False) -> JSONResponse:
+    www_authenticate = "Bearer"
+    if invalid_token:
+        www_authenticate += ' error="invalid_token"'
+
+    return JSONResponse(
+        status_code=401,
+        content={"detail": "Unauthorized"},
+        headers={"WWW-Authenticate": www_authenticate},
+    )
 
 
 @app.middleware("http")
@@ -178,22 +217,39 @@ async def auth_guard_middleware(request: Request, call_next):
     if not path.startswith(PROTECTED_API_PREFIX):
         return await call_next(request)
 
-    auth_header = request.headers.get("Authorization", "")
-    if not auth_header.startswith("Bearer "):
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
-
-    token = auth_header.split(" ", 1)[1].strip()
+    token = extract_bearer_token(request.headers.get("Authorization"))
     if not token:
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        return _unauthorized_response()
 
     try:
-        payload = decode_access_token(token)
-        if not payload.get("sub"):
-            return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        validate_access_token(token)
     except ValueError:
-        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+        return _unauthorized_response(invalid_token=True)
 
     return await call_next(request)
+
+
+@app.exception_handler(RequestValidationError)
+async def log_request_validation_error(request: Request, exc: RequestValidationError):
+    errors = exc.errors()
+    if request.url.path.startswith(AUTH_ROUTE_PREFIX):
+        body = await request.body()
+        logger.warning(
+            "Auth request validation failed: "
+            f"method={request.method} "
+            f"path={request.url.path} "
+            f"errors={errors} "
+            f"body={_sanitize_request_body_for_logs(body)}"
+        )
+    else:
+        logger.warning(
+            "Request validation failed: "
+            f"method={request.method} "
+            f"path={request.url.path} "
+            f"errors={errors}"
+        )
+
+    return await request_validation_exception_handler(request, exc)
 
 
 # Configure CORS
