@@ -2,8 +2,8 @@ import logging
 import os
 from pathlib import Path
 import tempfile
-from threading import Lock
-from typing import Any, Dict, List, Optional
+from threading import RLock
+from typing import Any, ClassVar, Dict, List, Optional, cast
 
 from dotenv import dotenv_values, load_dotenv
 from pydantic import ValidationError
@@ -32,22 +32,39 @@ class ConfigManager:
     - Layered env: .env, then .env.local (override), then process env.
     """
 
-    _instance: Optional["ConfigManager"] = None
-    _lock = Lock()
+    project_root: Path
+    config_path: Path
+    _config_cache: Dict[str, Any]
+    _last_mtime: float
+    _initialized: bool
 
-    def __new__(cls, project_root: Optional[Path] = None):
-        if cls._instance is None:
+    _instance: ClassVar[Optional["ConfigManager"]] = None
+    _lock: ClassVar[RLock] = RLock()
+
+    def __new__(cls, project_root: Optional[Path] = None) -> "ConfigManager":
+        requested_root = Path(project_root) if project_root is not None else None
+        if cls._instance is None or (
+            requested_root is not None
+            and getattr(cls._instance, "project_root", None) != requested_root
+        ):
             with cls._lock:
-                if cls._instance is None:
-                    cls._instance = super(ConfigManager, cls).__new__(cls)
-                    cls._instance._initialized = False
-        return cls._instance
+                if cls._instance is None or (
+                    requested_root is not None
+                    and getattr(cls._instance, "project_root", None) != requested_root
+                ):
+                    instance = cast("ConfigManager", super(ConfigManager, cls).__new__(cls))
+                    instance._initialized = False
+                    cls._instance = instance
+        return cast("ConfigManager", cls._instance)
 
     def __init__(self, project_root: Optional[Path] = None):
+        resolved_root = Path(project_root) if project_root is not None else None
         if getattr(self, "_initialized", False):
-            return
+            current_root = getattr(self, "project_root", None)
+            if resolved_root is None or current_root == resolved_root:
+                return
 
-        self.project_root = project_root or Path(__file__).parent.parent.parent
+        self.project_root = resolved_root or Path(__file__).parent.parent.parent
         self.config_path = self.project_root / "config" / "main.yaml"
         self._config_cache: Dict[str, Any] = {}
         self._last_mtime: float = 0.0

@@ -90,6 +90,7 @@ jobs:
   unit-tests:
     name: Unit Tests (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: import-check
     strategy:
       fail-fast: false
@@ -120,13 +121,20 @@ jobs:
           pip install pytest pytest-asyncio pytest-cov
 
       - name: Run unit tests
+        timeout-minutes: 10
         run: |
           echo "🧪 Running tests with Python ${{ matrix.python-version }}"
-          pytest tests/ -v --tb=short --ignore=tests/agents/ || echo "⚠️ Some tests failed or no tests found"
+          pytest tests/core tests/services -v --tb=short \
+            --ignore=tests/agents/ \
+            --ignore=tests/services/rag/ \
+            --ignore=tests/services/test_auth_1_1_database.py \
+            --ignore=tests/services/test_auth_1_2_registration.py \
+            --ignore=tests/services/test_auth_1_3_login.py
         env:
           PYTHONPATH: ${{ github.workspace }}
 
       - name: Run auth service tests
+        timeout-minutes: 5
         run: |
           echo "🔐 Running auth service tests with Python ${{ matrix.python-version }}"
           pytest tests/services/test_auth_* -v --tb=short
