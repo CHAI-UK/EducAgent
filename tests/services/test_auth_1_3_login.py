@@ -22,8 +22,10 @@ import uuid
 
 from fastapi.testclient import TestClient
 import pytest
+from sqlalchemy.engine import make_url
 
 from src.api.main import app
+from src.services.auth.config import DATABASE_URL
 from src.services.auth.db import engine
 
 
@@ -61,14 +63,18 @@ def test_login_endpoint_not_blocked_by_auth_middleware() -> None:
 
 
 def _is_db_available() -> bool:
-    """Return True if the PostgreSQL database port is reachable.
+    """Return True if the configured PostgreSQL test database is reachable.
 
     Uses a plain TCP socket check to avoid async event-loop conflicts that arise
     when probing via TestClient (Starlette's BaseHTTPMiddleware spawns new tasks
     for call_next, which confuses asyncpg's task-bound connection pool).
     """
+    url = make_url(DATABASE_URL)
+    host = url.host or "localhost"
+    port = url.port or 5432
+
     try:
-        with socket.create_connection(("localhost", 5432), timeout=2):
+        with socket.create_connection((host, port), timeout=2):
             return True
     except OSError:
         return False
@@ -82,22 +88,25 @@ def test_login_bad_credentials_returns_400() -> None:
     if not _is_db_available():
         pytest.skip("PostgreSQL not available — skipping live-DB login test")
 
+    unique = uuid.uuid4().hex[:8]
+    email = f"logintest_bad_{unique}@example.com"
+
     with TestClient(app) as client:
         # Register a user first so the email is known
         reg = client.post(
             "/auth/register",
             json={
-                "email": "logintest_bad@example.com",
+                "email": email,
                 "password": "correctpassword123",
-                "username": "logintest_bad",
+                "username": f"logintest_bad_{unique}",
             },
         )
-        assert reg.status_code in (201, 400)  # 400 if already registered from a previous run
+        assert reg.status_code == 201
 
         # Now attempt login with the wrong password
         response = client.post(
             "/auth/jwt/login",
-            data={"username": "logintest_bad@example.com", "password": "wrongpassword!"},
+            data={"username": email, "password": "wrongpassword!"},
         )
     assert response.status_code == 400
     assert response.json()["detail"] == "LOGIN_BAD_CREDENTIALS"
@@ -127,15 +136,19 @@ def test_login_success_returns_access_token() -> None:
     if not _is_db_available():
         pytest.skip("PostgreSQL not available — skipping live-DB login test")
 
-    # Register a fresh user
-    email = "logintest_ok@example.com"
+    unique = uuid.uuid4().hex[:8]
+    email = f"logintest_ok_{unique}@example.com"
     password = "correctpassword123"
     with TestClient(app) as client:
         reg = client.post(
             "/auth/register",
-            json={"email": email, "password": password, "username": "logintest_ok"},
+            json={
+                "email": email,
+                "password": password,
+                "username": f"logintest_ok_{unique}",
+            },
         )
-        assert reg.status_code in (201, 400)  # 400 = already exists from a previous run — fine
+        assert reg.status_code == 201
 
         # Login with correct credentials
         response = client.post(

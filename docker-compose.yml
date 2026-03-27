@@ -34,6 +34,30 @@ services:
     networks:
       - educagent-network
 
+  postgres-test:
+    image: postgres:16
+    container_name: educagent-postgres-test
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_TEST_DB:-educagent_test}
+      - POSTGRES_USER=${POSTGRES_TEST_USER:-educagent}
+      - POSTGRES_PASSWORD=${POSTGRES_TEST_PASSWORD:-educagent}
+    ports:
+      - "${POSTGRES_TEST_PORT:-5433}:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_TEST_USER:-educagent} -d ${POSTGRES_TEST_DB:-educagent_test}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - educagent-network
+
   # ============================================
   # All-in-One EducAgent Service
   # ============================================
@@ -134,3 +158,4 @@ networks:
 
 volumes:
   postgres_data:
+  postgres_test_data:
