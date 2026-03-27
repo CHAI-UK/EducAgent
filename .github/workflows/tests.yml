@@ -92,6 +92,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: import-check
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: educagent_test
+          POSTGRES_USER: educagent
+          POSTGRES_PASSWORD: educagent
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U educagent -d educagent_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
     strategy:
       fail-fast: false
       matrix:
@@ -140,6 +154,7 @@ jobs:
           pytest tests/services/test_auth_* -v --tb=short
         env:
           PYTHONPATH: ${{ github.workspace }}
+          TEST_DATABASE_URL: postgresql+asyncpg://educagent:educagent@localhost:5432/educagent_test
 
   # ============================================
   # Test Summary
