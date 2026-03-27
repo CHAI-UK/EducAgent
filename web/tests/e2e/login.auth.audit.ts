@@ -23,6 +23,37 @@ test.describe("Auth :: Login UX and session behavior", () => {
         }),
       }),
     );
+    await page.route("**/api/v1/profile", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: "00000000-0000-0000-0000-000000000001",
+          email: "user@example.com",
+          username: "user",
+          first_name: "Test",
+          last_name: "User",
+          institution: null,
+          avatar_url: null,
+          is_active: true,
+          is_superuser: false,
+          is_verified: true,
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-01-01T00:00:00Z",
+          learner_profile: {
+            id: "00000000-0000-0000-0000-000000000002",
+            background: "Scientist",
+            role: "Researcher",
+            prior_knowledge: ["machine_learning"],
+            expertise_level: "moderate",
+            learning_goal: "Learn causality",
+            is_skipped: false,
+            created_at: "2026-01-01T00:00:00Z",
+            updated_at: "2026-01-01T00:00:00Z",
+          },
+        }),
+      }),
+    );
 
     await page.goto("/login?redirect=%2F");
 
@@ -47,6 +78,37 @@ test.describe("Auth :: Login UX and session behavior", () => {
         }),
       }),
     );
+    await page.route("**/api/v1/profile", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: "00000000-0000-0000-0000-000000000001",
+          email: "user@example.com",
+          username: "user",
+          first_name: "Test",
+          last_name: "User",
+          institution: null,
+          avatar_url: null,
+          is_active: true,
+          is_superuser: false,
+          is_verified: true,
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-01-01T00:00:00Z",
+          learner_profile: {
+            id: "00000000-0000-0000-0000-000000000002",
+            background: "Scientist",
+            role: "Researcher",
+            prior_knowledge: ["machine_learning"],
+            expertise_level: "moderate",
+            learning_goal: "Learn causality",
+            is_skipped: false,
+            created_at: "2026-01-01T00:00:00Z",
+            updated_at: "2026-01-01T00:00:00Z",
+          },
+        }),
+      }),
+    );
 
     await page.goto("/login");
 
@@ -55,6 +117,48 @@ test.describe("Auth :: Login UX and session behavior", () => {
     await page.getByRole("button", { name: "Sign in" }).click();
 
     await expect(page).toHaveURL(/\/$/, { timeout: 5000 });
+  });
+
+  test("first-time login redirects to learner onboarding", async ({ page }) => {
+    await page.route("**/auth/jwt/login", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          access_token: "fake-token-new-user",
+          token_type: "bearer",
+        }),
+      }),
+    );
+    await page.route("**/api/v1/profile", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: "00000000-0000-0000-0000-000000000001",
+          email: "new@example.com",
+          username: "new-user",
+          first_name: null,
+          last_name: null,
+          institution: null,
+          avatar_url: null,
+          is_active: true,
+          is_superuser: false,
+          is_verified: true,
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-01-01T00:00:00Z",
+          learner_profile: null,
+        }),
+      }),
+    );
+
+    await page.goto("/login?redirect=/study");
+
+    await page.getByLabel("Email").fill("new@example.com");
+    await page.getByLabel("Password").fill("password123");
+    await page.getByRole("button", { name: "Sign in" }).click();
+
+    await expect(page).toHaveURL(/\/onboarding\/learner$/, { timeout: 5000 });
   });
 
   test("AC3: authenticated user navigating to /login is redirected home", async ({

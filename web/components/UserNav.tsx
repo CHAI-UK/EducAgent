@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, User } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { apiUrl, apiFetch, AUTH_TOKEN_KEY } from "@/lib/api";
 import { getProfileDisplayName, getProfileInitials } from "@/lib/profile";
 import { Profile } from "@/types/profile";
@@ -11,6 +12,7 @@ import { Profile } from "@/types/profile";
 const PUBLIC_PATHS = new Set(["/login", "/signup"]);
 
 export default function UserNav() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [user, setUser] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
@@ -100,7 +102,7 @@ export default function UserNav() {
       <button
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center gap-2 px-2 py-1.5 rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-        aria-label="User menu"
+        aria-label={t("User menu")}
         aria-haspopup="true"
         aria-expanded={open}
       >
@@ -134,7 +136,7 @@ export default function UserNav() {
             className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           >
             <User className="w-4 h-4 text-slate-400" />
-            View Profile
+            {t("View Profile")}
           </Link>
           <button
             role="menuitem"
@@ -142,7 +144,7 @@ export default function UserNav() {
             className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-slate-700 transition-colors"
           >
             <LogOut className="w-4 h-4" />
-            Logout
+            {t("Logout")}
           </button>
         </div>
       )}

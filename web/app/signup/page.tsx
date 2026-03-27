@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
 import { hasAuthCookie } from "@/lib/auth-client";
@@ -11,7 +12,10 @@ type ValidationErrorDetail = {
   loc?: Array<string | number>;
 };
 
-function getRegistrationErrorMessage(detail: unknown): string {
+function getRegistrationErrorMessage(
+  detail: unknown,
+  t: (key: string) => string,
+): string {
   if (typeof detail === "string" && detail.trim().length > 0) {
     return detail;
   }
@@ -30,7 +34,13 @@ function getRegistrationErrorMessage(detail: unknown): string {
 
         const field = error.loc?.[error.loc.length - 1];
         if (typeof field === "string" && field !== "body") {
-          const label = field.charAt(0).toUpperCase() + field.slice(1);
+          const labelMap: Record<string, string> = {
+            email: t("Email"),
+            username: t("Username"),
+            password: t("Password"),
+          };
+          const label =
+            labelMap[field] ?? field.charAt(0).toUpperCase() + field.slice(1);
           return `${label}: ${error.msg}`;
         }
 
@@ -43,11 +53,12 @@ function getRegistrationErrorMessage(detail: unknown): string {
     }
   }
 
-  return "Registration failed. Please try again.";
+  return t("Registration failed. Please try again.");
 }
 
 export default function SignupPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -76,7 +87,7 @@ export default function SignupPage() {
       nextConfirmPassword.length > 0 &&
       nextPassword !== nextConfirmPassword
     ) {
-      setConfirmPasswordError("Passwords do not match");
+      setConfirmPasswordError(t("Passwords do not match"));
     } else {
       setConfirmPasswordError("");
     }
@@ -85,7 +96,7 @@ export default function SignupPage() {
   const handlePasswordChange = (value: string) => {
     setPassword(value);
     if (value.length > 0 && value.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError(t("Password must be at least 8 characters"));
     } else {
       setPasswordError("");
     }
@@ -107,22 +118,22 @@ export default function SignupPage() {
 
     // Client-side guard before submitting
     if (!normalizedEmail) {
-      setServerError("Email is required");
+      setServerError(t("Email is required"));
       return;
     }
 
     if (!normalizedUsername) {
-      setServerError("Username is required");
+      setServerError(t("Username is required"));
       return;
     }
 
     if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
+      setPasswordError(t("Password must be at least 8 characters"));
       return;
     }
 
     if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match");
+      setConfirmPasswordError(t("Passwords do not match"));
       return;
     }
 
@@ -149,18 +160,18 @@ export default function SignupPage() {
         if (typeof data.detail === "string") {
           setServerError(
             data.detail === "REGISTER_USER_ALREADY_EXISTS"
-              ? "An account with this email already exists"
+              ? t("An account with this email already exists")
               : data.detail,
           );
         } else {
-          setServerError("An account with this email already exists");
+          setServerError(t("An account with this email already exists"));
         }
       } else {
-        setServerError(getRegistrationErrorMessage(data.detail));
+        setServerError(getRegistrationErrorMessage(data.detail, t));
       }
     } catch {
       setServerError(
-        "Network error. Please check your connection and try again.",
+        t("Network error. Please check your connection and try again."),
       );
     } finally {
       setIsSubmitting(false);
@@ -171,10 +182,10 @@ export default function SignupPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
       <div className="w-full max-w-md p-8 bg-white dark:bg-slate-800 rounded-lg shadow">
         <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
-          Create your account
+          {t("Create your account")}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-          Join EducAgent and start your learning journey.
+          {t("Join EducAgent and start your learning journey.")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -184,7 +195,7 @@ export default function SignupPage() {
               htmlFor="email"
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Email
+              {t("Email")}
             </label>
             <input
               id="email"
@@ -194,7 +205,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="you@example.com"
+              placeholder={t("you@example.com")}
             />
           </div>
 
@@ -204,7 +215,7 @@ export default function SignupPage() {
               htmlFor="username"
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Username
+              {t("Username")}
             </label>
             <input
               id="username"
@@ -214,7 +225,7 @@ export default function SignupPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Choose a username"
+              placeholder={t("Choose a username")}
             />
           </div>
 
@@ -224,7 +235,7 @@ export default function SignupPage() {
               htmlFor="password"
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Password
+              {t("Password")}
             </label>
             <input
               id="password"
@@ -234,7 +245,7 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => handlePasswordChange(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="At least 8 characters"
+              placeholder={t("At least 8 characters")}
             />
             {/* AC3: inline password-length error */}
             {passwordError && (
@@ -249,7 +260,7 @@ export default function SignupPage() {
               htmlFor="confirm-password"
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Confirm password
+              {t("Confirm password")}
             </label>
             <input
               id="confirm-password"
@@ -259,7 +270,7 @@ export default function SignupPage() {
               value={confirmPassword}
               onChange={(e) => handleConfirmPasswordChange(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Retype your password"
+              placeholder={t("Retype your password")}
             />
             {confirmPasswordError && (
               <p className="mt-1 text-sm text-red-500" role="alert">
@@ -281,14 +292,14 @@ export default function SignupPage() {
             disabled={isSubmitting}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            {isSubmitting ? "Creating account…" : "Create account"}
+            {isSubmitting ? t("Creating account...") : t("Create account")}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
-          Already have an account?{" "}
+          {t("Already have an account?")}{" "}
           <a href="/login" className="text-blue-600 hover:underline">
-            Sign in
+            {t("Sign in")}
           </a>
         </p>
       </div>

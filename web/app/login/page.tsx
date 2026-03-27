@@ -2,12 +2,15 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "react-i18next";
 
 import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
 import { hasAuthCookie } from "@/lib/auth-client";
+import { Profile } from "@/types/profile";
 
 function LoginForm() {
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -63,14 +66,32 @@ function LoginForm() {
         // Hard-navigate (window.location.href) so the fresh auth cookie is
         // sent with the next request and the middleware cache is bypassed.
         const redirectTo = searchParams.get("redirect");
-        window.location.href =
+        const defaultRedirect =
           redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
+
+        try {
+          const profileResponse = await fetch(apiUrl("/api/v1/profile"), {
+            headers: { Authorization: `Bearer ${data.access_token}` },
+          });
+
+          if (profileResponse.ok) {
+            const profile = (await profileResponse.json()) as Profile;
+            window.location.href = profile.learner_profile
+              ? defaultRedirect
+              : "/onboarding/learner";
+            return;
+          }
+        } catch {
+          // Fall back to the default redirect if the profile check fails.
+        }
+
+        window.location.href = defaultRedirect;
       } else {
         // AC2: display generic message — do not reveal which field failed
-        setError("Invalid email or password");
+        setError(t("Invalid email or password"));
       }
     } catch {
-      setError("Network error. Please check your connection and try again.");
+      setError(t("Network error. Please check your connection and try again."));
     } finally {
       setIsSubmitting(false);
     }
@@ -80,10 +101,10 @@ function LoginForm() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900 px-4">
       <div className="w-full max-w-md p-8 bg-white dark:bg-slate-800 rounded-lg shadow">
         <h1 className="text-2xl font-semibold text-slate-800 dark:text-slate-100 mb-2">
-          Sign in to EducAgent
+          {t("Sign in to EducAgent")}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
-          Welcome back. Enter your credentials to continue.
+          {t("Welcome back. Enter your credentials to continue.")}
         </p>
 
         {/* AC4: session expired banner */}
@@ -92,7 +113,7 @@ function LoginForm() {
             className="mb-4 px-4 py-3 rounded-md bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 text-sm text-amber-800 dark:text-amber-300"
             role="alert"
           >
-            Session expired, please log in again.
+            {t("Session expired, please log in again.")}
           </div>
         )}
 
@@ -103,7 +124,7 @@ function LoginForm() {
               htmlFor="email"
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Email
+              {t("Email")}
             </label>
             <input
               id="email"
@@ -113,7 +134,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="you@example.com"
+              placeholder={t("you@example.com")}
             />
           </div>
 
@@ -123,7 +144,7 @@ function LoginForm() {
               htmlFor="password"
               className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
-              Password
+              {t("Password")}
             </label>
             <input
               id="password"
@@ -133,7 +154,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Your password"
+              placeholder={t("Your password")}
             />
           </div>
 
@@ -150,14 +171,14 @@ function LoginForm() {
             disabled={isSubmitting}
             className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            {isSubmitting ? "Signing in…" : "Sign in"}
+            {isSubmitting ? t("Signing in...") : t("Sign in")}
           </button>
         </form>
 
         <p className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400">
-          Don&apos;t have an account?{" "}
+          {t("Don't have an account?")}{" "}
           <a href="/signup" className="text-blue-600 hover:underline">
-            Sign up
+            {t("Sign up")}
           </a>
         </p>
       </div>

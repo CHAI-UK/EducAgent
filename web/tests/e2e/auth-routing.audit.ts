@@ -56,6 +56,37 @@ test.describe("Auth :: Middleware routing (Story 1.4)", () => {
         }),
       }),
     );
+    await page.route("**/api/v1/profile", (route) =>
+      route.fulfill({
+        status: 200,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          id: "00000000-0000-0000-0000-000000000001",
+          email: "user@example.com",
+          username: "user",
+          first_name: "Test",
+          last_name: "User",
+          institution: null,
+          avatar_url: null,
+          is_active: true,
+          is_superuser: false,
+          is_verified: true,
+          created_at: "2026-01-01T00:00:00Z",
+          updated_at: "2026-01-01T00:00:00Z",
+          learner_profile: {
+            id: "00000000-0000-0000-0000-000000000002",
+            background: "Scientist",
+            role: "Researcher",
+            prior_knowledge: ["machine_learning"],
+            expertise_level: "moderate",
+            learning_goal: "Learn causality",
+            is_skipped: false,
+            created_at: "2026-01-01T00:00:00Z",
+            updated_at: "2026-01-01T00:00:00Z",
+          },
+        }),
+      }),
+    );
 
     await page.goto("/login?redirect=/study");
 

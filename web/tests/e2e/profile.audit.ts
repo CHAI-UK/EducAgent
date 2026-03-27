@@ -19,6 +19,25 @@ async function setAuthToken(page: import("@playwright/test").Page) {
   ]);
 }
 
+function buildProfileResponse(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "00000000-0000-0000-0000-000000000001",
+    email: "test@example.com",
+    username: "testuser",
+    first_name: "Test",
+    last_name: "User",
+    institution: "EducAgent",
+    avatar_url: null,
+    is_active: true,
+    is_superuser: false,
+    is_verified: true,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+    learner_profile: null,
+    ...overrides,
+  };
+}
+
 test.describe("Profile page", () => {
   test("loads hero state and saves edited profile details", async ({
     page,
@@ -30,19 +49,7 @@ test.describe("Profile page", () => {
         await route.fulfill({
           status: 200,
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            id: "00000000-0000-0000-0000-000000000001",
-            email: "test@example.com",
-            username: "testuser",
-            first_name: "Test",
-            last_name: "User",
-            institution: "EducAgent",
-            avatar_url: null,
-            is_active: true,
-            is_superuser: false,
-            is_verified: true,
-            created_at: "2026-01-01T00:00:00Z",
-          }),
+          body: JSON.stringify(buildProfileResponse()),
         });
         return;
       }
@@ -52,19 +59,14 @@ test.describe("Profile page", () => {
         await route.fulfill({
           status: 200,
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            id: "00000000-0000-0000-0000-000000000001",
-            email: "test@example.com",
-            username: body.username,
-            first_name: body.first_name,
-            last_name: body.last_name,
-            institution: body.institution,
-            avatar_url: null,
-            is_active: true,
-            is_superuser: false,
-            is_verified: true,
-            created_at: "2026-01-01T00:00:00Z",
-          }),
+          body: JSON.stringify(
+            buildProfileResponse({
+              username: body.username,
+              first_name: body.first_name,
+              last_name: body.last_name,
+              institution: body.institution,
+            }),
+          ),
         });
       }
     });
@@ -96,19 +98,7 @@ test.describe("Profile page", () => {
       await route.fulfill({
         status: 200,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          id: "00000000-0000-0000-0000-000000000001",
-          email: "test@example.com",
-          username: "testuser",
-          first_name: "Test",
-          last_name: "User",
-          institution: "EducAgent",
-          avatar_url: null,
-          is_active: true,
-          is_superuser: false,
-          is_verified: true,
-          created_at: "2026-01-01T00:00:00Z",
-        }),
+        body: JSON.stringify(buildProfileResponse()),
       });
     });
 
@@ -144,19 +134,7 @@ test.describe("Profile page", () => {
       await route.fulfill({
         status: 200,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          id: "00000000-0000-0000-0000-000000000001",
-          email: "test@example.com",
-          username: "testuser",
-          first_name: "Test",
-          last_name: "User",
-          institution: "EducAgent",
-          avatar_url: null,
-          is_active: true,
-          is_superuser: false,
-          is_verified: true,
-          created_at: "2026-01-01T00:00:00Z",
-        }),
+        body: JSON.stringify(buildProfileResponse()),
       });
     });
 
@@ -164,19 +142,11 @@ test.describe("Profile page", () => {
       await route.fulfill({
         status: 200,
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          id: "00000000-0000-0000-0000-000000000001",
-          email: "test@example.com",
-          username: "testuser",
-          first_name: "Test",
-          last_name: "User",
-          institution: "EducAgent",
-          avatar_url: "/api/outputs/profile/avatars/test-avatar.png",
-          is_active: true,
-          is_superuser: false,
-          is_verified: true,
-          created_at: "2026-01-01T00:00:00Z",
-        }),
+        body: JSON.stringify(
+          buildProfileResponse({
+            avatar_url: "/api/outputs/profile/avatars/test-avatar.png",
+          }),
+        ),
       });
     });
 
@@ -191,5 +161,73 @@ test.describe("Profile page", () => {
     await expect(
       page.getByRole("button", { name: /user menu/i }).locator("img"),
     ).toBeVisible();
+  });
+
+  test("loads learner profile section and saves learner details", async ({
+    page,
+  }) => {
+    await setAuthToken(page);
+
+    await page.route("**/api/v1/profile", async (route, request) => {
+      if (request.method() === "GET") {
+        await route.fulfill({
+          status: 200,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(
+            buildProfileResponse({
+              learner_profile: {
+                id: "00000000-0000-0000-0000-000000000002",
+                background: null,
+                role: null,
+                prior_knowledge: [],
+                expertise_level: null,
+                learning_goal: null,
+                is_skipped: true,
+                created_at: "2026-01-01T00:00:00Z",
+                updated_at: "2026-01-01T00:00:00Z",
+              },
+            }),
+          ),
+        });
+        return;
+      }
+
+      if (request.method() === "PATCH") {
+        const body = request.postDataJSON();
+        await route.fulfill({
+          status: 200,
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(
+            buildProfileResponse({
+              learner_profile: {
+                id: "00000000-0000-0000-0000-000000000002",
+                background: body.background,
+                role: body.role,
+                prior_knowledge: body.prior_knowledge,
+                expertise_level: body.expertise_level,
+                learning_goal: body.learning_goal,
+                is_skipped: false,
+                created_at: "2026-01-01T00:00:00Z",
+                updated_at: "2026-01-02T00:00:00Z",
+              },
+            }),
+          ),
+        });
+      }
+    });
+
+    await page.goto("/profile");
+
+    await expect(
+      page.getByText(
+        "You skipped setup earlier. Add your learner profile now any time.",
+      ),
+    ).toBeVisible();
+    await page.getByLabel("Background").fill("Computer scientist");
+    await page.getByText("Machine Learning").click();
+    await page.getByText("Moderate").click();
+    await page.getByRole("button", { name: /save learner profile/i }).click();
+
+    await expect(page.getByText("Learner profile saved.")).toBeVisible();
   });
 });
