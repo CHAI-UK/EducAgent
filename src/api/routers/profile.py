@@ -7,7 +7,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from fastapi_users.password import PasswordHelper
-from sqlalchemy import select
+from sqlalchemy import inspect, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -125,17 +125,19 @@ def _ensure_learner_profile(user: User) -> LearnerProfile:
     return user.learner_profile
 
 
+def _profile_requires_reload(user: User) -> bool:
+    state = inspect(user)
+    return state.persistent and "learner_profile" in state.unloaded
+
+
 @router.get("/profile", response_model=ProfileRead)
 async def get_profile(
     current_user: CurrentUserDep,
     session: AsyncSessionDep,
 ) -> ProfileRead:
-    try:
+    user = current_user
+    if _profile_requires_reload(current_user):
         user = await _load_current_user_record(session, current_user.id)
-    except HTTPException as exc:
-        if exc.status_code != status.HTTP_404_NOT_FOUND:
-            raise
-        user = current_user
     return _serialize_profile(user)
 
 
