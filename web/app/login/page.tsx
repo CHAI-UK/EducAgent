@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
+import { hasAuthCookie } from "@/lib/auth-client";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -18,8 +19,7 @@ function LoginForm() {
   // AC4: show session-expired message when redirected here with ?session_expired=1
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem(AUTH_TOKEN_KEY);
-      if (token) {
+      if (hasAuthCookie()) {
         window.location.href = "/";
         return;
       }
@@ -35,7 +35,7 @@ function LoginForm() {
     setSessionExpired(false);
 
     // Guard against a quick submit before the auth-redirect effect completes.
-    if (typeof window !== "undefined" && localStorage.getItem(AUTH_TOKEN_KEY)) {
+    if (typeof window !== "undefined" && hasAuthCookie()) {
       window.location.href = "/";
       return;
     }

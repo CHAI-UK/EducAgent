@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { apiUrl, AUTH_TOKEN_KEY } from "@/lib/api";
+import { hasAuthCookie } from "@/lib/auth-client";
 
 type ValidationErrorDetail = {
   msg?: string;
@@ -60,8 +61,7 @@ export default function SignupPage() {
   // AC4: redirect already-authenticated users to home (FR5d)
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem(AUTH_TOKEN_KEY);
-      if (token) {
+      if (hasAuthCookie()) {
         router.replace("/");
       }
     }

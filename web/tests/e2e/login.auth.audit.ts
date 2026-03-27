@@ -3,6 +3,11 @@ import { AUTH_TOKEN_KEY } from "../../lib/api";
 
 // baseURL is configured centrally in playwright.config.ts (WEB_BASE_URL env var,
 // defaulting to http://localhost:3782). All page.goto() calls use relative paths.
+const BASE_HOSTNAME = new URL(
+  process.env.WEB_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_BASE ||
+    "http://localhost:3782",
+).hostname;
 
 test.describe("Auth :: Login UX and session behavior", () => {
   test("AC1: successful login with ?redirect= param redirects to target", async ({
@@ -53,15 +58,35 @@ test.describe("Auth :: Login UX and session behavior", () => {
   });
 
   test("AC3: authenticated user navigating to /login is redirected home", async ({
+    context,
     page,
   }) => {
-    await page.addInitScript((tokenKey: string) => {
-      window.localStorage.setItem(tokenKey, "fake-token");
-    }, AUTH_TOKEN_KEY);
+    await context.addCookies([
+      {
+        name: AUTH_TOKEN_KEY,
+        value: "fake-token",
+        domain: BASE_HOSTNAME,
+        path: "/",
+        sameSite: "Lax",
+      },
+    ]);
 
     await page.goto("/login");
 
     await expect(page).toHaveURL(/^[^?]*\/$/);
+  });
+
+  test("AC3b: stale localStorage token without auth cookie does not loop away from /login", async ({
+    page,
+  }) => {
+    await page.addInitScript((tokenKey: string) => {
+      window.localStorage.setItem(tokenKey, "stale-token");
+    }, AUTH_TOKEN_KEY);
+
+    await page.goto("/login?redirect=%2F");
+
+    await expect(page).toHaveURL(/\/login\?redirect=%2F/);
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
   });
 
   test("AC4: /login?session_expired=1 shows session-expired banner", async ({
