@@ -10,3 +10,4 @@ export * from "./research";
 export * from "./chat";
 export * from "./sidebar";
 export * from "./ideagen";
+export * from "./profile";

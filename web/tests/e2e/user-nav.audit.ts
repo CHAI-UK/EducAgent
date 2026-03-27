@@ -2,12 +2,12 @@ import { test, expect } from "@playwright/test";
 import { AUTH_TOKEN_KEY } from "../../lib/api";
 
 // Helper: inject a fake auth token into localStorage + cookie so middleware
-// allows the request through and UserNav can fetch /users/me.
+// allows the request through and UserNav can fetch /api/v1/profile.
 async function setAuthToken(page: import("@playwright/test").Page) {
   const fakeToken = "fake-jwt-token";
 
-  // Mock GET /users/me to return a test user
-  await page.route("**/users/me", (route) =>
+  // Mock GET /api/v1/profile to return a test user
+  await page.route("**/api/v1/profile", (route) =>
     route.fulfill({
       status: 200,
       headers: { "content-type": "application/json" },
@@ -15,6 +15,10 @@ async function setAuthToken(page: import("@playwright/test").Page) {
         id: "00000000-0000-0000-0000-000000000001",
         email: "test@example.com",
         username: "testuser",
+        first_name: null,
+        last_name: null,
+        institution: null,
+        avatar_url: null,
         is_active: true,
         is_superuser: false,
         is_verified: true,

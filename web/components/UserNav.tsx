@@ -2,23 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { LogOut, User } from "lucide-react";
 import { apiUrl, apiFetch, AUTH_TOKEN_KEY } from "@/lib/api";
+import { getProfileDisplayName, getProfileInitials } from "@/lib/profile";
+import { Profile } from "@/types/profile";
 
 const PUBLIC_PATHS = new Set(["/login", "/signup"]);
 
-interface UserInfo {
-  id: string;
-  email: string;
-  username: string;
-  is_active: boolean;
-}
-
 export default function UserNav() {
-  const router = useRouter();
   const pathname = usePathname();
-  const [user, setUser] = useState<UserInfo | null>(null);
+  const [user, setUser] = useState<Profile | null>(null);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -29,17 +23,30 @@ export default function UserNav() {
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     if (!token) return;
 
-    apiFetch("/users/me", {
+    apiFetch("/api/v1/profile", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : null))
-      .then((data: UserInfo | null) => {
+      .then((data: Profile | null) => {
         if (data) setUser(data);
       })
       .catch(() => {
         // Silently fail — apiFetch already handles 401 → redirects to /login
       });
   }, [pathname]);
+
+  useEffect(() => {
+    const handleProfileUpdated = (event: Event) => {
+      const customEvent = event as CustomEvent<Profile>;
+      if (customEvent.detail) {
+        setUser(customEvent.detail);
+      }
+    };
+
+    window.addEventListener("profile-updated", handleProfileUpdated);
+    return () =>
+      window.removeEventListener("profile-updated", handleProfileUpdated);
+  }, []);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -85,7 +92,8 @@ export default function UserNav() {
   // Don't render until user data is available
   if (!user) return null;
 
-  const initial = user.username.charAt(0).toUpperCase();
+  const initial = getProfileInitials(user);
+  const displayName = getProfileDisplayName(user);
 
   return (
     <div ref={containerRef} className="relative flex items-center">
@@ -97,12 +105,20 @@ export default function UserNav() {
         aria-expanded={open}
       >
         {/* Circular avatar with initial */}
-        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0">
-          {initial}
+        <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold flex-shrink-0 overflow-hidden">
+          {user.avatar_url ? (
+            <img
+              src={apiUrl(user.avatar_url)}
+              alt={displayName}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            initial
+          )}
         </div>
         {/* Username — hide on very small screens */}
         <span className="hidden sm:block text-sm font-medium max-w-[120px] truncate">
-          {user.username}
+          {displayName}
         </span>
       </button>
 
