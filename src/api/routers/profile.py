@@ -113,7 +113,15 @@ def _apply_learner_profile_values(
 
 def _ensure_learner_profile(user: User) -> LearnerProfile:
     if user.learner_profile is None:
-        user.learner_profile = LearnerProfile(user_id=user.id)
+        now = datetime.now(timezone.utc)
+        user.learner_profile = LearnerProfile(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            prior_knowledge=[],
+            is_skipped=False,
+            created_at=now,
+            updated_at=now,
+        )
     return user.learner_profile
 
 
@@ -122,7 +130,12 @@ async def get_profile(
     current_user: CurrentUserDep,
     session: AsyncSessionDep,
 ) -> ProfileRead:
-    user = await _load_current_user_record(session, current_user.id)
+    try:
+        user = await _load_current_user_record(session, current_user.id)
+    except HTTPException as exc:
+        if exc.status_code != status.HTTP_404_NOT_FOUND:
+            raise
+        user = current_user
     return _serialize_profile(user)
 
 
