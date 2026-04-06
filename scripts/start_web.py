@@ -40,8 +40,9 @@ def terminate_process_tree(process, name="Process", timeout=5):
 
     try:
         if os.name == "nt":
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(pid)], check=False,
-                           capture_output=True)
+            subprocess.run(
+                ["taskkill", "/F", "/T", "/PID", str(pid)], check=False, capture_output=True
+            )
             try:
                 process.wait(timeout=timeout)
             except subprocess.TimeoutExpired:
