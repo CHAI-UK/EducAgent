@@ -45,7 +45,7 @@ Usage:
 
 # Note: rag and embedding modules are lazy-loaded via __getattr__
 # to avoid importing heavy dependencies (lightrag, llama_index) at module load time
-from . import config, llm, prompt, search, setup, tts
+from . import config, llm, prompt, setup, tts
 
 __all__ = [
     "llm",
@@ -53,7 +53,6 @@ __all__ = [
     "rag",
     "prompt",
     "tts",
-    "search",
     "setup",
     "config",
 ]

@@ -41,7 +41,7 @@ class EmbeddingProviderManager:
         "lm_studio": OpenAICompatibleEmbeddingAdapter,  # LM Studio (OpenAI-compatible)
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the provider manager."""
         self.adapter: Optional[BaseEmbeddingAdapter] = None
 
@@ -114,7 +114,7 @@ def get_embedding_provider_manager() -> EmbeddingProviderManager:
     return _manager
 
 
-def reset_embedding_provider_manager():
+def reset_embedding_provider_manager() -> None:
     """Reset the singleton provider manager (useful for testing)."""
     global _manager
     _manager = None
