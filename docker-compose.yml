@@ -120,7 +120,7 @@ services:
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-}
       # Auth + DB configuration
       - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://educagent:educagent@postgres:5432/educagent}
-      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_SECRET=${AUTH_SECRET:?AUTH_SECRET is required. Set a 32+ character JWT signing secret in .env.}
       - AUTH_ALGORITHM=${AUTH_ALGORITHM:-HS256}
       - AUTH_TOKEN_LIFETIME_SECONDS=${AUTH_TOKEN_LIFETIME_SECONDS:-3600}
       # Optional escape hatch for local/dev debugging only.

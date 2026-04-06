@@ -280,6 +280,7 @@ celerybeat.pid
 # Agent Skills
 # ============================================
 .agents
+.codex
 skills-lock.json
 
 
