@@ -224,8 +224,8 @@ test.describe("Profile page", () => {
       ),
     ).toBeVisible();
     await page.getByLabel("Background").fill("Computer scientist");
-    await page.getByText("Machine Learning").click();
-    await page.getByText("Moderate").click();
+    await page.getByText("Confounding and controls").click();
+    await page.getByText("I know correlation and confounding").click();
     await page.getByRole("button", { name: /save learner profile/i }).click();
 
     await expect(page.getByText("Learner profile saved.")).toBeVisible();

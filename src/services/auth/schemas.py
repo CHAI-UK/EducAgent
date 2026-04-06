@@ -8,14 +8,23 @@ from pydantic import Field, field_validator, model_validator
 
 PRIOR_KNOWLEDGE_CHOICES = {
     "probability_statistics",
-    "linear_regression",
     "machine_learning",
-    "bayesian_reasoning",
-    "epidemiology_study_design",
-    "dags_graphical_models",
+    "correlation_vs_causation",
+    "confounding_controls",
+    "dags_causal_graphs",
+    "experiments_ab_tests",
+    "potential_outcomes",
+    "interventions_do_calculus",
+    "counterfactuals",
     "none",
 }
-EXPERTISE_LEVEL_CHOICES = {"beginner", "moderate", "expert"}
+EXPERTISE_LEVEL_CHOICES = {
+    "new_to_causality",
+    "knows_correlation_confounding",
+    "reads_dags",
+    "used_causal_methods",
+    "comfortable_formal_scm",
+}
 
 
 class UserRead(schemas.BaseUser[uuid.UUID]):
@@ -127,7 +136,7 @@ class LearnerProfileBase(schemas.CreateUpdateDictModel):
     @classmethod
     def validate_expertise_level(cls, value: str | None) -> str | None:
         if value is not None and value not in EXPERTISE_LEVEL_CHOICES:
-            raise ValueError("Expertise level must be beginner, moderate, or expert")
+            raise ValueError("Expertise level must be a supported causal learning level")
         return value
 
     @model_validator(mode="after")

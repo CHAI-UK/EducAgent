@@ -78,7 +78,7 @@ test.describe("Auth :: Middleware routing (Story 1.4)", () => {
             background: "Scientist",
             role: "Researcher",
             prior_knowledge: ["machine_learning"],
-            expertise_level: "moderate",
+            expertise_level: "knows_correlation_confounding",
             learning_goal: "Learn causality",
             is_skipped: false,
             created_at: "2026-01-01T00:00:00Z",

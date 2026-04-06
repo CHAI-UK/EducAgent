@@ -220,7 +220,7 @@ export default function HomePage() {
         <div className="flex-1 flex flex-col items-center justify-center px-6 pt-16">
           <div className="text-center max-w-2xl mx-auto mb-8">
             <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
-              {t("Welcome to EducAgent")}
+              {t("Welcome to EducAgent!")}
             </h1>
           </div>
 
