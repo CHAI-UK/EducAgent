@@ -190,7 +190,7 @@ def test_login_token_allows_access_to_protected_api() -> None:
 
         token = login.json()["access_token"]
         protected = client.get(
-            "/api/v1/solve/sessions",
+            "/api/v1/dashboard/recent",
             headers={"Authorization": f"Bearer {token}"},
         )
 

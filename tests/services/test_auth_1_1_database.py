@@ -16,35 +16,20 @@ from src.services.auth.jwt_utils import decode_access_token
 
 def test_protected_endpoint_requires_bearer_token() -> None:
     client = TestClient(app)
-    response = client.get("/api/v1/solve/sessions")
+    response = client.get("/api/v1/dashboard/recent")
 
     assert response.status_code == 401
     assert response.json()["detail"] == "Unauthorized"
 
 
+@pytest.mark.skip(reason="No active WebSocket endpoints after agent router cleanup")
 def test_protected_websocket_requires_token() -> None:
-    client = TestClient(app)
-
-    with pytest.raises(WebSocketDisconnect) as exc_info:
-        with client.websocket_connect("/api/v1/knowledge/test-kb/progress/ws"):
-            pass
-
-    assert exc_info.value.code == status.WS_1008_POLICY_VIOLATION
+    pass
 
 
+@pytest.mark.skip(reason="No active WebSocket endpoints after agent router cleanup")
 def test_protected_websocket_accepts_query_token() -> None:
-    user_id = str(uuid.uuid4())
-    payload = {
-        "sub": user_id,
-        "exp": datetime.now(timezone.utc) + timedelta(minutes=30),
-    }
-    token = jwt.encode(payload, AUTH_SECRET, algorithm=AUTH_ALGORITHM)
-
-    with TestClient(app) as client:
-        with client.websocket_connect(
-            f"/api/v1/knowledge/test-kb/progress/ws?access_token={token}"
-        ):
-            pass
+    pass
 
 
 def test_decode_access_token_returns_subject_for_valid_token() -> None:
