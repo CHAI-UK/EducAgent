@@ -804,6 +804,11 @@ export default function ProfilePage() {
                 <div className="grid gap-5">
                   <label className="grid gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
                     {t("Background")}
+                    <span className="text-sm font-normal leading-6 text-slate-500 dark:text-slate-400">
+                      {t(
+                        "Tell us the discipline, datasets, or real-world systems you bring to causal questions.",
+                      )}
+                    </span>
                     <textarea
                       value={learnerForm.background}
                       onChange={(event) =>
@@ -815,7 +820,7 @@ export default function ProfilePage() {
                       rows={4}
                       className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950 dark:focus:ring-blue-950/60"
                       placeholder={t(
-                        "Computer scientist, clinician, statistician...",
+                        "Example: I work with clinical outcomes data and want to reason about treatment effects, confounding, and study design.",
                       )}
                     />
                   </label>
@@ -872,8 +877,8 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="grid gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                    <span>{t("Expertise level")}</span>
-                    <div className="grid gap-3 sm:grid-cols-3">
+                    <span>{t("Causal level")}</span>
+                    <div className="grid gap-3">
                       {expertiseLevelOptions.map((option) => {
                         const checked =
                           learnerForm.expertise_level === option.value;
@@ -905,7 +910,7 @@ export default function ProfilePage() {
                   </div>
 
                   <label className="grid gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t("Learning goal")}
+                    {t("Causal learning goal")}
                     <textarea
                       value={learnerForm.learning_goal}
                       onChange={(event) =>
@@ -916,7 +921,9 @@ export default function ProfilePage() {
                       }
                       rows={4}
                       className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:bg-slate-950 dark:focus:ring-blue-950/60"
-                      placeholder={t("Tell us what you want to learn next.")}
+                      placeholder={t(
+                        "Example: I want to decide which variables to control for when estimating whether a treatment causes better outcomes.",
+                      )}
                     />
                   </label>
                 </div>

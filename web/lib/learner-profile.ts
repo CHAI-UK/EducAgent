@@ -22,15 +22,21 @@ export function getPriorKnowledgeOptions(t: TFunction): Array<{
       label: t("Probability/Statistics"),
       value: "probability_statistics",
     },
-    { label: t("Linear Regression"), value: "linear_regression" },
     { label: t("Machine Learning"), value: "machine_learning" },
-    { label: t("Bayesian Reasoning"), value: "bayesian_reasoning" },
+    { label: t("Correlation vs causation"), value: "correlation_vs_causation" },
+    { label: t("Confounding and controls"), value: "confounding_controls" },
     {
-      label: t("Epidemiology/Study Design"),
-      value: "epidemiology_study_design",
+      label: t("DAGs / causal graphs"),
+      value: "dags_causal_graphs",
     },
-    { label: t("DAGs/Graphical Models"), value: "dags_graphical_models" },
-    { label: t("None"), value: "none" },
+    { label: t("Experiments and A/B tests"), value: "experiments_ab_tests" },
+    { label: t("Potential outcomes"), value: "potential_outcomes" },
+    {
+      label: t("Interventions / do-calculus"),
+      value: "interventions_do_calculus",
+    },
+    { label: t("Counterfactuals"), value: "counterfactuals" },
+    { label: t("None yet"), value: "none" },
   ];
 }
 
@@ -39,9 +45,20 @@ export function getExpertiseLevelOptions(t: TFunction): Array<{
   value: LearnerProfileExpertiseLevel;
 }> {
   return [
-    { label: t("Beginner"), value: "beginner" },
-    { label: t("Moderate"), value: "moderate" },
-    { label: t("Expert"), value: "expert" },
+    { label: t("I'm new to causality"), value: "new_to_causality" },
+    {
+      label: t("I know correlation and confounding"),
+      value: "knows_correlation_confounding",
+    },
+    { label: t("I can read DAGs"), value: "reads_dags" },
+    {
+      label: t("I've used causal inference methods"),
+      value: "used_causal_methods",
+    },
+    {
+      label: t("I'm comfortable with formal SCM / do-calculus ideas"),
+      value: "comfortable_formal_scm",
+    },
   ];
 }
 
@@ -58,10 +75,22 @@ export function buildLearnerProfileForm(
     };
   }
 
+  const priorKnowledge = learnerProfile.prior_knowledge.reduce<
+    LearnerProfilePriorKnowledge[]
+  >((normalized, item) => {
+    if (item === "none") {
+      return ["none"];
+    }
+    if (normalized.includes("none") || normalized.includes(item)) {
+      return normalized;
+    }
+    return [...normalized, item];
+  }, []);
+
   return {
     background: learnerProfile.background ?? "",
     role: learnerProfile.role ?? "",
-    prior_knowledge: learnerProfile.prior_knowledge,
+    prior_knowledge: priorKnowledge,
     expertise_level: learnerProfile.expertise_level ?? "",
     learning_goal: learnerProfile.learning_goal ?? "",
   };
