@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
-# EducAgent install script — installs Python and frontend dependencies.
-# Run from project root: bash scripts/install.sh
+# DeepTutor install script — installs Python and frontend dependencies.
+# Run from project root: bash scripts/install.sh [--with-migrations]
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Parse flags
+RUN_MIGRATIONS=false
+for arg in "$@"; do
+    case "$arg" in
+        --with-migrations) RUN_MIGRATIONS=true ;;
+    esac
+done
+
 echo "========================================"
-echo "EducAgent Installation"
+echo "DeepTutor Installation"
 echo "========================================"
 
 # --- Backend ---
@@ -23,15 +31,20 @@ else
     echo "      Warning: no active virtual environment detected."
 fi
 
-pip install -r "$PROJECT_ROOT/requirements.txt"
+python -m pip install -r "$PROJECT_ROOT/requirements.txt"
 echo "      Done."
 
 # --- Database migrations ---
 echo ""
-echo "[1.5] Running Alembic migrations..."
-cd "$PROJECT_ROOT"
-python -m alembic upgrade head
-echo "      Done."
+if [ "$RUN_MIGRATIONS" = true ]; then
+    echo "[1.5] Running Alembic migrations..."
+    cd "$PROJECT_ROOT"
+    python -m alembic upgrade head
+    echo "      Done."
+else
+    echo "[1.5] Skipping Alembic migrations (re-run with --with-migrations to apply)."
+    echo "      Required env vars: DATABASE_URL (or equivalent in .env)"
+fi
 
 # --- Frontend ---
 echo ""
@@ -43,7 +56,13 @@ if ! command -v npm &>/dev/null; then
 fi
 
 cd "$PROJECT_ROOT/web"
-npm install
+if [ -f "package-lock.json" ]; then
+    echo "      package-lock.json found; using npm ci"
+    npm ci
+else
+    echo "      No package-lock.json found; using npm install"
+    npm install
+fi
 echo "      Done."
 
 echo ""
