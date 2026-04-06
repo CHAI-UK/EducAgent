@@ -34,7 +34,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import { useGlobal } from "@/context/GlobalContext";
 import { useTranslation } from "react-i18next";
@@ -197,7 +197,7 @@ export default function NotebookPage() {
 
   const fetchNotebooks = async () => {
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/list"));
+      const res = await apiFetch("/api/v1/notebook/list");
       const data = await res.json();
       setNotebooks(data.notebooks || []);
     } catch (err) {
@@ -209,7 +209,7 @@ export default function NotebookPage() {
 
   const fetchNotebookDetail = async (notebookId: string) => {
     try {
-      const res = await fetch(apiUrl(`/api/v1/notebook/${notebookId}`));
+      const res = await apiFetch(`/api/v1/notebook/${notebookId}`);
       const data = await res.json();
       setSelectedNotebook(data);
       setSelectedRecord(null);
@@ -222,7 +222,7 @@ export default function NotebookPage() {
     if (!newNotebook.name.trim()) return;
 
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/create"), {
+      const res = await apiFetch("/api/v1/notebook/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newNotebook),
@@ -242,18 +242,15 @@ export default function NotebookPage() {
     if (!editingNotebook || !editingNotebook.name.trim()) return;
 
     try {
-      const res = await fetch(
-        apiUrl(`/api/v1/notebook/${editingNotebook.id}`),
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: editingNotebook.name,
-            description: editingNotebook.description,
-            color: editingNotebook.color,
-          }),
-        },
-      );
+      const res = await apiFetch(`/api/v1/notebook/${editingNotebook.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: editingNotebook.name,
+          description: editingNotebook.description,
+          color: editingNotebook.color,
+        }),
+      });
       const data = await res.json();
       if (data.success) {
         fetchNotebooks();
@@ -270,7 +267,7 @@ export default function NotebookPage() {
 
   const handleDeleteNotebook = async (notebookId: string) => {
     try {
-      const res = await fetch(apiUrl(`/api/v1/notebook/${notebookId}`), {
+      const res = await apiFetch(`/api/v1/notebook/${notebookId}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -290,8 +287,8 @@ export default function NotebookPage() {
     if (!selectedNotebook) return;
 
     try {
-      const res = await fetch(
-        apiUrl(`/api/v1/notebook/${selectedNotebook.id}/records/${recordId}`),
+      const res = await apiFetch(
+        `/api/v1/notebook/${selectedNotebook.id}/records/${recordId}`,
         {
           method: "DELETE",
         },
@@ -372,7 +369,7 @@ export default function NotebookPage() {
     setLoadingImport(true);
 
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/list"));
+      const res = await apiFetch("/api/v1/notebook/list");
       const data = await res.json();
       // Filter out current notebook
       const others = (data.notebooks || []).filter(
@@ -392,7 +389,7 @@ export default function NotebookPage() {
     setLoadingImport(true);
 
     try {
-      const res = await fetch(apiUrl(`/api/v1/notebook/${notebookId}`));
+      const res = await apiFetch(`/api/v1/notebook/${notebookId}`);
       const data = await res.json();
       setImportSourceRecords(data.records || []);
       setSelectedImportRecords(new Set());
@@ -428,7 +425,7 @@ export default function NotebookPage() {
 
       // Add each record to current notebook
       for (const record of recordsToImport) {
-        await fetch(apiUrl(`/api/v1/notebook/${selectedNotebook.id}/records`), {
+        await apiFetch(`/api/v1/notebook/${selectedNotebook.id}/records`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

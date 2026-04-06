@@ -24,7 +24,7 @@ import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
 import { Mermaid } from "@/components/Mermaid";
 import { useGlobal } from "@/context/GlobalContext";
-import { apiUrl, wsUrl } from "@/lib/api";
+import { apiFetch, wsUrl } from "@/lib/api";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { exportToPdf, preprocessMarkdownForPdf } from "@/lib/pdfExport";
 import { useResearchReducer } from "@/hooks/useResearchReducer";
@@ -81,7 +81,7 @@ export default function ResearchPage() {
 
   // Initialize Knowledge Bases
   useEffect(() => {
-    fetch(apiUrl("/api/v1/knowledge/list"))
+    apiFetch("/api/v1/knowledge/list")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -241,7 +241,7 @@ export default function ResearchPage() {
     ]);
 
     try {
-      const res = await fetch(apiUrl("/api/v1/research/optimize_topic"), {
+      const res = await apiFetch("/api/v1/research/optimize_topic", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

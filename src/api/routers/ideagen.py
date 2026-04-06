@@ -18,6 +18,7 @@ if str(project_root) not in sys.path:
 from src.agents.base_agent import BaseAgent
 from src.agents.ideagen.idea_generation_workflow import IdeaGenerationWorkflow
 from src.agents.ideagen.material_organizer_agent import MaterialOrganizerAgent
+from src.api.utils.auth import require_websocket_auth
 from src.api.utils.notebook_manager import NotebookManager
 from src.api.utils.task_id_manager import TaskIDManager
 from src.logging import get_logger
@@ -105,6 +106,9 @@ async def websocket_ideagen(websocket: WebSocket):
         "user_thoughts": "string"       // Optional, user additional thoughts
     }
     """
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
     logger.info("=" * 60)
     logger.info("WebSocket connection accepted")

@@ -8,7 +8,9 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { wsUrl, apiUrl } from "@/lib/api";
+import { usePathname } from "next/navigation";
+import { wsUrl, apiFetch } from "@/lib/api";
+import { AUTH_TOKEN_KEY } from "@/lib/auth-constants";
 import {
   initializeTheme,
   setTheme,
@@ -26,7 +28,13 @@ import {
 import { debounce } from "@/lib/debounce";
 
 // Language storage key
-const LANGUAGE_STORAGE_KEY = "deeptutor-language";
+const LANGUAGE_STORAGE_KEY = "educagent-language";
+const PUBLIC_PATHS = new Set(["/login", "/signup"]);
+
+function hasStoredAuthToken(): boolean {
+  if (typeof window === "undefined") return false;
+  return Boolean(localStorage.getItem(AUTH_TOKEN_KEY));
+}
 
 // --- Types ---
 interface LogEntry {
@@ -447,6 +455,9 @@ const DEFAULT_CHAT_STATE: ChatState = {
 };
 
 export function GlobalProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isPublicPath = PUBLIC_PATHS.has(pathname);
+
   // --- UI Settings Logic ---
   const [uiSettings, setUiSettings] = useState<{
     theme: "light" | "dark";
@@ -455,10 +466,30 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
   const [isInitialized, setIsInitialized] = useState(false);
 
-  const refreshSettings = async () => {
+  const applyStoredSettings = useCallback(() => {
+    const storedTheme = getStoredTheme();
+    const storedLanguage =
+      typeof window !== "undefined"
+        ? (localStorage.getItem(LANGUAGE_STORAGE_KEY) as "en" | "zh") || "en"
+        : "en";
+
+    const themeToUse = storedTheme || "light";
+    setUiSettings({
+      theme: themeToUse,
+      language: storedLanguage,
+    });
+    setTheme(themeToUse);
+  }, []);
+
+  const refreshSettings = useCallback(async () => {
+    if (isPublicPath || !hasStoredAuthToken()) {
+      applyStoredSettings();
+      return;
+    }
+
     // Try to load from backend API first, fallback to localStorage
     try {
-      const res = await fetch(apiUrl("/api/v1/settings"));
+      const res = await apiFetch("/api/v1/settings");
       if (res.ok) {
         const data = await res.json();
         const serverTheme = data.ui?.theme || "light";
@@ -482,28 +513,19 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
     }
 
     // Fallback to localStorage
-    const storedTheme = getStoredTheme();
-    const storedLanguage =
-      typeof window !== "undefined"
-        ? (localStorage.getItem(LANGUAGE_STORAGE_KEY) as "en" | "zh") || "en"
-        : "en";
-
-    const themeToUse = storedTheme || "light";
-    setUiSettings({
-      theme: themeToUse,
-      language: storedLanguage,
-    });
-    setTheme(themeToUse);
-  };
+    applyStoredSettings();
+  }, [applyStoredSettings, isPublicPath]);
 
   const updateTheme = async (newTheme: "light" | "dark") => {
     // Update UI immediately
     setTheme(newTheme);
     setUiSettings((prev) => ({ ...prev, theme: newTheme }));
 
+    if (!hasStoredAuthToken()) return;
+
     // Persist to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/theme"), {
+      await apiFetch("/api/v1/settings/theme", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ theme: newTheme }),
@@ -520,9 +542,11 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
     }
 
+    if (!hasStoredAuthToken()) return;
+
     // Persist to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/language"), {
+      await apiFetch("/api/v1/settings/language", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ language: newLanguage }),
@@ -551,7 +575,12 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
       // Then async load from server (which may override)
       refreshSettings();
     }
-  }, [isInitialized]);
+  }, [isInitialized, isPublicPath, refreshSettings]);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    refreshSettings();
+  }, [isInitialized, pathname, refreshSettings]);
 
   // --- Sidebar State ---
   const SIDEBAR_MIN_WIDTH = 64;
@@ -624,8 +653,10 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   // Initialize sidebar customization from backend API
   useEffect(() => {
     const loadSidebarSettings = async () => {
+      if (isPublicPath || !hasStoredAuthToken()) return;
+
       try {
-        const response = await fetch(apiUrl("/api/v1/settings/sidebar"));
+        const response = await apiFetch("/api/v1/settings/sidebar");
         if (response.ok) {
           const data = await response.json();
           if (data.description) {
@@ -640,13 +671,14 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
       }
     };
     loadSidebarSettings();
-  }, []);
+  }, [isPublicPath]);
 
   const setSidebarDescription = async (description: string) => {
     setSidebarDescriptionState(description);
+    if (!hasStoredAuthToken()) return;
     // Save to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/sidebar/description"), {
+      await apiFetch("/api/v1/settings/sidebar/description", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),
@@ -658,9 +690,10 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
   const setSidebarNavOrder = async (order: SidebarNavOrder) => {
     setSidebarNavOrderState(order);
+    if (!hasStoredAuthToken()) return;
     // Save to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/sidebar/nav-order"), {
+      await apiFetch("/api/v1/settings/sidebar/nav-order", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nav_order: order }),
@@ -874,9 +907,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
   // Load a solver session from history
   const loadSolverSession = async (sessionId: string) => {
     try {
-      const response = await fetch(
-        apiUrl(`/api/v1/solve/sessions/${sessionId}`),
-      );
+      const response = await apiFetch(`/api/v1/solve/sessions/${sessionId}`);
       if (!response.ok) {
         throw new Error("Session not found");
       }
@@ -2067,9 +2098,7 @@ export function GlobalProvider({ children }: { children: React.ReactNode }) {
 
   const loadChatSession = async (sessionId: string) => {
     try {
-      const response = await fetch(
-        apiUrl(`/api/v1/chat/sessions/${sessionId}`),
-      );
+      const response = await apiFetch(`/api/v1/chat/sessions/${sessionId}`);
       if (!response.ok) {
         throw new Error("Session not found");
       }

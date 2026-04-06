@@ -1,5 +1,5 @@
 # ============================================
-# AI-Tutor Project .gitignore
+# EducAgent Project .gitignore
 # ============================================
 
 # ============================================
@@ -63,12 +63,15 @@ node_modules/
 web/.next/
 out/
 web/out/
+web/.env.local
 
 # Frontend build artifacts
 dist/
 web/dist/
 build/
 web/build/
+web/playwright-report/
+web/test-results/
 
 # TypeScript build info
 *.tsbuildinfo
@@ -278,3 +281,16 @@ celerybeat.pid
 # ============================================
 .agents
 skills-lock.json
+
+
+.agent/
+.augment/
+.claude/
+.github/
+_bmad/
+assets/
+qdrant_storage/
+docker/
+skills/
+slides/
+_bmad-output/

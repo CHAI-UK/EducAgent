@@ -25,7 +25,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { LogDrawer } from "@/components/question";
@@ -76,7 +76,7 @@ export default function QuestionPage() {
     let isMounted = true;
     const controller = new AbortController();
 
-    fetch(apiUrl("/api/v1/knowledge/list"), { signal: controller.signal })
+    apiFetch("/api/v1/knowledge/list", { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => {
         if (!isMounted) return;

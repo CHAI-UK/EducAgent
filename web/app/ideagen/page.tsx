@@ -23,7 +23,7 @@ import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
-import { apiUrl, wsUrl } from "@/lib/api";
+import { apiFetch, wsUrl } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { useGlobal } from "@/context/GlobalContext";
@@ -125,7 +125,7 @@ export default function IdeaGenPage() {
 
   const fetchNotebooks = async () => {
     try {
-      const res = await fetch(apiUrl("/api/v1/notebook/list"));
+      const res = await apiFetch("/api/v1/notebook/list");
       const data = await res.json();
       const notebooksWithRecords = (data.notebooks || []).filter(
         (nb: Notebook) => nb.record_count > 0,
@@ -143,7 +143,7 @@ export default function IdeaGenPage() {
 
     setLoadingRecordsFor((prev) => new Set([...prev, notebookId]));
     try {
-      const res = await fetch(apiUrl(`/api/v1/notebook/${notebookId}`));
+      const res = await apiFetch(`/api/v1/notebook/${notebookId}`);
       const data = await res.json();
       setNotebookRecordsMap((prev) =>
         new Map(prev).set(notebookId, data.records || []),

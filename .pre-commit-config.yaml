@@ -90,6 +90,18 @@ repos:
         additional_dependencies: ["bandit[toml]"]
 
   # ============================================
+  # Frontend type checking
+  # ============================================
+  - repo: local
+    hooks:
+      - id: typescript-check
+        name: TypeScript type check
+        language: system
+        entry: bash -c 'cd web && ./node_modules/.bin/tsc --noEmit'
+        files: ^web/.*\.(ts|tsx)$
+        pass_filenames: false
+
+  # ============================================
   # Type checking
   # ============================================
   # Type checking - currently relaxed due to gradual type adoption

@@ -25,6 +25,7 @@ from fastapi import (
 )
 from pydantic import BaseModel
 
+from src.api.utils.auth import require_websocket_auth
 from src.api.utils.progress_broadcaster import ProgressBroadcaster
 from src.api.utils.task_id_manager import TaskIDManager
 from src.knowledge.add_documents import DocumentAdder
@@ -668,6 +669,9 @@ async def clear_progress(kb_name: str):
 @router.websocket("/{kb_name}/progress/ws")
 async def websocket_progress(websocket: WebSocket, kb_name: str):
     """WebSocket endpoint for real-time progress updates"""
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     broadcaster = ProgressBroadcaster.get_instance()

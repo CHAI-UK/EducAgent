@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class LLMConfig(BaseModel):
@@ -15,6 +15,8 @@ class PathsConfig(BaseModel):
 
 
 class AppConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     llm: LLMConfig
     paths: PathsConfig
 

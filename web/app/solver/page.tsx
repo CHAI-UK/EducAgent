@@ -23,7 +23,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { useGlobal } from "@/context/GlobalContext";
-import { API_BASE_URL, apiUrl } from "@/lib/api";
+import { API_BASE_URL, apiFetch, apiUrl } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { useTranslation } from "react-i18next";
@@ -80,7 +80,7 @@ export default function SolverPage() {
 
   useEffect(() => {
     // Fetch knowledge bases on mount only
-    fetch(apiUrl("/api/v1/knowledge/list"))
+    apiFetch("/api/v1/knowledge/list")
       .then((res) => res.json())
       .then((data) => {
         const names = data.map((kb: any) => kb.name);
@@ -404,7 +404,7 @@ export default function SolverPage() {
                     <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
                       <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-400 font-medium">
                         <CheckCircle2 className="w-4 h-4" />
-                        {t("Verified by DeepTutor Logic Engine")}
+                        {t("Verified by EducAgent Logic Engine")}
                       </div>
                       <button
                         onClick={() => {
@@ -556,11 +556,6 @@ export default function SolverPage() {
                 )}
               </button>
             </div>
-          </div>
-          <div className="text-center text-[10px] text-slate-400 dark:text-slate-500 mt-2">
-            {t(
-              "DeepTutor can make mistakes. Please verify important information.",
-            )}
           </div>
         </div>
       </div>

@@ -15,6 +15,7 @@ _project_root = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(_project_root))
 
 from src.agents.chat import ChatAgent, SessionManager
+from src.api.utils.auth import require_websocket_auth
 from src.logging import get_logger
 from src.services.config import load_config_with_main
 from src.services.llm.config import get_llm_config
@@ -112,6 +113,9 @@ async def websocket_chat(websocket: WebSocket):
     - {"type": "result", "content": str}               # Final complete response
     - {"type": "error", "message": str}                # Error message
     """
+    if await require_websocket_auth(websocket) is None:
+        return
+
     await websocket.accept()
 
     try:

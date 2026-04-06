@@ -30,7 +30,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 import { useGlobal } from "@/context/GlobalContext";
-import { apiUrl } from "@/lib/api";
+import { apiUrl, apiFetch } from "@/lib/api";
 import { processLatexContent } from "@/lib/latex";
 import AddToNotebookModal from "@/components/AddToNotebookModal";
 import { useTranslation } from "react-i18next";
@@ -94,7 +94,7 @@ export default function HomePage() {
 
   // Fetch knowledge bases
   useEffect(() => {
-    fetch(apiUrl("/api/v1/knowledge/list"))
+    apiFetch("/api/v1/knowledge/list")
       .then((res) => res.json())
       .then((data) => {
         // Ensure data is an array before processing
@@ -222,9 +222,6 @@ export default function HomePage() {
             <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-3 tracking-tight">
               {t("Welcome to EducAgent")}
             </h1>
-            <p className="text-lg text-slate-500 dark:text-slate-400">
-              {t("How can I help you today?")}
-            </p>
           </div>
 
           {/* Input Box - Centered */}

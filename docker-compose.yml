@@ -1,7 +1,7 @@
 # ============================================
-# DeepTutor Docker Compose Configuration
+# EducAgent Docker Compose Configuration
 # ============================================
-# This file provides orchestration for DeepTutor services
+# This file provides orchestration for EducAgent services
 #
 # Usage:
 #   Production:  docker compose up -d
@@ -14,10 +14,54 @@
 # ============================================
 
 services:
+  postgres:
+    image: postgres:16
+    container_name: educagent-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-educagent}
+      - POSTGRES_USER=${POSTGRES_USER:-educagent}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-educagent}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-educagent} -d ${POSTGRES_DB:-educagent}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - educagent-network
+
+  postgres-test:
+    image: postgres:16
+    container_name: educagent-postgres-test
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${POSTGRES_TEST_DB:-educagent_test}
+      - POSTGRES_USER=${POSTGRES_TEST_USER:-educagent}
+      - POSTGRES_PASSWORD=${POSTGRES_TEST_PASSWORD:-educagent}
+    ports:
+      - "${POSTGRES_TEST_PORT:-5433}:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_TEST_USER:-educagent} -d ${POSTGRES_TEST_DB:-educagent_test}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - educagent-network
+
   # ============================================
-  # All-in-One DeepTutor Service
+  # All-in-One EducAgent Service
   # ============================================
-  deeptutor:
+  educagent:
     build:
       context: .
       dockerfile: Dockerfile
@@ -25,7 +69,7 @@ services:
       args:
         # Pass backend port at build time for Next.js static optimization
         - BACKEND_PORT=${BACKEND_PORT:-8001}
-    container_name: deeptutor
+    container_name: educagent
     restart: unless-stopped
     ports:
       - "${BACKEND_PORT:-8001}:${BACKEND_PORT:-8001}"
@@ -74,6 +118,18 @@ services:
       - NEXT_PUBLIC_API_BASE_EXTERNAL=${NEXT_PUBLIC_API_BASE_EXTERNAL:-}
       # Alternative: Direct API base URL (same priority as NEXT_PUBLIC_API_BASE_EXTERNAL)
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-}
+      # Auth + DB configuration
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://educagent:educagent@postgres:5432/educagent}
+      - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_ALGORITHM=${AUTH_ALGORITHM:-HS256}
+      - AUTH_TOKEN_LIFETIME_SECONDS=${AUTH_TOKEN_LIFETIME_SECONDS:-3600}
+      # Optional escape hatch for local/dev debugging only.
+      # Default behavior is fail-closed when Alembic migrations fail.
+      - ALLOW_MIGRATION_FAILURE=${ALLOW_MIGRATION_FAILURE:-false}
+
+    depends_on:
+      postgres:
+        condition: service_healthy
 
     volumes:
       # Mount local config directory (read-only)
@@ -91,11 +147,15 @@ services:
       start_period: 60s
 
     networks:
-      - deeptutor-network
+      - educagent-network
 
 # ============================================
 # Networks
 # ============================================
 networks:
-  deeptutor-network:
+  educagent-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  postgres_test_data:

@@ -13,7 +13,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 
 interface Notebook {
   id: string;
@@ -78,7 +78,7 @@ export default function NotebookImportModal({
   const fetchNotebooks = async () => {
     try {
       setLoading(true);
-      const res = await fetch(apiUrl("/api/v1/notebook/list"));
+      const res = await apiFetch("/api/v1/notebook/list");
       if (res.ok) {
         const data = await res.json();
         const validNotebooks = (data.notebooks || []).filter(
@@ -98,7 +98,7 @@ export default function NotebookImportModal({
 
     setLoadingRecords((prev) => new Set(prev).add(notebookId));
     try {
-      const res = await fetch(apiUrl(`/api/v1/notebook/${notebookId}`));
+      const res = await apiFetch(`/api/v1/notebook/${notebookId}`);
       if (res.ok) {
         const data = await res.json();
         setNotebookRecords((prev) =>

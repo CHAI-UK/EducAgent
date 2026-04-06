@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import {
   SidebarNavOrder,
   SIDEBAR_MIN_WIDTH,
@@ -76,7 +76,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const loadSidebarSettings = async () => {
       try {
-        const response = await fetch(apiUrl("/api/v1/settings/sidebar"));
+        const response = await apiFetch("/api/v1/settings/sidebar");
         if (response.ok) {
           const data = await response.json();
           if (data.description) {
@@ -125,7 +125,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     setSidebarDescriptionState(description);
     // Save to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/sidebar/description"), {
+      await apiFetch("/api/v1/settings/sidebar/description", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ description }),
@@ -139,7 +139,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     setSidebarNavOrderState(order);
     // Save to backend
     try {
-      await fetch(apiUrl("/api/v1/settings/sidebar/nav-order"), {
+      await apiFetch("/api/v1/settings/sidebar/nav-order", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nav_order: order }),

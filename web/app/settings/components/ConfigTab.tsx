@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Plus, Trash2, Loader2, Pencil } from "lucide-react";
-import { apiUrl } from "@/lib/api";
+import { apiFetch } from "@/lib/api";
 import { ConfigItem, ConfigType } from "../types";
 import ConfigForm from "./ConfigForm";
 
@@ -39,7 +39,7 @@ export default function ConfigTab({
 
   const loadConfigs = useCallback(async () => {
     try {
-      const res = await fetch(apiUrl(`/api/v1/config/${configType}`));
+      const res = await apiFetch(`/api/v1/config/${configType}`);
       if (res.ok) {
         const data = await res.json();
         setConfigs(data.configs || []);
@@ -57,8 +57,8 @@ export default function ConfigTab({
 
   const setActive = async (configId: string) => {
     try {
-      const res = await fetch(
-        apiUrl(`/api/v1/config/${configType}/${configId}/active`),
+      const res = await apiFetch(
+        `/api/v1/config/${configType}/${configId}/active`,
         {
           method: "POST",
         },
@@ -77,12 +77,9 @@ export default function ConfigTab({
       return;
 
     try {
-      const res = await fetch(
-        apiUrl(`/api/v1/config/${configType}/${configId}`),
-        {
-          method: "DELETE",
-        },
-      );
+      const res = await apiFetch(`/api/v1/config/${configType}/${configId}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         loadConfigs();
         onUpdate();
@@ -99,8 +96,8 @@ export default function ConfigTab({
     setTestResult(null);
 
     try {
-      const res = await fetch(
-        apiUrl(`/api/v1/config/${configType}/${config.id}/test`),
+      const res = await apiFetch(
+        `/api/v1/config/${configType}/${config.id}/test`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

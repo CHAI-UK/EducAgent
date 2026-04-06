@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 
 const nextConfig = {
+  output: "standalone",
+
   // Redirect hidden sidebar routes to home unless full menu mode is enabled
   async redirects() {
     if (process.env.NEXT_PUBLIC_SIDEBAR_MENU_MODE === "full") {
