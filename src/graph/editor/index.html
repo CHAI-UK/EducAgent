@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECI Graph Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    /* ═══════════════════════════════════════
+       DESIGN TOKENS — Research Terminal
+    ═══════════════════════════════════════ */
+    :root {
+      --bg-deepest:   #060a12;
+      --bg-canvas:    #080d1a;
+      --bg-toolbar:   #040810;
+      --bg-sidebar:   #0c1220;
+      --bg-panel:     #101828;
+      --bg-modal:     #0e1525;
+      --bg-hover:     rgba(0,229,204,0.06);
+      --bg-selected:  rgba(0,229,204,0.12);
+
+      --border:       rgba(0,229,204,0.12);
+      --border-light: rgba(255,255,255,0.06);
+
+      --accent:       #00e5cc;
+      --accent-dim:   rgba(0,229,204,0.4);
+      --accent-glow:  rgba(0,229,204,0.15);
+
+      --node-concept: #00e5cc;
+      --node-section: #a78bfa;
+      --node-category:#f5a623;
+
+      --edge-prereq:       #ff6b6b;
+      --edge-covered:      #4ecdc4;
+      --edge-sequence:     #45b7d1;
+      --edge-subtopic:     #a78bfa;
+      --edge-seealso:      #ffd93d;
+      --edge-alias:        #6bcb77;
+      --edge-confused:     #ff8c42;
+
+      --text-primary:  #e2e8f0;
+      --text-secondary:#94a3b8;
+      --text-muted:    #475569;
+      --text-accent:   #00e5cc;
+
+      --font-mono: 'Space Mono', monospace;
+      --font-ui:   'Outfit', sans-serif;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      --shadow-glow: 0 0 20px rgba(0,229,204,0.2), 0 0 60px rgba(0,229,204,0.05);
+    }
+
+    /* ═══════════════════════════════════════
+       RESET & BASE
+    ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--text-primary);
+      background: var(--bg-deepest);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══════════════════════════════════════
+       TOOLBAR
+    ═══════════════════════════════════════ */
+    #toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      height: 52px;
+      background: var(--bg-toolbar);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 100;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 22px;
+      height: 22px;
+      background: var(--accent);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: inline-block;
+      animation: logoPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes logoPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .toolbar-spacer { flex: 1; }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 300px;
+    }
+
+    .search-wrap .search-icon {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 11px;
+      pointer-events: none;
+    }
+
+    #toolbar-search {
+      width: 100%;
+      padding: 7px 10px 7px 30px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #toolbar-search:focus {
+      border-color: var(--accent-dim);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    #toolbar-search::placeholder { color: var(--text-muted); }
+
+    /* N-hop control */
+    .nhop-control {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 5px 10px;
+    }
+
+    .nhop-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+
+    #n-hop {
+      width: 40px;
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      -moz-appearance: textfield;
+    }
+
+    #n-hop::-webkit-outer-spin-button,
+    #n-hop::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .nhop-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0;
+      transition: color 0.15s;
+    }
+
+    .nhop-btn:hover { color: var(--accent); }
+
+    /* Toolbar buttons */
+    .tbtn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-panel);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tbtn:hover {
+      color: var(--text-primary);
+      border-color: var(--accent-dim);
+      background: var(--bg-hover);
+    }
+
+    .tbtn.accent {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #060a12;
+      font-weight: 600;
+    }
+
+    .tbtn.accent:hover {
+      background: #00ffde;
+      border-color: #00ffde;
+      color: #060a12;
+    }
+
+    .tbtn.save-btn {
+      border-color: rgba(100,220,100,0.3);
+      color: #6bcb77;
+    }
+
+    .tbtn.save-btn:hover {
+      border-color: #6bcb77;
+      background: rgba(107,203,119,0.1);
+    }
+
+    .tbtn-icon { font-size: 14px; }
+
+    /* Modified indicator */
+    .modified-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--node-category);
+      display: none;
+    }
+
+    .modified-dot.visible { display: block; }
+
+    /* ═══════════════════════════════════════
+       MAIN LAYOUT
+    ═══════════════════════════════════════ */
+    #main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ═══════════════════════════════════════
+       LEFT PANEL
+    ═══════════════════════════════════════ */
+    #left-panel {
+      width: 270px;
+      flex-shrink: 0;
+      background: var(--bg-sidebar);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+    }
+
+    #list-header {
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .list-title {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    #list-search {
+      width: 100%;
+      padding: 7px 10px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      outline: none;
+      margin-bottom: 7px;
+      transition: border-color 0.2s;
+    }
+
+    #list-search:focus { border-color: var(--accent-dim); }
+    #list-search::placeholder { color: var(--text-muted); }
+
+    #type-filter {
+      width: 100%;
+      padding: 6px 10px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    #type-filter option { background: var(--bg-panel); }
+
+    #list-stats {
+      padding: 6px 14px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    #node-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+
+    #node-list::-webkit-scrollbar { width: 4px; }
+    #node-list::-webkit-scrollbar-track { background: transparent; }
+    #node-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .node-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 7px 14px;
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: background 0.12s, border-color 0.12s;
+    }
+
+    .node-item:hover { background: var(--bg-hover); }
+
+    .node-item.selected {
+      background: var(--bg-selected);
+      border-left-color: var(--accent);
+    }
+
+    .node-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .dot-concept  { background: var(--node-concept); }
+    .dot-section  { background: var(--node-section); }
+    .dot-category { background: var(--node-category); }
+
+    .node-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      flex: 1;
+      line-height: 1.4;
+      transition: color 0.12s;
+    }
+
+    .node-item:hover .node-label,
+    .node-item.selected .node-label {
+      color: var(--text-primary);
+    }
+
+    .node-type-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════
+       GRAPH CANVAS
+    ═══════════════════════════════════════ */
+    #graph-area {
+      flex: 1;
+      position: relative;
+      background: var(--bg-canvas);
+      overflow: hidden;
+      /* Dot grid background */
+      background-image: radial-gradient(circle, rgba(0,229,204,0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    #graph-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* D3 elements */
+    .node-g { cursor: pointer; }
+
+    .node-g circle {
+      transition: filter 0.2s;
+    }
+
+    .node-g.selected circle {
+      filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 20px currentColor);
+    }
+
+    .node-g:hover circle {
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+
+    .node-g text {
+      font-family: var(--font-ui);
+      font-size: 10px;
+      fill: var(--text-secondary);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .node-g.selected text { fill: var(--text-primary); }
+
+    .link-g line {
+      cursor: pointer;
+      transition: stroke-opacity 0.15s;
+    }
+
+    .link-g line:hover { stroke-opacity: 1 !important; }
+
+    /* ═══════════════════════════════════════
+       GRAPH OVERLAY PANELS
+    ═══════════════════════════════════════ */
+    #graph-placeholder {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .placeholder-hex {
+      width: 60px;
+      height: 60px;
+      background: var(--accent-glow);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      margin: 0 auto 16px;
+      animation: hexFloat 3s ease-in-out infinite;
+    }
+
+    @keyframes hexFloat {
+      0%, 100% { transform: translateY(0); opacity: 0.4; }
+      50% { transform: translateY(-8px); opacity: 0.8; }
+    }
+
+    .placeholder-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .placeholder-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* Node info panel */
+    #node-info-panel {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 220px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display: none;
+      backdrop-filter: blur(10px);
+    }
+
+    #node-info-panel.visible { display: block; }
+
+    .info-node-name {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 5px;
+      font-size: 11px;
+    }
+
+    .info-key {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .info-val {
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: right;
+      max-width: 130px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .info-type-badge {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .badge-concept  { background: rgba(0,229,204,0.15);  color: var(--node-concept); }
+    .badge-section  { background: rgba(167,139,250,0.15); color: var(--node-section); }
+    .badge-category { background: rgba(245,166,35,0.15);  color: var(--node-category); }
+
+    .info-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0;
+    }
+
+    .info-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .info-btn {
+      flex: 1;
+      padding: 5px 0;
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 11px;
+      font-family: var(--font-ui);
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .info-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--accent-dim);
+      background: var(--bg-selected);
+    }
+
+    .info-btn.danger:hover {
+      color: #ff6b6b;
+      border-color: rgba(255,107,107,0.4);
+      background: rgba(255,107,107,0.08);
+    }
+
+    /* Legend */
+    #legend {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 10px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .legend-section {
+      margin-bottom: 8px;
+    }
+
+    .legend-section:last-child { margin-bottom: 0; }
+
+    .legend-title {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      opacity: 0.6;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-line {
+      width: 18px;
+      height: 2px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    /* ═══════════════════════════════════════
+       CONTEXT MENU
+    ═══════════════════════════════════════ */
+    #ctx-menu {
+      position: fixed;
+      background: var(--bg-modal);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), var(--shadow-glow);
+      z-index: 3000;
+      min-width: 190px;
+      overflow: hidden;
+      display: none;
+      animation: ctxFadeIn 0.1s ease;
+    }
+
+    @keyframes ctxFadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .ctx-header {
+      padding: 8px 14px;
+      background: rgba(0,229,204,0.06);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.05em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .ctx-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--text-secondary);
+      transition: background 0.1s, color 0.1s;
+      border-left: 2px solid transparent;
+    }
+
+    .ctx-item:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+      border-left-color: var(--accent-dim);
+    }
+
+    .ctx-item.danger:hover {
+      background: rgba(255,107,107,0.08);
+      color: #ff6b6b;
+      border-left-color: rgba(255,107,107,0.4);
+    }
+
+    .ctx-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 2px 0;
+    }
+
+    /* ═══════════════════════════════════════
+       MODAL SYSTEM
+    ═══════════════════════════════════════ */
+    #modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 8, 16, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--bg-modal);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 64px rgba(0,0,0,0.6), var(--shadow-glow);
+      width: 440px;
+      max-width: 94vw;
+      max-height: 85vh;
+      overflow-y: auto;
+      display: none;
+      animation: modalIn 0.2s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal.open { display: block; }
+
+    .modal::-webkit-scrollbar { width: 4px; }
+    .modal::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .modal-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: 0.03em;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 18px;
+      line-height: 1;
+      transition: color 0.15s;
+      padding: 2px;
+    }
+
+    .modal-close:hover { color: var(--text-primary); }
+
+    .modal-body { padding: 16px 20px; }
+
+    .modal-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .form-group {
+      margin-bottom: 13px;
+      flex: 1;
+    }
+
+    .form-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      width: 100%;
+      padding: 8px 10px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      border-color: var(--accent-dim);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder { color: var(--text-muted); }
+
+    .form-input:disabled {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted);
+      cursor: default;
+    }
+
+    .form-select option { background: var(--bg-modal); }
+
+    .form-select-wrap {
+      position: relative;
+    }
+
+    /* Node search-select combo */
+    .node-select-filter {
+      margin-bottom: 4px;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .modal-ft {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Modal buttons */
+    .mbtn {
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+    }
+
+    .mbtn-cancel {
+      background: transparent;
+      border-color: var(--border);
+      color: var(--text-secondary);
+    }
+
+    .mbtn-cancel:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .mbtn-confirm {
+      background: var(--accent);
+      color: #060a12;
+      font-weight: 700;
+    }
+
+    .mbtn-confirm:hover { background: #00ffde; }
+
+    .mbtn-danger {
+      background: rgba(255,107,107,0.15);
+      border-color: rgba(255,107,107,0.3);
+      color: #ff6b6b;
+    }
+
+    .mbtn-danger:hover { background: rgba(255,107,107,0.25); }
+
+    .mbtn-warning {
+      background: rgba(245,166,35,0.15);
+      border-color: rgba(245,166,35,0.3);
+      color: var(--node-category);
+    }
+
+    .mbtn-warning:hover { background: rgba(245,166,35,0.25); }
+
+    /* ═══════════════════════════════════════
+       SEARCH DROPDOWN
+    ═══════════════════════════════════════ */
+    #search-dropdown {
+      position: fixed;
+      background: var(--bg-modal);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 5000;
+      display: none;
+      min-width: 280px;
+    }
+
+    #search-dropdown::-webkit-scrollbar { width: 4px; }
+    #search-dropdown::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .sd-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+
+    .sd-item:hover, .sd-item.active {
+      background: var(--bg-hover);
+    }
+
+    .sd-label { font-size: 12px; color: var(--text-primary); }
+
+    .sd-empty {
+      padding: 12px 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════════
+       TOAST
+    ═══════════════════════════════════════ */
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      animation: toastIn 0.3s cubic-bezier(0.16,1,0.3,1);
+      border: 1px solid transparent;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(40px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .toast-success { background: rgba(107,203,119,0.15); border-color: rgba(107,203,119,0.3); color: #6bcb77; }
+    .toast-error   { background: rgba(255,107,107,0.15); border-color: rgba(255,107,107,0.3); color: #ff6b6b; }
+    .toast-info    { background: rgba(0,229,204,0.12);   border-color: rgba(0,229,204,0.25);  color: var(--accent); }
+
+    /* ═══════════════════════════════════════
+       LOADING
+    ═══════════════════════════════════════ */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-deepest);
+      z-index: 9998;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .loading-hex {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      animation: loadSpin 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes loadSpin {
+      from { transform: scale(0.8); opacity: 0.4; }
+      to   { transform: scale(1.1); opacity: 1; }
+    }
+
+    .loading-text {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* ═══════════════════════════════════════
+       KEYBOARD SHORTCUT HINT
+    ═══════════════════════════════════════ */
+    .kbd {
+      display: inline-block;
+      padding: 1px 5px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+  <div class="loading-hex"></div>
+  <span class="loading-text">LOADING GRAPH...</span>
+</div>
+
+<!-- Toolbar -->
+<div id="toolbar">
+  <div class="logo">
+    <span class="logo-icon"></span>
+    ECI&nbsp;GRAPH&nbsp;EDITOR
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="toolbar-search" placeholder="Search nodes… (↑↓ navigate, ↵ select)">
+  </div>
+
+  <div class="nhop-control">
+    <span class="nhop-label">N-HOP</span>
+    <button class="nhop-btn" id="nhop-minus">−</button>
+    <input type="number" id="n-hop" value="1" min="1" max="5">
+    <button class="nhop-btn" id="nhop-plus">+</button>
+  </div>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="tbtn accent" id="btn-add-node">
+    <span class="tbtn-icon">＋</span> Add Node
+  </button>
+
+  <button class="tbtn" id="btn-merge">
+    <span class="tbtn-icon">⇄</span> Merge
+  </button>
+
+  <div class="toolbar-divider"></div>
+
+  <button class="tbtn save-btn" id="btn-save">
+    <div class="modified-dot" id="modified-dot"></div>
+    <span class="tbtn-icon">↓</span> Save
+  </button>
+
+  <button class="tbtn" id="btn-export">
+    <span class="tbtn-icon">⬇</span> Export
+  </button>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <!-- Left Panel -->
+  <aside id="left-panel">
+    <div id="list-header">
+      <div class="list-title">Node Explorer</div>
+      <input type="text" id="list-search" placeholder="Filter nodes…" oninput="renderList()">
+      <select id="type-filter" onchange="renderList()">
+        <option value="">All Types</option>
+        <option value="concept">Concept</option>
+        <option value="section">Section</option>
+        <option value="category">Category</option>
+      </select>
+    </div>
+    <div id="list-stats"></div>
+    <div id="node-list"></div>
+  </aside>
+
+  <!-- Graph Canvas -->
+  <section id="graph-area">
+    <svg id="graph-svg"></svg>
+
+    <div id="graph-placeholder">
+      <div class="placeholder-hex"></div>
+      <div class="placeholder-title">SELECT A NODE TO EXPLORE</div>
+      <div class="placeholder-sub">Click any node from the list, or use the search bar above</div>
+    </div>
+
+    <div id="node-info-panel">
+      <div class="info-node-name" id="info-name">—</div>
+      <div class="info-row">
+        <span class="info-key">type</span>
+        <span class="info-val" id="info-type">—</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">id</span>
+        <span class="info-val" id="info-id" style="font-family:var(--font-mono);font-size:10px">—</span>
+      </div>
+      <div class="info-row" id="info-pages-row">
+        <span class="info-key">related pages</span>
+        <span class="info-val" id="info-pages">—</span>
+      </div>
+      <div class="info-divider"></div>
+      <div class="info-row">
+        <span class="info-key">out-edges</span>
+        <span class="info-val" id="info-out">0</span>
+      </div>
+      <div class="info-row">
+        <span class="info-key">in-edges</span>
+        <span class="info-val" id="info-in">0</span>
+      </div>
+      <div class="info-actions">
+        <button class="info-btn" id="info-btn-edit">Edit</button>
+        <button class="info-btn" id="info-btn-edge">+ Edge</button>
+        <button class="info-btn danger" id="info-btn-del">Delete</button>
+      </div>
+    </div>
+
+    <div id="legend">
+      <div class="legend-section">
+        <div class="legend-title">Nodes</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--node-concept)"></div>Concept</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--node-section)"></div>Section</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--node-category)"></div>Category</div>
+      </div>
+      <div class="legend-section">
+        <div class="legend-title">Edges</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-prereq)"></div>Prerequisite</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-covered)"></div>Covered In</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-sequence)"></div>Sequence</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-subtopic)"></div>Subtopic</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-seealso)"></div>See Also</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-alias)"></div>Alias</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--edge-confused)"></div>Confused</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Context Menu -->
+<div id="ctx-menu"></div>
+
+<!-- Search Dropdown -->
+<div id="search-dropdown"></div>
+
+<!-- Modal Overlay -->
+<div id="modal-overlay" onclick="onOverlayClick(event)">
+
+  <!-- Add Node -->
+  <div class="modal" id="modal-add-node" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="modal-title">ADD NODE</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Label *</label>
+        <input class="form-input" id="an-label" placeholder="e.g. Backdoor Criterion">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Type *</label>
+          <select class="form-select" id="an-type">
+            <option value="concept">concept</option>
+            <option value="section">section</option>
+            <option value="category">category</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chapter</label>
+          <input class="form-input" id="an-chapter" type="number" min="0" max="12" value="0" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group" id="an-section-group" style="display:none">
+        <label class="form-label">Section ID</label>
+        <input class="form-input" id="an-section-id" placeholder="e.g. 3.2">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description (optional)</label>
+        <textarea class="form-textarea" id="an-desc" placeholder="Brief description…"></textarea>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-confirm" onclick="confirmAddNode()">Add Node</button>
+    </div>
+  </div>
+
+  <!-- Edit Node -->
+  <div class="modal" id="modal-edit-node" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="modal-title">EDIT NODE</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">ID (read-only)</label>
+        <input class="form-input" id="en-id" disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Label *</label>
+        <input class="form-input" id="en-label" placeholder="Display label">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="en-type">
+          <option value="concept">concept</option>
+          <option value="section">section</option>
+          <option value="category">category</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Related Pages</label>
+        <input class="form-input" id="en-pages" placeholder="e.g. 29, 50, 109">
+        <div class="form-hint">Comma-separated page numbers</div>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-confirm" onclick="confirmEditNode()">Save</button>
+    </div>
+  </div>
+
+  <!-- Add Edge -->
+  <div class="modal" id="modal-add-edge" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="modal-title">ADD EDGE</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Source Node</label>
+        <input class="form-input node-select-filter" id="ae-src-filter" placeholder="Filter source nodes…"
+               oninput="filterNodeSelect('ae-src-filter','ae-src')">
+        <select class="form-select" id="ae-src" size="4" style="margin-top:4px"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Target Node</label>
+        <input class="form-input node-select-filter" id="ae-tgt-filter" placeholder="Filter target nodes…"
+               oninput="filterNodeSelect('ae-tgt-filter','ae-tgt')">
+        <select class="form-select" id="ae-tgt" size="4" style="margin-top:4px"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Edge Type</label>
+        <select class="form-select" id="ae-type">
+          <option>PREREQUISITE_OF</option>
+          <option>COVERED_IN</option>
+          <option>NEXT_IN_SEQUENCE</option>
+          <option>SUBTOPIC_OF</option>
+          <option>RELATED_TO_SEE_ALSO</option>
+          <option>RELATED_TO_ALIAS</option>
+          <option>COMMONLY_CONFUSED</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-confirm" onclick="confirmAddEdge()">Add Edge</button>
+    </div>
+  </div>
+
+  <!-- Edit Edge -->
+  <div class="modal" id="modal-edit-edge" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="modal-title">EDIT EDGE</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Connection</label>
+        <input class="form-input" id="ee-info" disabled>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Edge Type</label>
+        <select class="form-select" id="ee-type">
+          <option>PREREQUISITE_OF</option>
+          <option>COVERED_IN</option>
+          <option>NEXT_IN_SEQUENCE</option>
+          <option>SUBTOPIC_OF</option>
+          <option>RELATED_TO_SEE_ALSO</option>
+          <option>RELATED_TO_ALIAS</option>
+          <option>COMMONLY_CONFUSED</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-confirm" onclick="confirmEditEdge()">Save</button>
+    </div>
+  </div>
+
+  <!-- Merge Nodes -->
+  <div class="modal" id="modal-merge" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="modal-title">MERGE NODES</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">
+        Merges <strong>Node B</strong> into <strong>Node A</strong>: all edges attached to B are
+        reattached to A, self-loops and duplicate edges are removed, then B is deleted.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Keep — Node A</label>
+        <input class="form-input node-select-filter" id="mg-a-filter" placeholder="Filter…"
+               oninput="filterNodeSelect('mg-a-filter','mg-a')">
+        <select class="form-select" id="mg-a" size="4" style="margin-top:4px"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Remove — Node B (merged into A)</label>
+        <input class="form-input node-select-filter" id="mg-b-filter" placeholder="Filter…"
+               oninput="filterNodeSelect('mg-b-filter','mg-b')">
+        <select class="form-select" id="mg-b" size="4" style="margin-top:4px"></select>
+      </div>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-warning" onclick="confirmMerge()">Merge</button>
+    </div>
+  </div>
+
+  <!-- Confirm -->
+  <div class="modal" id="modal-confirm" onclick="event.stopPropagation()">
+    <div class="modal-hd">
+      <span class="modal-title" id="confirm-title">CONFIRM</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="confirm-msg" style="font-size:13px;color:var(--text-secondary);line-height:1.5"></p>
+    </div>
+    <div class="modal-ft">
+      <button class="mbtn mbtn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="mbtn mbtn-danger" id="confirm-ok">Delete</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════╗
+// ║  STATE                                                   ║
+// ╚══════════════════════════════════════════════════════════╝
+const S = {
+  graph: { directed: true, multigraph: false, graph: {}, nodes: [], edges: [] },
+  selectedId: null,
+  nHop: 1,
+  sim: null,
+  posCache: new Map(),   // nodeId → {x, y}
+  modified: false,
+  // For modal context
+  ctx: {},
+};
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  CONSTANTS                                               ║
+// ╚══════════════════════════════════════════════════════════╝
+const NODE_COLOR = {
+  concept:  '#00e5cc',
+  section:  '#a78bfa',
+  category: '#f5a623',
+};
+
+const EDGE_COLOR = {
+  PREREQUISITE_OF:     '#ff6b6b',
+  COVERED_IN:          '#4ecdc4',
+  NEXT_IN_SEQUENCE:    '#45b7d1',
+  SUBTOPIC_OF:         '#a78bfa',
+  RELATED_TO_SEE_ALSO: '#ffd93d',
+  RELATED_TO_ALIAS:    '#6bcb77',
+  COMMONLY_CONFUSED:   '#ff8c42',
+};
+
+const EDGE_TYPES = Object.keys(EDGE_COLOR);
+const R = 10;  // node radius
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  HELPERS                                                 ║
+// ╚══════════════════════════════════════════════════════════╝
+function edgeSrc(e) { return typeof e.source === 'object' ? e.source.id : e.source; }
+function edgeTgt(e) { return typeof e.target === 'object' ? e.target.id : e.target; }
+
+function nodeLabel(n) {
+  return n.short_label && n.short_label.trim() ? n.short_label : (n.label || n.id);
+}
+
+function slugify(s) {
+  return s.toLowerCase().replace(/[§\s]+/g, '_').replace(/[^a-z0-9_]/g, '').replace(/^_+|_+$/g, '');
+}
+
+function uniqueId(base) {
+  let id = base, i = 2;
+  while (S.graph.nodes.find(n => n.id === id)) id = base + '_' + i++;
+  return id;
+}
+
+function sortedNodes() {
+  return [...S.graph.nodes].sort((a, b) => nodeLabel(a).localeCompare(nodeLabel(b)));
+}
+
+function setModified(v) {
+  S.modified = v;
+  document.getElementById('modified-dot').classList.toggle('visible', v);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  API                                                     ║
+// ╚══════════════════════════════════════════════════════════╝
+async function loadGraph() {
+  try {
+    const res = await fetch('/api/graph');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    S.graph = await res.json();
+    // Normalize edge references to strings
+    S.graph.edges.forEach(e => {
+      if (typeof e.source === 'object') e.source = e.source.id;
+      if (typeof e.target === 'object') e.target = e.target.id;
+    });
+    document.getElementById('loading-screen').style.display = 'none';
+    setModified(false);
+    renderList();
+    showToast(`Loaded ${S.graph.nodes.length} nodes, ${S.graph.edges.length} edges`, 'info');
+  } catch (err) {
+    document.getElementById('loading-screen').style.display = 'none';
+    showToast('Failed to load graph: ' + err.message, 'error');
+  }
+}
+
+function cleanGraphForExport() {
+  return {
+    directed:   S.graph.directed !== undefined ? S.graph.directed : true,
+    multigraph: S.graph.multigraph || false,
+    graph:      S.graph.graph || {},
+    nodes: S.graph.nodes.map(n => {
+      const { x, y, vx, vy, fx, fy, index, ...rest } = n;
+      return rest;
+    }),
+    edges: S.graph.edges.map(e => {
+      const { index, ...rest } = e;
+      return {
+        ...rest,
+        source: edgeSrc(e),
+        target: edgeTgt(e),
+      };
+    }),
+  };
+}
+
+async function saveGraph() {
+  try {
+    const data = cleanGraphForExport();
+    const res = await fetch('/api/graph', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    setModified(false);
+    showToast('Saved successfully', 'success');
+  } catch (err) {
+    showToast('Save failed: ' + err.message, 'error');
+  }
+}
+
+function exportGraph() {
+  const data = cleanGraphForExport();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'eci_graph_edited.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported as eci_graph_edited.json', 'success');
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  LIST PANEL                                              ║
+// ╚══════════════════════════════════════════════════════════╝
+function renderList() {
+  const q    = document.getElementById('list-search').value.trim().toLowerCase();
+  const type = document.getElementById('type-filter').value;
+
+  const filtered = S.graph.nodes.filter(n => {
+    const lbl = nodeLabel(n).toLowerCase();
+    const ok1 = !q || lbl.includes(q) || n.id.toLowerCase().includes(q);
+    const ok2 = !type || n.type === type;
+    return ok1 && ok2;
+  });
+
+  filtered.sort((a, b) => {
+    const order = { concept: 0, section: 1, category: 2 };
+    const diff = (order[a.type] ?? 3) - (order[b.type] ?? 3);
+    return diff !== 0 ? diff : nodeLabel(a).localeCompare(nodeLabel(b));
+  });
+
+  document.getElementById('list-stats').textContent =
+    `${filtered.length} / ${S.graph.nodes.length} nodes`;
+
+  const list = document.getElementById('node-list');
+  list.innerHTML = '';
+
+  filtered.forEach(node => {
+    const el = document.createElement('div');
+    el.className = 'node-item' + (node.id === S.selectedId ? ' selected' : '');
+    el.dataset.id = node.id;
+    el.innerHTML = `
+      <div class="node-dot dot-${node.type}"></div>
+      <span class="node-label" title="${node.label || node.id}">${nodeLabel(node)}</span>
+      <span class="node-type-tag">${node.type[0].toUpperCase()}</span>
+    `;
+    el.addEventListener('click', () => selectNode(node.id));
+    list.appendChild(el);
+  });
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  NODE SELECTION                                          ║
+// ╚══════════════════════════════════════════════════════════╝
+function selectNode(id) {
+  S.selectedId = id;
+
+  // Sync list
+  document.querySelectorAll('.node-item').forEach(el => {
+    const sel = el.dataset.id === id;
+    el.classList.toggle('selected', sel);
+    if (sel) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  renderGraph();
+  updateInfoPanel();
+}
+
+function updateInfoPanel() {
+  const panel = document.getElementById('node-info-panel');
+  if (!S.selectedId) { panel.classList.remove('visible'); return; }
+
+  const n = S.graph.nodes.find(x => x.id === S.selectedId);
+  if (!n) { panel.classList.remove('visible'); return; }
+
+  const outDeg = S.graph.edges.filter(e => edgeSrc(e) === n.id).length;
+  const inDeg  = S.graph.edges.filter(e => edgeTgt(e) === n.id).length;
+
+  document.getElementById('info-name').textContent     = n.label || n.id;
+  document.getElementById('info-type').innerHTML       = `<span class="info-type-badge badge-${n.type}">${n.type}</span>`;
+  document.getElementById('info-id').textContent       = n.id;
+  // Related pages: use page_refs array (concepts/categories) or start/end page (sections)
+  let pagesText = '—';
+  if (Array.isArray(n.page_refs) && n.page_refs.length > 0) {
+    pagesText = n.page_refs.join(', ');
+  } else if (n.start_page !== undefined && n.end_page !== undefined) {
+    pagesText = `${n.start_page}–${n.end_page}`;
+  }
+  document.getElementById('info-pages').textContent = pagesText;
+  document.getElementById('info-out').textContent      = outDeg;
+  document.getElementById('info-in').textContent       = inDeg;
+
+  panel.classList.add('visible');
+
+  document.getElementById('info-btn-edit').onclick = () => openEditNode(n.id);
+  document.getElementById('info-btn-edge').onclick = () => openAddEdge(n.id, null);
+  document.getElementById('info-btn-del').onclick  = () => confirmDeleteNode(n.id);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  SUBGRAPH COMPUTATION                                    ║
+// ╚══════════════════════════════════════════════════════════╝
+function getSubgraph(nodeId, n) {
+  if (!nodeId) return { nodes: [], edges: [] };
+
+  let visited = new Set([nodeId]);
+  let frontier = new Set([nodeId]);
+
+  for (let i = 0; i < n; i++) {
+    const next = new Set();
+    for (const nid of frontier) {
+      for (const e of S.graph.edges) {
+        const s = edgeSrc(e), t = edgeTgt(e);
+        if (s === nid && !visited.has(t)) next.add(t);
+        if (t === nid && !visited.has(s)) next.add(s);
+      }
+    }
+    for (const nid of next) visited.add(nid);
+    frontier = next;
+    if (!frontier.size) break;
+  }
+
+  const subNodes = S.graph.nodes.filter(n => visited.has(n.id));
+  const subEdges = S.graph.edges.filter(e => visited.has(edgeSrc(e)) && visited.has(edgeTgt(e)));
+  return { nodes: subNodes, edges: subEdges };
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  D3 GRAPH                                                ║
+// ╚══════════════════════════════════════════════════════════╝
+let svgSel, gSel, zoomBeh;
+
+function initSVG() {
+  svgSel = d3.select('#graph-svg');
+  svgSel.selectAll('*').remove();
+
+  const defs = svgSel.append('defs');
+
+  // Arrow markers for each edge type + default
+  [...EDGE_TYPES, '_default'].forEach(type => {
+    const color = EDGE_COLOR[type] || '#888';
+    defs.append('marker')
+      .attr('id', 'arr-' + type)
+      .attr('viewBox', '0 -4 10 8')
+      .attr('refX', R + 11)
+      .attr('refY', 0)
+      .attr('markerWidth', 5)
+      .attr('markerHeight', 5)
+      .attr('orient', 'auto')
+      .append('path')
+      .attr('d', 'M0,-4L10,0L0,4')
+      .attr('fill', color);
+  });
+
+  gSel = svgSel.append('g').attr('class', 'root-g');
+
+  zoomBeh = d3.zoom()
+    .scaleExtent([0.05, 5])
+    .on('zoom', ev => gSel.attr('transform', ev.transform));
+
+  svgSel.call(zoomBeh);
+
+  svgSel.on('click', ev => {
+    if (ev.target === svgSel.node()) closeCtxMenu();
+  });
+}
+
+function renderGraph() {
+  if (!gSel) return;
+
+  const { nodes: subNodes, edges: subEdges } = getSubgraph(S.selectedId, S.nHop);
+
+  const placeholder = document.getElementById('graph-placeholder');
+  if (!S.selectedId || !subNodes.length) {
+    placeholder.style.display = 'block';
+    gSel.selectAll('*').remove();
+    if (S.sim) S.sim.stop();
+    return;
+  }
+  placeholder.style.display = 'none';
+
+  // Cache positions from old simulation
+  if (S.sim) {
+    S.sim.nodes().forEach(n => S.posCache.set(n.id, { x: n.x, y: n.y }));
+    S.sim.stop();
+  }
+
+  // Clone nodes, restore cached positions
+  const area = document.getElementById('graph-area').getBoundingClientRect();
+  const W = area.width, H = area.height;
+
+  const simNodes = subNodes.map(n => {
+    const p = S.posCache.get(n.id);
+    return Object.assign({}, n, p || { x: W/2 + (Math.random()-0.5)*100, y: H/2 + (Math.random()-0.5)*100 });
+  });
+
+  const idMap = new Map(simNodes.map(n => [n.id, n]));
+
+  const simEdges = subEdges.map(e => ({
+    ...e,
+    source: edgeSrc(e),
+    target: edgeTgt(e),
+  }));
+
+  gSel.selectAll('*').remove();
+
+  // ── Links ──────────────────────────────────────
+  const linkG = gSel.append('g').attr('class', 'link-g');
+  const link = linkG.selectAll('line')
+    .data(simEdges)
+    .join('line')
+    .attr('stroke', d => EDGE_COLOR[d.edge_type] || '#888')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', 0.55)
+    .attr('marker-end', d => `url(#arr-${d.edge_type || '_default'})`)
+    .style('cursor', 'pointer')
+    .on('click', (ev, d) => { ev.stopPropagation(); showEdgeCtxMenu(ev, d); })
+    .on('mouseenter', function() { d3.select(this).attr('stroke-opacity', 1).attr('stroke-width', 2.5); })
+    .on('mouseleave', function() { d3.select(this).attr('stroke-opacity', 0.55).attr('stroke-width', 1.5); });
+
+  // ── Nodes ──────────────────────────────────────
+  const nodeG = gSel.append('g').attr('class', 'node-g-container');
+  const nodeGrp = nodeG.selectAll('g.node-g')
+    .data(simNodes, d => d.id)
+    .join('g')
+    .attr('class', d => 'node-g' + (d.id === S.selectedId ? ' selected' : ''))
+    .call(d3.drag()
+      .on('start', (ev, d) => {
+        if (!ev.active) S.sim.alphaTarget(0.3).restart();
+        d.fx = d.x; d.fy = d.y;
+      })
+      .on('drag', (ev, d) => { d.fx = ev.x; d.fy = ev.y; })
+      .on('end', (ev, d) => {
+        if (!ev.active) S.sim.alphaTarget(0);
+        d.fx = null; d.fy = null;
+      })
+    )
+    .on('click', (ev, d) => { ev.stopPropagation(); closeCtxMenu(); selectNode(d.id); })
+    .on('contextmenu', (ev, d) => { ev.preventDefault(); ev.stopPropagation(); showNodeCtxMenu(ev, d); });
+
+  nodeGrp.append('circle')
+    .attr('r', d => d.id === S.selectedId ? R + 3 : R)
+    .attr('fill', d => NODE_COLOR[d.type] || '#888')
+    .attr('fill-opacity', d => d.id === S.selectedId ? 0.9 : 0.7)
+    .attr('stroke', d => NODE_COLOR[d.type] || '#888')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-opacity', d => d.id === S.selectedId ? 1 : 0.6);
+
+  nodeGrp.each(function(d) {
+    const r   = d.id === S.selectedId ? R + 4 : R;
+    const lbl = nodeLabel(d);
+    const textEl = d3.select(this).append('text').attr('text-anchor', 'middle');
+
+    // Word-wrap: split on spaces, build lines of ≤18 chars
+    const words = lbl.split(' ');
+    const lines = [];
+    let cur = '';
+    for (const w of words) {
+      const test = cur ? cur + ' ' + w : w;
+      if (test.length > 18 && cur) { lines.push(cur); cur = w; }
+      else cur = test;
+    }
+    if (cur) lines.push(cur);
+
+    lines.forEach((line, i) => {
+      textEl.append('tspan')
+        .attr('x', 0)
+        .attr('y', r + 13 + i * 12)
+        .text(line);
+    });
+  });
+
+  // ── Force Simulation ───────────────────────────
+  S.sim = d3.forceSimulation(simNodes)
+    .force('link', d3.forceLink(simEdges).id(d => d.id).distance(90).strength(0.8))
+    .force('charge', d3.forceManyBody().strength(-250))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collide', d3.forceCollide(R + 10))
+    .on('tick', () => {
+      link
+        .attr('x1', d => d.source.x).attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x).attr('y2', d => d.target.y);
+      nodeGrp.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+  // Pin selected node to center briefly
+  const sel = simNodes.find(n => n.id === S.selectedId);
+  if (sel) {
+    sel.fx = W/2; sel.fy = H/2;
+    setTimeout(() => { sel.fx = null; sel.fy = null; }, 1800);
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  CONTEXT MENUS                                           ║
+// ╚══════════════════════════════════════════════════════════╝
+function showNodeCtxMenu(ev, d) {
+  const n = S.graph.nodes.find(x => x.id === d.id);
+  const menu = document.getElementById('ctx-menu');
+  // Escape the label for data attributes
+  menu.innerHTML = `
+    <div class="ctx-header">${n?.label || d.id}</div>
+    <div class="ctx-item" data-action="edit-node" data-id="${d.id}">✏️ Edit node</div>
+    <div class="ctx-item" data-action="add-edge-from" data-id="${d.id}">→ Add edge from this</div>
+    <div class="ctx-item" data-action="add-edge-to" data-id="${d.id}">← Add edge to this</div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item danger" data-action="del-node" data-id="${d.id}">🗑 Delete node</div>
+  `;
+  positionCtx(ev, menu);
+}
+
+function showEdgeCtxMenu(ev, d) {
+  const src = edgeSrc(d), tgt = edgeTgt(d);
+  const srcN = S.graph.nodes.find(n => n.id === src);
+  const tgtN = S.graph.nodes.find(n => n.id === tgt);
+  const idx  = findEdgeIdx(src, tgt, d.edge_type);
+
+  const menu = document.getElementById('ctx-menu');
+  menu.innerHTML = `
+    <div class="ctx-header">${d.edge_type}</div>
+    <div class="ctx-item" style="font-size:11px;color:var(--text-muted);pointer-events:none;padding:4px 14px">
+      ${(srcN?.short_label||src).slice(0,16)} → ${(tgtN?.short_label||tgt).slice(0,16)}
+    </div>
+    <div class="ctx-sep"></div>
+    <div class="ctx-item" data-action="edit-edge" data-idx="${idx}">✏️ Change edge type</div>
+    <div class="ctx-item danger" data-action="del-edge" data-idx="${idx}">🗑 Delete edge</div>
+  `;
+  positionCtx(ev, menu);
+}
+
+function positionCtx(ev, menu) {
+  menu.style.display = 'block';
+  const mx = Math.min(ev.clientX, window.innerWidth  - 210);
+  const my = Math.min(ev.clientY, window.innerHeight - menu.scrollHeight - 10);
+  menu.style.left = mx + 'px';
+  menu.style.top  = my + 'px';
+}
+
+function closeCtxMenu() {
+  document.getElementById('ctx-menu').style.display = 'none';
+}
+
+document.getElementById('ctx-menu').addEventListener('click', ev => {
+  const item = ev.target.closest('[data-action]');
+  if (!item) return;
+  const { action, id, idx } = item.dataset;
+  closeCtxMenu();
+  if (action === 'edit-node')      openEditNode(id);
+  if (action === 'add-edge-from')  openAddEdge(id, null);
+  if (action === 'add-edge-to')    openAddEdge(null, id);
+  if (action === 'del-node')       confirmDeleteNode(id);
+  if (action === 'edit-edge')      openEditEdge(+idx);
+  if (action === 'del-edge')       confirmDeleteEdge(+idx);
+});
+
+function findEdgeIdx(src, tgt, type) {
+  return S.graph.edges.findIndex(e => edgeSrc(e) === src && edgeTgt(e) === tgt && e.edge_type === type);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  MODAL SYSTEM                                            ║
+// ╚══════════════════════════════════════════════════════════╝
+function openModal(id) {
+  document.getElementById('modal-overlay').classList.add('open');
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+  document.getElementById('modal-' + id).classList.add('open');
+  closeCtxMenu();
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('open'));
+  S.ctx = {};
+}
+
+function onOverlayClick(ev) {
+  if (ev.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ── Node select filter (filter + select combo) ──────────
+function populateNodeSelect(selId, preselect) {
+  const sel = document.getElementById(selId);
+  if (!sel) return;
+  const nodes = sortedNodes();
+  sel.innerHTML = nodes.map(n =>
+    `<option value="${n.id}" ${n.id === preselect ? 'selected' : ''}>${nodeLabel(n)} (${n.type})</option>`
+  ).join('');
+}
+
+function filterNodeSelect(filterId, selId) {
+  const q   = document.getElementById(filterId).value.trim().toLowerCase();
+  const sel = document.getElementById(selId);
+  const cur = sel.value;
+  const nodes = sortedNodes().filter(n => !q || nodeLabel(n).toLowerCase().includes(q) || n.id.includes(q));
+  sel.innerHTML = nodes.map(n =>
+    `<option value="${n.id}" ${n.id === cur ? 'selected' : ''}>${nodeLabel(n)} (${n.type})</option>`
+  ).join('');
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  CRUD — NODES                                            ║
+// ╚══════════════════════════════════════════════════════════╝
+function openAddNodeModal() {
+  document.getElementById('an-label').value    = '';
+  document.getElementById('an-type').value     = 'concept';
+  document.getElementById('an-chapter').value  = '0';
+  document.getElementById('an-section-id').value = '';
+  document.getElementById('an-desc').value     = '';
+  document.getElementById('an-section-group').style.display = 'none';
+  openModal('add-node');
+  setTimeout(() => document.getElementById('an-label').focus(), 50);
+}
+
+document.getElementById('an-type').addEventListener('change', function() {
+  document.getElementById('an-section-group').style.display = this.value === 'section' ? 'block' : 'none';
+});
+
+function confirmAddNode() {
+  const label = document.getElementById('an-label').value.trim();
+  const type  = document.getElementById('an-type').value;
+  if (!label) { showToast('Label is required', 'error'); return; }
+
+  const id = uniqueId(slugify(label) || 'node');
+
+  const node = {
+    id, type, label,
+    short_label: label,
+    tooltip: label,
+    chapter: parseInt(document.getElementById('an-chapter').value) || 0,
+    color: type === 'concept' ? '#3fb950' : type === 'section' ? '#79c0ff' : '#6e7681',
+    shape: type === 'concept' ? 'dot' : type === 'section' ? 'box' : 'diamond',
+    size: 10,
+  };
+
+  if (type === 'section') {
+    node.section_id = document.getElementById('an-section-id').value.trim();
+    node.depth = 0;
+  }
+
+  const desc = document.getElementById('an-desc').value.trim();
+  if (desc) node.tooltip = `${label}\n${desc}`;
+
+  S.graph.nodes.push(node);
+  setModified(true);
+  closeModal();
+  renderList();
+  selectNode(id);
+  showToast(`Added node "${label}"`, 'success');
+}
+
+function openEditNode(id) {
+  const n = S.graph.nodes.find(x => x.id === id);
+  if (!n) return;
+  document.getElementById('en-id').value      = n.id;
+  document.getElementById('en-label').value   = n.label || n.id;
+  document.getElementById('en-type').value    = n.type || 'concept';
+  document.getElementById('en-pages').value   = Array.isArray(n.page_refs) ? n.page_refs.join(', ') : '';
+  S.ctx.editNodeId = id;
+  openModal('edit-node');
+  setTimeout(() => document.getElementById('en-label').focus(), 50);
+}
+
+function confirmEditNode() {
+  const id = S.ctx.editNodeId;
+  const n  = S.graph.nodes.find(x => x.id === id);
+  if (!n) return;
+
+  const label = document.getElementById('en-label').value.trim();
+  if (!label) { showToast('Label is required', 'error'); return; }
+
+  n.label       = label;
+  n.short_label = label;
+  n.type        = document.getElementById('en-type').value;
+  const pagesRaw = document.getElementById('en-pages').value.trim();
+  n.page_refs   = pagesRaw
+    ? pagesRaw.split(',').map(p => parseInt(p.trim())).filter(p => !isNaN(p))
+    : [];
+
+  setModified(true);
+  closeModal();
+  renderList();
+  renderGraph();
+  updateInfoPanel();
+  showToast('Node updated', 'success');
+}
+
+function confirmDeleteNode(id) {
+  const n = S.graph.nodes.find(x => x.id === id);
+  const edgeCnt = S.graph.edges.filter(e => edgeSrc(e) === id || edgeTgt(e) === id).length;
+  document.getElementById('confirm-title').textContent = 'DELETE NODE';
+  document.getElementById('confirm-msg').textContent =
+    `Delete "${n?.label || id}"? This will also remove ${edgeCnt} connected edge(s). This cannot be undone.`;
+  document.getElementById('confirm-ok').onclick = () => doDeleteNode(id);
+  openModal('confirm');
+}
+
+function doDeleteNode(id) {
+  S.graph.nodes = S.graph.nodes.filter(n => n.id !== id);
+  S.graph.edges = S.graph.edges.filter(e => edgeSrc(e) !== id && edgeTgt(e) !== id);
+  if (S.selectedId === id) S.selectedId = null;
+  setModified(true);
+  closeModal();
+  renderList();
+  renderGraph();
+  updateInfoPanel();
+  showToast('Node deleted', 'success');
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  CRUD — EDGES                                            ║
+// ╚══════════════════════════════════════════════════════════╝
+function openAddEdge(srcId, tgtId) {
+  populateNodeSelect('ae-src', srcId || S.selectedId || undefined);
+  populateNodeSelect('ae-tgt', tgtId || undefined);
+  document.getElementById('ae-src-filter').value = '';
+  document.getElementById('ae-tgt-filter').value = '';
+  S.ctx.addEdgeSrc = srcId;
+  S.ctx.addEdgeTgt = tgtId;
+  openModal('add-edge');
+}
+
+function confirmAddEdge() {
+  const src  = document.getElementById('ae-src').value;
+  const tgt  = document.getElementById('ae-tgt').value;
+  const type = document.getElementById('ae-type').value;
+
+  if (!src || !tgt)   { showToast('Select both nodes', 'error'); return; }
+  if (src === tgt)    { showToast('Source and target must differ', 'error'); return; }
+
+  const dup = S.graph.edges.some(e => edgeSrc(e) === src && edgeTgt(e) === tgt && e.edge_type === type);
+  if (dup) { showToast('Edge already exists', 'error'); return; }
+
+  S.graph.edges.push({
+    source: src, target: tgt, edge_type: type,
+    color: EDGE_COLOR[type] || '#888', width: 1.5, dashes: false,
+  });
+  setModified(true);
+  closeModal();
+  renderGraph();
+  updateInfoPanel();
+  showToast('Edge added', 'success');
+}
+
+function openEditEdge(idx) {
+  const e = S.graph.edges[idx];
+  if (!e) return;
+  const srcN = S.graph.nodes.find(n => n.id === edgeSrc(e));
+  const tgtN = S.graph.nodes.find(n => n.id === edgeTgt(e));
+  document.getElementById('ee-info').value  = `${nodeLabel(srcN) || edgeSrc(e)} → ${nodeLabel(tgtN) || edgeTgt(e)}`;
+  document.getElementById('ee-type').value  = e.edge_type;
+  S.ctx.editEdgeIdx = idx;
+  openModal('edit-edge');
+}
+
+function confirmEditEdge() {
+  const idx = S.ctx.editEdgeIdx;
+  if (idx === undefined) return;
+  const e = S.graph.edges[idx];
+  if (!e) return;
+  const newType = document.getElementById('ee-type').value;
+  e.edge_type = newType;
+  e.color     = EDGE_COLOR[newType] || '#888';
+  setModified(true);
+  closeModal();
+  renderGraph();
+  showToast('Edge updated', 'success');
+}
+
+function confirmDeleteEdge(idx) {
+  const e = S.graph.edges[idx];
+  if (!e) return;
+  const srcN = S.graph.nodes.find(n => n.id === edgeSrc(e));
+  const tgtN = S.graph.nodes.find(n => n.id === edgeTgt(e));
+  document.getElementById('confirm-title').textContent = 'DELETE EDGE';
+  document.getElementById('confirm-msg').textContent =
+    `Delete "${e.edge_type}" from "${nodeLabel(srcN) || edgeSrc(e)}" to "${nodeLabel(tgtN) || edgeTgt(e)}"?`;
+  document.getElementById('confirm-ok').onclick = () => doDeleteEdge(idx);
+  openModal('confirm');
+}
+
+function doDeleteEdge(idx) {
+  S.graph.edges.splice(idx, 1);
+  setModified(true);
+  closeModal();
+  renderGraph();
+  updateInfoPanel();
+  showToast('Edge deleted', 'success');
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  MERGE                                                   ║
+// ╚══════════════════════════════════════════════════════════╝
+function openMergeModal() {
+  populateNodeSelect('mg-a', S.selectedId || undefined);
+  populateNodeSelect('mg-b');
+  document.getElementById('mg-a-filter').value = '';
+  document.getElementById('mg-b-filter').value = '';
+  openModal('merge');
+}
+
+function confirmMerge() {
+  const idA = document.getElementById('mg-a').value;
+  const idB = document.getElementById('mg-b').value;
+
+  if (!idA || !idB)  { showToast('Select both nodes', 'error'); return; }
+  if (idA === idB)   { showToast('Cannot merge a node with itself', 'error'); return; }
+
+  const nA = S.graph.nodes.find(n => n.id === idA);
+  const nB = S.graph.nodes.find(n => n.id === idB);
+
+  // Reattach B's edges to A
+  S.graph.edges.forEach(e => {
+    if (edgeSrc(e) === idB) e.source = idA;
+    if (edgeTgt(e) === idB) e.target = idA;
+  });
+
+  // Remove self-loops
+  S.graph.edges = S.graph.edges.filter(e => edgeSrc(e) !== edgeTgt(e));
+
+  // Remove duplicate edges
+  const seen = new Set();
+  S.graph.edges = S.graph.edges.filter(e => {
+    const k = `${edgeSrc(e)}|${edgeTgt(e)}|${e.edge_type}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+
+  // Delete B
+  S.graph.nodes = S.graph.nodes.filter(n => n.id !== idB);
+  if (S.selectedId === idB) S.selectedId = idA;
+
+  setModified(true);
+  closeModal();
+  renderList();
+  renderGraph();
+  updateInfoPanel();
+  showToast(`"${nB?.label || idB}" merged into "${nA?.label || idA}"`, 'success');
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  TOOLBAR SEARCH (top bar)                                ║
+// ╚══════════════════════════════════════════════════════════╝
+let sdResults = [], sdIdx = -1;
+
+document.getElementById('toolbar-search').addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) { hideSearchDropdown(); return; }
+  sdResults = S.graph.nodes.filter(n =>
+    nodeLabel(n).toLowerCase().includes(q) || n.id.toLowerCase().includes(q)
+  ).slice(0, 14);
+  sdIdx = -1;
+  renderSearchDropdown(this);
+});
+
+document.getElementById('toolbar-search').addEventListener('keydown', function(ev) {
+  if (ev.key === 'ArrowDown') {
+    ev.preventDefault();
+    sdIdx = Math.min(sdIdx + 1, sdResults.length - 1);
+    renderSearchDropdown(this);
+  } else if (ev.key === 'ArrowUp') {
+    ev.preventDefault();
+    sdIdx = Math.max(sdIdx - 1, -1);
+    renderSearchDropdown(this);
+  } else if (ev.key === 'Enter' && sdResults.length) {
+    const n = sdResults[sdIdx >= 0 ? sdIdx : 0];
+    selectNode(n.id);
+    this.value = nodeLabel(n);
+    hideSearchDropdown();
+  } else if (ev.key === 'Escape') {
+    hideSearchDropdown();
+  }
+});
+
+function renderSearchDropdown(inputEl) {
+  const dd = document.getElementById('search-dropdown');
+  if (!sdResults.length) { dd.style.display = 'none'; return; }
+
+  const rect = inputEl.getBoundingClientRect();
+  dd.style.left  = rect.left + 'px';
+  dd.style.top   = (rect.bottom + 4) + 'px';
+  dd.style.width = rect.width + 'px';
+  dd.style.display = 'block';
+
+  dd.innerHTML = sdResults.map((n, i) => `
+    <div class="sd-item${i === sdIdx ? ' active' : ''}" data-id="${n.id}">
+      <div class="node-dot dot-${n.type}" style="width:7px;height:7px;border-radius:50%;flex-shrink:0"></div>
+      <span class="sd-label">${nodeLabel(n)}</span>
+      <span class="node-type-tag">${n.type[0].toUpperCase()}</span>
+    </div>
+  `).join('');
+}
+
+function hideSearchDropdown() {
+  document.getElementById('search-dropdown').style.display = 'none';
+  sdResults = []; sdIdx = -1;
+}
+
+document.getElementById('search-dropdown').addEventListener('click', ev => {
+  const item = ev.target.closest('[data-id]');
+  if (!item) return;
+  const n = S.graph.nodes.find(x => x.id === item.dataset.id);
+  if (!n) return;
+  selectNode(n.id);
+  document.getElementById('toolbar-search').value = nodeLabel(n);
+  hideSearchDropdown();
+});
+
+document.addEventListener('click', ev => {
+  if (!ev.target.closest('#toolbar-search') && !ev.target.closest('#search-dropdown')) {
+    hideSearchDropdown();
+  }
+  if (!ev.target.closest('#ctx-menu')) closeCtxMenu();
+});
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  N-HOP CONTROLS                                          ║
+// ╚══════════════════════════════════════════════════════════╝
+document.getElementById('n-hop').addEventListener('change', function() {
+  S.nHop = Math.max(1, Math.min(5, parseInt(this.value) || 1));
+  this.value = S.nHop;
+  renderGraph();
+});
+
+document.getElementById('nhop-minus').addEventListener('click', () => {
+  const el = document.getElementById('n-hop');
+  S.nHop = Math.max(1, S.nHop - 1);
+  el.value = S.nHop;
+  renderGraph();
+});
+
+document.getElementById('nhop-plus').addEventListener('click', () => {
+  const el = document.getElementById('n-hop');
+  S.nHop = Math.min(5, S.nHop + 1);
+  el.value = S.nHop;
+  renderGraph();
+});
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  TOOLBAR BUTTON WIRING                                   ║
+// ╚══════════════════════════════════════════════════════════╝
+document.getElementById('btn-add-node').addEventListener('click', openAddNodeModal);
+document.getElementById('btn-merge').addEventListener('click', openMergeModal);
+document.getElementById('btn-save').addEventListener('click', saveGraph);
+document.getElementById('btn-export').addEventListener('click', exportGraph);
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  KEYBOARD SHORTCUTS                                      ║
+// ╚══════════════════════════════════════════════════════════╝
+document.addEventListener('keydown', ev => {
+  if ((ev.ctrlKey || ev.metaKey) && ev.key === 's') {
+    ev.preventDefault();
+    saveGraph();
+  }
+  if (ev.key === 'Escape') {
+    closeModal();
+    closeCtxMenu();
+    hideSearchDropdown();
+  }
+});
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  TOAST                                                   ║
+// ╚══════════════════════════════════════════════════════════╝
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => {
+    t.style.transition = 'opacity 0.3s, transform 0.3s';
+    t.style.opacity = '0';
+    t.style.transform = 'translateX(30px)';
+    setTimeout(() => t.remove(), 300);
+  }, 2800);
+}
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  UNSAVED CHANGES                                         ║
+// ╚══════════════════════════════════════════════════════════╝
+window.addEventListener('beforeunload', ev => {
+  if (S.modified) { ev.preventDefault(); ev.returnValue = ''; }
+});
+
+// ╔══════════════════════════════════════════════════════════╗
+// ║  INIT                                                    ║
+// ╚══════════════════════════════════════════════════════════╝
+initSVG();
+loadGraph();
+</script>
+</body>
+</html>
