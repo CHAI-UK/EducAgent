@@ -49,12 +49,12 @@ test.describe("Learner onboarding", () => {
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByRole("button", { name: "Next" }).click();
 
-    await page.getByText("Machine Learning").click();
-    await expect(page.getByText("Machine Learning")).toBeVisible();
-    await page.getByText("None").click();
+    await page.getByText("Confounding and controls").click();
+    await expect(page.getByText("Confounding and controls")).toBeVisible();
+    await page.getByText("None yet").click();
 
-    await expect(page.getByLabel("Machine Learning")).not.toBeChecked();
-    await expect(page.getByLabel("None")).toBeChecked();
+    await expect(page.getByLabel("Confounding and controls")).not.toBeChecked();
+    await expect(page.getByLabel("None yet")).toBeChecked();
   });
 
   test("finish saves learner profile and returns home", async ({ page }) => {
@@ -102,8 +102,8 @@ test.describe("Learner onboarding", () => {
             id: "00000000-0000-0000-0000-000000000002",
             background: "Computer scientist",
             role: "Researcher",
-            prior_knowledge: ["machine_learning"],
-            expertise_level: "moderate",
+            prior_knowledge: ["confounding_controls"],
+            expertise_level: "knows_correlation_confounding",
             learning_goal: "Learn causality",
             is_skipped: false,
             created_at: "2026-01-01T00:00:00Z",
@@ -118,9 +118,9 @@ test.describe("Learner onboarding", () => {
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByLabel("Role").fill("Researcher");
     await page.getByRole("button", { name: "Next" }).click();
-    await page.getByText("Machine Learning").click();
+    await page.getByText("Confounding and controls").click();
     await page.getByRole("button", { name: "Next" }).click();
-    await page.getByText("Moderate").click();
+    await page.getByText("I know correlation and confounding").click();
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByLabel("Learning goal").fill("Learn causality");
     await page.getByRole("button", { name: "Finish" }).click();

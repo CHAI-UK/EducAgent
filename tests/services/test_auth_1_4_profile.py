@@ -217,8 +217,8 @@ def test_put_learner_profile_creates_profile(
             json={
                 "background": "Computer Scientist",
                 "role": "PhD Researcher",
-                "prior_knowledge": ["none", "machine_learning"],
-                "expertise_level": "moderate",
+                "prior_knowledge": ["none", "confounding_controls"],
+                "expertise_level": "knows_correlation_confounding",
                 "learning_goal": "Understand causal inference better",
             },
         )
@@ -227,7 +227,7 @@ def test_put_learner_profile_creates_profile(
     assert sample_user.learner_profile is not None
     assert sample_user.learner_profile.background == "Computer Scientist"
     assert sample_user.learner_profile.prior_knowledge == ["none"]
-    assert sample_user.learner_profile.expertise_level == "moderate"
+    assert sample_user.learner_profile.expertise_level == "knows_correlation_confounding"
     assert sample_user.learner_profile.is_skipped is False
 
 
@@ -257,7 +257,7 @@ def test_patch_learner_profile_updates_existing_profile_and_clears_skip(
             headers=_auth_headers(sample_user.id),
             json={
                 "background": "Epidemiologist",
-                "prior_knowledge": ["epidemiology_study_design"],
+                "prior_knowledge": ["dags_causal_graphs"],
                 "learning_goal": "Get stronger with DAGs",
             },
         )
@@ -265,7 +265,7 @@ def test_patch_learner_profile_updates_existing_profile_and_clears_skip(
     assert response.status_code == 200
     assert sample_user.learner_profile is not None
     assert sample_user.learner_profile.background == "Epidemiologist"
-    assert sample_user.learner_profile.prior_knowledge == ["epidemiology_study_design"]
+    assert sample_user.learner_profile.prior_knowledge == ["dags_causal_graphs"]
     assert sample_user.learner_profile.learning_goal == "Get stronger with DAGs"
     assert sample_user.learner_profile.is_skipped is False
 
@@ -305,7 +305,7 @@ def test_learner_profile_rejects_invalid_expertise_level(
             json={
                 "background": "Computer Scientist",
                 "role": "PhD Researcher",
-                "prior_knowledge": ["machine_learning"],
+                "prior_knowledge": ["confounding_controls"],
                 "expertise_level": "advanced",
                 "learning_goal": "Understand causal inference better",
             },

@@ -1,13 +1,21 @@
 export type LearnerProfilePriorKnowledge =
   | "probability_statistics"
-  | "linear_regression"
   | "machine_learning"
-  | "bayesian_reasoning"
-  | "epidemiology_study_design"
-  | "dags_graphical_models"
+  | "correlation_vs_causation"
+  | "confounding_controls"
+  | "dags_causal_graphs"
+  | "experiments_ab_tests"
+  | "potential_outcomes"
+  | "interventions_do_calculus"
+  | "counterfactuals"
   | "none";
 
-export type LearnerProfileExpertiseLevel = "beginner" | "moderate" | "expert";
+export type LearnerProfileExpertiseLevel =
+  | "new_to_causality"
+  | "knows_correlation_confounding"
+  | "reads_dags"
+  | "used_causal_methods"
+  | "comfortable_formal_scm";
 
 export interface LearnerProfile {
   id: string;
