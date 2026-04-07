@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# DeepTutor install script — installs Python and frontend dependencies.
+# EducAgent install script — installs Python and frontend dependencies.
 # Run from project root: bash scripts/install.sh [--with-migrations]
 
 set -e
@@ -16,7 +16,7 @@ for arg in "$@"; do
 done
 
 echo "========================================"
-echo "DeepTutor Installation"
+echo "EducAgent Installation"
 echo "========================================"
 
 # --- Backend ---
