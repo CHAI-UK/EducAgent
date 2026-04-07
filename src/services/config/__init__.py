@@ -18,10 +18,6 @@ Provides three types of configuration:
 
 # Re-export everything from loader.py (existing functionality)
 # Export knowledge base config service
-from .knowledge_base_config import (
-    KnowledgeBaseConfigService,
-    get_kb_config_service,
-)
 from .loader import (
     PROJECT_ROOT,
     get_agent_params,
@@ -56,7 +52,4 @@ __all__ = [
     "get_active_embedding_config",
     "get_active_tts_config",
     "get_active_search_config",
-    # From knowledge_base_config.py
-    "KnowledgeBaseConfigService",
-    "get_kb_config_service",
 ]
