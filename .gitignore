@@ -288,6 +288,7 @@ skills-lock.json
 .augment/
 .claude/
 .github/
+.OLD/
 _bmad/
 assets/
 qdrant_storage/
