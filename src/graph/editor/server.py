@@ -9,12 +9,14 @@ Usage:
 
 Then open: http://localhost:8765
 """
+
 import json
-import uvicorn
 from pathlib import Path
+
 from fastapi import FastAPI, HTTPException
-from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+import uvicorn
 
 GRAPH_PATH = Path(__file__).resolve().parent / "eci_graph.json"
 STATIC_DIR = Path(__file__).resolve().parent
@@ -42,7 +44,11 @@ async def save_graph(data: dict):
     try:
         with open(GRAPH_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        return {"status": "saved", "nodes": len(data.get("nodes", [])), "edges": len(data.get("edges", []))}
+        return {
+            "status": "saved",
+            "nodes": len(data.get("nodes", [])),
+            "edges": len(data.get("edges", [])),
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
