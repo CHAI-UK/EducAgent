@@ -53,9 +53,10 @@ export interface GetStudyPathOptions {
 
 const COUNTERFACTUALS_MARKDOWN_PATH = path.resolve(
   process.cwd(),
-  "..",
+  "content",
+  "study",
   "counterfactuals",
-  "preview.md",
+  "content.md",
 );
 
 const PUBLIC_IMAGE_PREFIX = "/study-assets/counterfactuals";
