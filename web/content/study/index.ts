@@ -1,6 +1,11 @@
-import { STUDY_CHAPTERS as CHAPTERS_CH1 } from "./ch1";
-import { STUDY_CHAPTER_2 } from "./ch2";
+export type {
+  GetStudyPathOptions,
+  StudyContentSource,
+  StudyNode,
+  StudyNodeLink,
+  StudyQuizOption,
+  StudyQuizQuestion,
+  StudyPath,
+} from "./provider";
 
-export type { StudyItem } from "./ch1";
-
-export const STUDY_CHAPTERS = [...CHAPTERS_CH1, STUDY_CHAPTER_2];
+export { getStudyPath } from "./provider";

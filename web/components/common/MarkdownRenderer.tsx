@@ -1,12 +1,13 @@
 "use client";
 
+import React from "react";
 import ReactMarkdown from "react-markdown";
-import Image from "next/image";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import rehypeRaw from "rehype-raw";
 import "katex/dist/katex.min.css";
+import Mermaid from "@/components/Mermaid";
 import { processLatexContent } from "@/lib/latex";
 
 interface MarkdownRendererProps {
@@ -23,6 +24,32 @@ export default function MarkdownRenderer({
   className = "",
   variant = "default",
 }: MarkdownRendererProps) {
+  const paragraphComponents = {
+    p: ({ node, children, ...props }: any) => {
+      const childArray = React.Children.toArray(children);
+      const firstChild = childArray[0] as React.ReactElement<{
+        children?: React.ReactNode;
+      }>;
+      const isCaptionParagraph =
+        childArray.length === 1 &&
+        React.isValidElement(firstChild) &&
+        firstChild.type === "em";
+
+      if (isCaptionParagraph) {
+        return (
+          <p
+            className="mt-2 text-sm italic leading-6 text-slate-500 dark:text-slate-400"
+            {...props}
+          >
+            {children}
+          </p>
+        );
+      }
+
+      return <p {...props}>{children}</p>;
+    },
+  };
+
   // Table components with consistent styling
   const tableComponents = {
     table: ({ node, ...props }: any) => (
@@ -79,6 +106,14 @@ export default function MarkdownRenderer({
       children,
       ...props
     }: any) => {
+      const match = /language-(\w+)/.exec(codeClassName || "");
+      const language = match ? match[1] : "";
+
+      if (language === "mermaid") {
+        const chartCode = String(children).replace(/\n$/, "");
+        return <Mermaid chart={chartCode} />;
+      }
+
       if (inline) {
         return (
           <code
@@ -98,21 +133,30 @@ export default function MarkdownRenderer({
         </code>
       );
     },
-    pre: ({ node, children, ...props }: any) => (
-      <pre className="my-4" {...props}>
-        {children}
-      </pre>
-    ),
+    pre: ({ node, children, ...props }: any) => {
+      const child = React.Children.toArray(children)[0] as React.ReactElement<{
+        className?: string;
+      }>;
+
+      if (child?.props?.className?.includes("language-mermaid")) {
+        return <>{children}</>;
+      }
+
+      return (
+        <pre className="my-4" {...props}>
+          {children}
+        </pre>
+      );
+    },
   };
 
   const mediaComponents = {
     img: ({ node, alt, src, ...props }: any) =>
       typeof src === "string" ? (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element -- Markdown-driven study assets can have mismatched extensions/metadata
+        <img
           src={src}
           alt={alt || ""}
-          width={1400}
-          height={900}
           className="my-4 h-auto w-full rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
           loading="lazy"
           {...props}
@@ -131,6 +175,7 @@ export default function MarkdownRenderer({
         remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeRaw, rehypeKatex]}
         components={{
+          ...paragraphComponents,
           ...tableComponents,
           ...codeComponents,
           ...mediaComponents,
