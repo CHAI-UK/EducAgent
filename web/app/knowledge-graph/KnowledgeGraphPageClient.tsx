@@ -41,6 +41,13 @@ export default function KnowledgeGraphPageClient({
     () => studyPath.nodes.find((node) => node.id === selectedNodeId) ?? null,
     [selectedNodeId, studyPath.nodes],
   );
+  const visibleObjectives = useMemo(
+    () =>
+      (selectedNode?.learningObjectives ?? []).filter(
+        (objective) => objective.trim().length > 0,
+      ),
+    [selectedNode],
+  );
 
   return (
     <div className="min-h-screen p-4">
@@ -117,13 +124,13 @@ export default function KnowledgeGraphPageClient({
                     <X className="h-4 w-4" />
                   </button>
                 </div>
-                {selectedNode.learningObjectives?.length ? (
+                {visibleObjectives.length ? (
                   <div className="mt-4">
                     <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
                       {t("Learning objectives")}
                     </p>
                     <ul className="mt-2 space-y-2 text-sm text-slate-700 dark:text-slate-200">
-                      {selectedNode.learningObjectives.map((objective) => (
+                      {visibleObjectives.map((objective) => (
                         <li key={objective} className="flex gap-2">
                           <span className="mt-1 shrink-0">•</span>
                           <span>

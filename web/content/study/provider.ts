@@ -103,7 +103,12 @@ function extractLearningObjectives(content: string) {
       break;
     }
 
-    const objective = trimmed.replace(/^>\s*\d+\.\s*/, "").trim();
+    const quoteContent = trimmed.replace(/^>\s*/, "").trim();
+    if (!quoteContent) {
+      continue;
+    }
+
+    const objective = quoteContent.replace(/^\d+\.\s*/, "").trim();
     if (objective) {
       objectives.push(objective);
     }
