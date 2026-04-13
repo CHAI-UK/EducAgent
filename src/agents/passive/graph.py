@@ -27,16 +27,15 @@ try:
 except ModuleNotFoundError:  # pragma: no cover - optional dependency
     json_repair = None
 
+from langgraph.graph import END, START, StateGraph
 from openai import AsyncOpenAI
 
-from langgraph.graph import END, START, StateGraph
-
-from .mock_data import get_mock_input, get_passive_images_dir
 from .markers import (
     image_generation_brief,
     iter_image_markers,
     parse_image_marker,
 )
+from .mock_data import get_mock_input, get_passive_images_dir
 from .prompts import (
     CONTENT_SYSTEM_PROMPT,
     CONTENT_USER_TEMPLATE,

@@ -15,10 +15,10 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from pathlib import Path
 import re
 import sys
 import time
-from pathlib import Path
 
 # Ensure project root is on sys.path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
@@ -30,6 +30,7 @@ from dotenv import load_dotenv
 load_dotenv(PROJECT_ROOT / "EducAgent.env", override=False)
 load_dotenv(PROJECT_ROOT / ".env", override=False)
 
+from src.agents.passive.markers import parse_image_marker
 from src.agents.passive.mock_data import (
     get_mock_input,
     get_passive_course_dir,
@@ -37,7 +38,6 @@ from src.agents.passive.mock_data import (
     get_passive_output_path,
     get_passive_preview_path,
 )
-from src.agents.passive.markers import parse_image_marker
 from src.agents.passive.text_normalization import normalize_llm_payload
 
 
@@ -120,7 +120,9 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
                     return f"![{to_markdown_alt_text(desc)}]({url})"
                 return f"*[Illustration: {kind}: {desc}]*"
 
-            content = re.sub(r'\[(?:CONTEXT_IMAGE|PEDAGOGICAL_IMAGE|IMAGE):\s*[^\]]+\]', replace_image, content)
+            content = re.sub(
+                r"\[(?:CONTEXT_IMAGE|PEDAGOGICAL_IMAGE|IMAGE):\s*[^\]]+\]", replace_image, content
+            )
             if expand_answers:
                 content = _expand_details_blocks(content)
 
@@ -148,15 +150,22 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
 
 async def main():
     import argparse
+
     from src.agents.passive.graph import compile_graph
 
     parser = argparse.ArgumentParser(description="Run passive_course_agent pipeline")
-    parser.add_argument("--user", type=str, default=None,
-                        help="User ID to load input for (e.g. learner_40). "
-                             "Defaults to most recent input.")
-    parser.add_argument("--concept", type=str, default=None,
-                        help="Concept ID (e.g. counterfactuals). "
-                             "Required when --user is specified.")
+    parser.add_argument(
+        "--user",
+        type=str,
+        default=None,
+        help="User ID to load input for (e.g. learner_40). Defaults to most recent input.",
+    )
+    parser.add_argument(
+        "--concept",
+        type=str,
+        default=None,
+        help="Concept ID (e.g. counterfactuals). Required when --user is specified.",
+    )
     args = parser.parse_args()
 
     setup_logging()
@@ -175,6 +184,7 @@ async def main():
             logger.error("Input not found: %s", input_path)
             sys.exit(1)
         import json as _json
+
         with open(input_path) as f:
             mock_input = _json.load(f)
         logger.info("Loaded input for user=%s concept=%s", args.user, concept)
@@ -210,16 +220,16 @@ async def main():
     print(f"Images:       {len(images)} generated")
     print(f"Time:         {elapsed:.1f}s")
 
-    print(f"\n--- OUTLINE ---")
+    print("\n--- OUTLINE ---")
     for i, node in enumerate(outline, 1):
         print(f"  {i}. {node.get('title', '?')}")
         print(f"     {node.get('summary', '')}")
 
-    print(f"\n--- CONTENT ---")
+    print("\n--- CONTENT ---")
     for node in nodes:
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print(f"NODE: {node.get('node_title', '?')}")
-        print(f"{'='*50}")
+        print(f"{'=' * 50}")
         for sec in node.get("sections", []):
             heading = sec.get("section", "?")
             content = sec.get("content", "")

@@ -48,7 +48,7 @@ def test_render_markdown_normalizes_existing_overescaped_sections() -> None:
                 "sections": [
                     {
                         "section": "Intro",
-                        "content": '> Line one\\n> Line two\\n\\nEquation: $\\\\alpha$',
+                        "content": "> Line one\\n> Line two\\n\\nEquation: $\\\\alpha$",
                         "markers": [],
                     }
                 ]
