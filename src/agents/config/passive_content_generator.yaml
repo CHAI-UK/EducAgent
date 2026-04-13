@@ -1,0 +1,26 @@
+## LLM config for passive_course_agent ContentGenerator pipeline.
+## Decoupled from code — edit this file to change models/params without touching Python.
+
+# OpenRouter connection
+api_key_env: OPENROUTER_API_KEY          # env var name (fallback: LLM_API_KEY)
+base_url_env: OPENROUTER_BASE_URL        # env var name
+base_url_default: https://openrouter.ai/api/v1
+
+# Phase 1: Outline generation
+outline:
+  model: anthropic/claude-sonnet-4.6
+  temperature: 0.4
+  max_tokens: 2048
+
+# Phase 2: Content generation (per section)
+content:
+  model: anthropic/claude-sonnet-4.6
+  temperature: 0.5
+  max_tokens: 8192
+
+# Phase 3: Image generation
+image:
+  model: google/gemini-3.1-flash-image-preview  # primary (supports modalities: image)
+  fallback_model: black-forest-labs/flux.2-klein-4b  # backup
+  # Images are generated for [CONTEXT_IMAGE: ...] and [PEDAGOGICAL_IMAGE: ...]
+  # markers in content. Legacy [IMAGE: ...] markers are still accepted.

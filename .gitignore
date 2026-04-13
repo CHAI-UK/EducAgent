@@ -283,10 +283,11 @@ celerybeat.pid
 .codex
 skills-lock.json
 
-
+.impeccable.md
 .agent/
 .augment/
 .claude/
+.codebuddy/
 .github/
 .OLD/
 _bmad/
@@ -296,5 +297,6 @@ docker/
 skills/
 slides/
 _bmad-output/
+_bmad-modified-backup-temp/
 
 .OLD/
