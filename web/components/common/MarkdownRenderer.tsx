@@ -13,6 +13,7 @@ interface MarkdownRendererProps {
   content: string;
   className?: string;
   variant?: "default" | "compact" | "prose";
+  assetBasePath?: string;
 }
 
 /**
@@ -22,7 +23,28 @@ export default function MarkdownRenderer({
   content,
   className = "",
   variant = "default",
+  assetBasePath,
 }: MarkdownRendererProps) {
+  const resolveImageSrc = (src: string): string => {
+    const normalized = src.trim();
+    if (
+      !normalized ||
+      normalized.startsWith("/") ||
+      normalized.startsWith("http://") ||
+      normalized.startsWith("https://") ||
+      normalized.startsWith("data:") ||
+      normalized.startsWith("blob:")
+    ) {
+      return normalized;
+    }
+    if (!assetBasePath) {
+      return normalized;
+    }
+    const base = assetBasePath.replace(/\/+$/, "");
+    const relative = normalized.replace(/^\.?\//, "");
+    return `${base}/${relative}`;
+  };
+
   // Table components with consistent styling
   const tableComponents = {
     table: ({ node, ...props }: any) => (
@@ -108,15 +130,22 @@ export default function MarkdownRenderer({
   const mediaComponents = {
     img: ({ node, alt, src, ...props }: any) =>
       typeof src === "string" ? (
-        <Image
-          src={src}
-          alt={alt || ""}
-          width={1400}
-          height={900}
-          className="my-4 h-auto w-full rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
-          loading="lazy"
-          {...props}
-        />
+        <figure className="my-6">
+          <Image
+            src={resolveImageSrc(src)}
+            alt={alt || ""}
+            width={1400}
+            height={900}
+            className="h-auto w-full rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+            loading="lazy"
+            {...props}
+          />
+          {typeof alt === "string" && alt.trim() ? (
+            <figcaption className="mt-2 text-sm italic text-slate-600 dark:text-slate-400">
+              {alt}
+            </figcaption>
+          ) : null}
+        </figure>
       ) : null,
   };
 
