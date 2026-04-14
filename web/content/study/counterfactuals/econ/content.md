@@ -462,20 +462,11 @@ The three steps have a clear logical structure. Here is how they connect:
 
 ```mermaid
 flowchart TD
-    A["Observe Real Data
-(W=1, U=1)"] --> B["Step 1: Abduction
-Infer noise values
-N_U = 1, N_W = 1"]
-    B --> C["Step 2: Action
-Intervene: do(W := 0)
-Freeze noise at inferred values"]
-    C --> D["Counterfactual SCM
-Same equations, fixed noise,
-new policy"]
-    D --> E["Step 3: Prediction
-Compute U_counterfactual = 0"]
-    E --> F["Answer: Unemployment would
-NOT have risen without the hike"]
+    A["Observe Real Data<br/>(W=1, U=1)"] --> B["Step 1: Abduction<br/>Infer noise values<br/>N_U = 1, N_W = 1"]
+    B --> C["Step 2: Action<br/>Intervene: do(W := 0)<br/>Freeze noise at inferred values"]
+    C --> D["Counterfactual SCM<br/>Same equations, fixed noise,<br/>new policy"]
+    D --> E["Step 3: Prediction<br/>Compute U_counterfactual = 0"]
+    E --> F["Answer: Unemployment would<br/>NOT have risen without the hike"]
     style A fill:#f0e6ff,stroke:#7c3aed
     style B fill:#e0f2fe,stroke:#0284c7
     style C fill:#fef9c3,stroke:#ca8a04
@@ -621,17 +612,11 @@ The diagram below summarizes the three-step logic that separates SCM-based count
 
 ```mermaid
 flowchart TD
-    A[Observe actual outcome
-e.g. Marcus enrolled, earnings fell] --> B[Update noise variable beliefs
-e.g. infer N_B = 1 for Marcus]
-    B --> C[Fix noise variables at inferred values
-hold Marcus's hidden circumstances constant]
-    C --> D[Intervene: change the policy choice
-e.g. set T = 0, no training]
-    D --> E[Re-run structural equations
-compute counterfactual outcome]
-    E --> F[Counterfactual answer
-e.g. Marcus's earnings without training]
+    A["Observe actual outcome<br/>e.g. Marcus enrolled, earnings fell"] --> B["Update noise variable beliefs<br/>e.g. infer N_B = 1 for Marcus"]
+    B --> C["Fix noise variables at inferred values<br/>hold Marcus's hidden circumstances constant"]
+    C --> D["Intervene: change the policy choice<br/>e.g. set T = 0, no training"]
+    D --> E["Re-run structural equations<br/>compute counterfactual outcome"]
+    E --> F["Counterfactual answer<br/>e.g. Marcus's earnings without training"]
 
     style A fill:#f0f4ff,stroke:#4a6fa5
     style B fill:#fff3cd,stroke:#c8a400

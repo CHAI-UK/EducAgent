@@ -178,7 +178,12 @@
 }
 
 .prose .katex-display {
-  @apply my-5 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 px-4 py-3;
+  @apply my-5 overflow-x-auto rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-center;
+}
+
+.prose .katex-display > .katex {
+  display: inline-block;
+  min-width: fit-content;
 }
 
 .dark .prose .katex-display {

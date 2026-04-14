@@ -77,26 +77,12 @@ The three-step structure of counterfactual reasoning can be visualized as a flow
 
 ```mermaid
 flowchart TD
-    A["🔬 Actual Experiment
-(T=1: Knockout performed,
-B=1: Proliferation arrested)"]
-    B["📊 Step 1: Observe
-Record the factual outcome
-for this specific cell line"]
-    C["🔄 Step 2: Update
-Use observation to infer
-hidden biological state N_B
-(What type of cell line is this?)"]
-    D["⚙️ Step 3: Intervene
-In the updated model,
-ask: what if T=0?"]
-    E["💡 Counterfactual Answer
-B=0: Proliferation would
-have continued normally"]
-    F["⚠️ Cannot be answered by:
-- Wild-type controls alone
-- Population averages
-- Correlation analysis"]
+    A["🔬 Actual Experiment<br/>(T=1: Knockout performed,<br/>B=1: Proliferation arrested)"]
+    B["📊 Step 1: Observe<br/>Record the factual outcome<br/>for this specific cell line"]
+    C["🔄 Step 2: Update<br/>Use observation to infer<br/>hidden biological state N_B<br/>(What type of cell line is this?)"]
+    D["⚙️ Step 3: Intervene<br/>In the updated model,<br/>ask: what if T=0?"]
+    E["💡 Counterfactual Answer<br/>B=0: Proliferation would<br/>have continued normally"]
+    F["⚠️ Cannot be answered by:<br/>- Wild-type controls alone<br/>- Population averages<br/>- Correlation analysis"]
 
     A --> B
     B --> C
@@ -247,18 +233,8 @@ The example above follows a general three-step logic that applies to any biologi
 
 ```mermaid
 flowchart TD
-    A["Step 1: ABDUCTION
-Observe actual outcome
-(e.g., patient goes blind after treatment)
-Infer hidden biological state
-(N_B = 1)"] --> B["Step 2: ACTION
-Modify the SCM with an intervention
-(e.g., set T := 0, counterfactual treatment)
-Keep noise variables fixed at inferred values"]
-    B --> C["Step 3: PREDICTION
-Compute the outcome under
-the modified SCM
-(e.g., B = 0: patient would have retained vision)"]
+    A["Step 1: ABDUCTION<br/>Observe actual outcome<br/>(e.g., patient goes blind after treatment)<br/>Infer hidden biological state<br/>(N_B = 1)"] --> B["Step 2: ACTION<br/>Modify the SCM with an intervention<br/>(e.g., set T := 0, counterfactual treatment)<br/>Keep noise variables fixed at inferred values"]
+    B --> C["Step 3: PREDICTION<br/>Compute the outcome under<br/>the modified SCM<br/>(e.g., B = 0: patient would have retained vision)"]
     style A fill:#d4edda,stroke:#28a745
     style B fill:#cce5ff,stroke:#004085
     style C fill:#fff3cd,stroke:#856404
@@ -403,21 +379,11 @@ This modified SCM now describes a fully determined individual — a specific org
 
 ```mermaid
 flowchart TD
-    A["Prior Distribution
-N_B ~ Ber(0.01)
-99% chance N_B=0"] --> B["Observe Experimental Outcome
-T=1 (treated), B=1 (blind)"]
-    B --> C["Apply Structural Equation
-B = T·N_B + (1-T)(1-N_B)
-1 = 1·N_B → N_B must = 1"]
-    C --> D["Posterior Distribution
-P(N_B | B=1, T=1) = δ₁
-Point mass at N_B=1"]
-    D --> E["Modified SCM
-Noise variables fixed
-Structural equations unchanged"]
-    E --> F["Ready for Counterfactual Query
-What if T=0 for THIS organism?"]
+    A["Prior Distribution<br/>N_B ~ Ber(0.01)<br/>99% chance N_B=0"] --> B["Observe Experimental Outcome<br/>T=1 (treated), B=1 (blind)"]
+    B --> C["Apply Structural Equation<br/>B = T·N_B + (1-T)(1-N_B)<br/>1 = 1·N_B → N_B must = 1"]
+    C --> D["Posterior Distribution<br/>P(N_B | B=1, T=1) = δ₁<br/>Point mass at N_B=1"]
+    D --> E["Modified SCM<br/>Noise variables fixed<br/>Structural equations unchanged"]
+    E --> F["Ready for Counterfactual Query<br/>What if T=0 for THIS organism?"]
     style A fill:#d4e6f1,stroke:#2980b9
     style D fill:#d5f5e3,stroke:#27ae60
     style F fill:#fdebd0,stroke:#e67e22
@@ -552,19 +518,10 @@ This is the surprising — and clinically important — conclusion. Even though 
 
 ```mermaid
 flowchart TD
-    A["Observe outcome
-(e.g., T=1, B=1)"] --> B["ABDUCT
-Compute posterior
-P(N | X=x)"]
-    B --> C["MODIFY
-Apply new intervention
-do(T := 0)
-Keep structural equations unchanged"]
-    C --> D["PREDICT
-Run counterfactual SCM forward
-with updated noise"]
-    D --> E["Counterfactual outcome
-(e.g., B=0: organism survives)"]
+    A["Observe outcome<br/>(e.g., T=1, B=1)"] --> B["ABDUCT<br/>Compute posterior<br/>P(N | X=x)"]
+    B --> C["MODIFY<br/>Apply new intervention<br/>do(T := 0)<br/>Keep structural equations unchanged"]
+    C --> D["PREDICT<br/>Run counterfactual SCM forward<br/>with updated noise"]
+    D --> E["Counterfactual outcome<br/>(e.g., B=0: organism survives)"]
     style B fill:#d4edda,stroke:#28a745
     style C fill:#fff3cd,stroke:#ffc107
     style D fill:#cce5ff,stroke:#004085
@@ -712,30 +669,14 @@ This has direct implications for experimental biology: the assumptions you make 
 
 ```mermaid
 flowchart TD
-    A[Causal Graph
-DAG] -->|adds observational +
-intervention distributions| B[Causal Graphical Model
-Markov condition]
-    B -->|adds structural equations
-+ noise distributions| C[Structural Causal Model
-SCM]
-    C --> D[Population-level
-Intervention Distributions
-do-calculus]
-    C --> E[Individual-level
-Counterfactual Inference
-abduction + action + prediction]
-    C --> F[Identifiability of
-Causal Structure
-from observational data]
-    D -->|sufficient for| G[Average Treatment Effects
-e.g. mean knockout phenotype]
-    E -->|required for| H[Individual Responses
-e.g. would THIS cell line
-have survived?]
-    F -->|enabled by| I[Restricted Function Classes
-e.g. additive noise,
-non-Gaussian errors]
+    A["Causal Graph<br/>DAG"] -->|"adds observational +<br/>intervention distributions"| B["Causal Graphical Model<br/>Markov condition"]
+    B -->|"adds structural equations<br/>+ noise distributions"| C["Structural Causal Model<br/>SCM"]
+    C --> D["Population-level<br/>Intervention Distributions<br/>do-calculus"]
+    C --> E["Individual-level<br/>Counterfactual Inference<br/>abduction + action + prediction"]
+    C --> F["Identifiability of<br/>Causal Structure<br/>from observational data"]
+    D -->|sufficient for| G["Average Treatment Effects<br/>e.g. mean knockout phenotype"]
+    E -->|required for| H["Individual Responses<br/>e.g. would THIS cell line<br/>have survived?"]
+    F -->|enabled by| I["Restricted Function Classes<br/>e.g. additive noise,<br/>non-Gaussian errors"]
     style C fill:#d4edda,stroke:#28a745
     style E fill:#fff3cd,stroke:#ffc107
     style H fill:#fff3cd,stroke:#ffc107

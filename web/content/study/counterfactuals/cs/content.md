@@ -79,21 +79,11 @@ The diagram below captures the three-step process — Abduction, Action, Predict
 
 ```mermaid
 flowchart TD
-    A["Observed Data
-(Alice: Z=z₀, I=38k, Y=0)"] --> B["Step 1: Abduction
-Update noise posterior
-P(N | observation)"]
-    B --> C["Counterfactual SCM
-Same structure S,
-new noise dist P_N|obs"]
-    C --> D["Step 2: Action
-Apply intervention
-do(Z := z₁)"]
-    D --> E["Step 3: Prediction
-Propagate through S
-Compute counterfactual Y"]
-    E --> F["Answer: Would Alice
-have been approved?"]
+    A["Observed Data<br/>(Alice: Z=z₀, I=38k, Y=0)"] --> B["Step 1: Abduction<br/>Update noise posterior<br/>P(N | observation)"]
+    B --> C["Counterfactual SCM<br/>Same structure S,<br/>new noise dist P_N|obs"]
+    C --> D["Step 2: Action<br/>Apply intervention<br/>do(Z := z₁)"]
+    D --> E["Step 3: Prediction<br/>Propagate through S<br/>Compute counterfactual Y"]
+    E --> F["Answer: Would Alice<br/>have been approved?"]
     style A fill:#2d3748,color:#e2e8f0
     style C fill:#2b4c7e,color:#e2e8f0
     style F fill:#276749,color:#e2e8f0
@@ -241,14 +231,10 @@ The counterfactual answer: _yes_, this specific applicant would have been approv
 ```mermaid
 flowchart TD
     subgraph REAL["Real World (Observed)"]
-        NT1["N_T = 1
-(doctor decides to treat)"]
-        NB1["N_B = 1
-(rare condition present)"]
-        T1["T = 1
-(treated)"]
-        B1["B = 1
-(went blind)"]
+        NT1["N_T = 1<br/>(doctor decides to treat)"]
+        NB1["N_B = 1<br/>(rare condition present)"]
+        T1["T = 1<br/>(treated)"]
+        B1["B = 1<br/>(went blind)"]
         NT1 --> T1
         NB1 --> B1
         T1 --> B1
@@ -256,18 +242,14 @@ flowchart TD
 
     subgraph ABDUCTION["Step 1: Abduction"]
         OBS["Observe T=1, B=1"]
-        INFER["Infer: N_B = 1 (point mass)
-Infer: N_T = 1 (point mass)"]
+        INFER["Infer: N_B = 1 (point mass)<br/>Infer: N_T = 1 (point mass)"]
         OBS --> INFER
     end
 
     subgraph CF["Counterfactual SCM (Steps 2 & 3)"]
-        NB2["N_B = 1
-(FIXED — same patient)"]
-        T0["do(T := 0)
-(hypothetical: no treatment)"]
-        B0["B = 0
-(would NOT go blind)"]
+        NB2["N_B = 1<br/>(FIXED — same patient)"]
+        T0["do(T := 0)<br/>(hypothetical: no treatment)"]
+        B0["B = 0<br/>(would NOT go blind)"]
         NB2 --> B0
         T0 --> B0
     end
@@ -434,17 +416,9 @@ The key insight: you are not asking "what would a full-time employee with simila
 
 ```mermaid
 flowchart TD
-    A["Observed Data
-(B=1, T=1)"] -->|Step 1: Abduction| B["Posterior over Noise
-P(N_B | B=1,T=1) = δ₁
-P(N_T | B=1,T=1) = δ₁"]
-    B -->|Step 2: Action| C["Counterfactual SCM
-C_{B=1,T=1}
-Noise fixed: N_B=1, N_T=1
-Intervene: do(T:=0)"]
-    C -->|Step 3: Prediction| D["Counterfactual Outcome
-B = 0
-(Would have been cured)"]
+    A["Observed Data<br/>(B=1, T=1)"] -->|Step 1: Abduction| B["Posterior over Noise<br/>P(N_B | B=1,T=1) = δ₁<br/>P(N_T | B=1,T=1) = δ₁"]
+    B -->|Step 2: Action| C["Counterfactual SCM<br/>C_{B=1,T=1}<br/>Noise fixed: N_B=1, N_T=1<br/>Intervene: do(T:=0)"]
+    C -->|Step 3: Prediction| D["Counterfactual Outcome<br/>B = 0<br/>(Would have been cured)"]
     style A fill:#2d3748,color:#e2e8f0,stroke:#4a5568
     style B fill:#2b4c7e,color:#e2e8f0,stroke:#4a5568
     style C fill:#285e61,color:#e2e8f0,stroke:#4a5568
@@ -593,24 +567,15 @@ This is not a flaw — it is the mechanism by which the model _remembers_ the sp
 
 ```mermaid
 flowchart TD
-    A["Original SCM
- C = (S, P_N)"]
+    A["Original SCM<br/>C = (S, P_N)"]
     B["Observe X = x"]
-    C["Abduction
- Compute posterior
- P_N^{C | X=x}"]
-    D["Counterfactual SCM
- C_{X=x} = (S, P_N^{C|X=x})"]
-    E["Structural equations S
- UNCHANGED"]
-    F["Noise distribution
- UPDATED to posterior"]
-    G["Independence of N_i
- May be LOST"]
-    H["Apply do-statement
- (Action step)"]
-    I["Counterfactual prediction
- (Prediction step)"]
+    C["Abduction<br/>Compute posterior<br/>P_N^{C | X=x}"]
+    D["Counterfactual SCM<br/>C_{X=x} = (S, P_N^{C|X=x})"]
+    E["Structural equations S<br/>UNCHANGED"]
+    F["Noise distribution<br/>UPDATED to posterior"]
+    G["Independence of N_i<br/>May be LOST"]
+    H["Apply do-statement<br/>(Action step)"]
+    I["Counterfactual prediction<br/>(Prediction step)"]
 
     A --> B
     B --> C
@@ -758,18 +723,11 @@ Similarly, **algorithmic explainability** — 'Why was this specific user denied
 
 ```mermaid
 flowchart TD
-    A[Observational Distribution
-P(X)] -->|adds conditional
-independencies| B[Causal Graphical Model
-DAG + Markov Condition]
-    B -->|adds structural equations
-and noise distributions| C[Structural Causal Model
-SCM]
-    B -->|can answer| D[Population interventions
-P(Y | do(T))]
+    A["Observational Distribution<br/>P(X)"] -->|"adds conditional<br/>independencies"| B["Causal Graphical Model<br/>DAG + Markov Condition"]
+    B -->|"adds structural equations<br/>and noise distributions"| C["Structural Causal Model<br/>SCM"]
+    B -->|can answer| D["Population interventions<br/>P(Y | do(T))"]
     C -->|can answer| D
-    C -->|can answer| E[Individual counterfactuals
-P(Y_{T=t} | x)]
+    C -->|can answer| E["Individual counterfactuals<br/>P(Y_{T=t} | x)"]
     E -->|enables| F[Counterfactual Fairness]
     E -->|enables| G[Algorithmic Explainability]
     B -. cannot answer .-> E
