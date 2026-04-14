@@ -15,9 +15,9 @@ mermaid.initialize({
   theme: "neutral",
   securityLevel: "loose",
   fontFamily: "ui-sans-serif, system-ui, sans-serif",
+  htmlLabels: false,
   flowchart: {
-    useMaxWidth: true,
-    htmlLabels: true,
+    useMaxWidth: false,
     curve: "basis",
   },
   themeVariables: {
@@ -34,12 +34,8 @@ let mermaidIdCounter = 0;
 const MERMAID_SVG_STYLE = `
 <style>
   svg { overflow: visible; }
-  foreignObject { overflow: visible; }
-  .nodeLabel, .edgeLabel { overflow: visible; }
-  .nodeLabel p, .edgeLabel p {
-    margin: 0;
-    padding-bottom: 3px;
-    line-height: 1.35;
+  .nodeLabel, .edgeLabel {
+    overflow: visible;
   }
 </style>`;
 
@@ -101,7 +97,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
   return (
     <div
       ref={containerRef}
-      className={`my-6 flex justify-center overflow-x-auto pb-2 [&_svg]:block [&_svg]:h-auto [&_svg]:max-w-full ${className}`}
+      className={`not-prose my-6 flex justify-center overflow-x-auto pb-2 [&_svg]:block [&_svg]:h-auto [&_svg]:w-auto [&_svg]:max-w-full ${className}`}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
