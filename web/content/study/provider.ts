@@ -6,6 +6,7 @@ import path from "node:path";
 import type { LearnerProfile } from "@/types/profile";
 
 export type StudyContentSource = "static" | "generated";
+export type StudyVariant = "default" | "bio" | "cs" | "econ";
 
 export interface StudyNodeLink {
   relation: "previous" | "next";
@@ -26,11 +27,17 @@ export interface StudyQuizQuestion {
   explanation: string;
 }
 
+export interface StudySubtopic {
+  id: string;
+  title: string;
+}
+
 export interface StudyNode {
   id: string;
   title: string;
   content: string;
   order: number;
+  subtopics?: StudySubtopic[];
   summary?: string;
   learningObjectives?: string[];
   imageRefs?: string[];
@@ -42,6 +49,7 @@ export interface StudyPath {
   id: string;
   title: string;
   source: StudyContentSource;
+  variant: StudyVariant;
   learnerProfile?: LearnerProfile | null;
   generatedAt?: string;
   nodes: StudyNode[];
@@ -51,22 +59,15 @@ export interface GetStudyPathOptions {
   learnerProfile?: LearnerProfile | null;
 }
 
-const COUNTERFACTUALS_MARKDOWN_PATH = path.resolve(
+const COUNTERFACTUALS_CONTENT_ROOT = path.resolve(
   process.cwd(),
   "content",
   "study",
   "counterfactuals",
-  "content.md",
 );
-
-const PUBLIC_IMAGE_PREFIX = "/study-assets/counterfactuals";
-const COUNTERFACTUAL_NODE_TITLES = [
-  "What If? The Power of Counterfactual Thinking",
-  "What SCMs Give Us — and Why You Need Them",
-  "What Would Have Happened? Walking Through a Real Example",
-  "What If We Could Rewind the Tape?",
-  "Counterfactuals in Policy Evaluation: Why This Matters for Economics",
-] as const;
+const DEFAULT_STUDY_VARIANT: StudyVariant = "default";
+const STUDY_VARIANTS: StudyVariant[] = ["default", "bio", "cs", "econ"];
+const QUIZ_SECTION_TITLE = "Check Your Understanding";
 
 function slugify(value: string) {
   return value
@@ -75,11 +76,65 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function rewriteImageSources(content: string) {
+function getStudyVariantFromLearnerProfile(
+  learnerProfile?: LearnerProfile | null,
+): StudyVariant {
+  const background = learnerProfile?.background?.trim().toLowerCase();
+  if (!background) {
+    return DEFAULT_STUDY_VARIANT;
+  }
+
+  if (
+    /(economics|economist|economic|policy|public policy|finance|financial)/.test(
+      background,
+    )
+  ) {
+    return "econ";
+  }
+
+  if (
+    /(computer science|computing|software|programming|engineer|engineering|ai|a\.?i\.?|ml|machine learning|data science)/.test(
+      background,
+    )
+  ) {
+    return "cs";
+  }
+
+  if (
+    /(biology|biologist|bioinformatics|biomedical|medicine|medical|health|healthcare|neuroscience|neuro|genetics|life science)/.test(
+      background,
+    )
+  ) {
+    return "bio";
+  }
+
+  return DEFAULT_STUDY_VARIANT;
+}
+
+function getMarkdownPathForVariant(variant: StudyVariant) {
+  return path.join(COUNTERFACTUALS_CONTENT_ROOT, variant, "content.md");
+}
+
+function resolveAvailableVariant(variant: StudyVariant) {
+  const requestedMarkdownPath = getMarkdownPathForVariant(variant);
+  if (fs.existsSync(requestedMarkdownPath)) {
+    return variant;
+  }
+
+  if (variant !== DEFAULT_STUDY_VARIANT) {
+    console.warn(
+      `[study] Missing content for variant "${variant}", falling back to "${DEFAULT_STUDY_VARIANT}".`,
+    );
+  }
+
+  return DEFAULT_STUDY_VARIANT;
+}
+
+function rewriteImageSources(content: string, variant: StudyVariant) {
   return content.replace(
     /!\[([^\]]*)\]\((imgs\/[^)]+)\)/g,
     (_match, altText: string, relativePath: string) =>
-      `![${altText}](${PUBLIC_IMAGE_PREFIX}/${relativePath.replace(/^imgs\//, "")})`,
+      `![${altText}](/study-assets/${variant}/${relativePath.replace(/^imgs\//, "")})`,
   );
 }
 
@@ -145,6 +200,19 @@ function extractImageRefs(content: string) {
   return refs.length ? refs : undefined;
 }
 
+function extractSubtopics(content: string) {
+  const subtopics = [...content.matchAll(/^###\s+(.+)$/gm)].map((match) => {
+    const title = match[1].trim();
+
+    return {
+      id: slugify(title),
+      title,
+    } satisfies StudySubtopic;
+  });
+
+  return subtopics.length ? subtopics : undefined;
+}
+
 function parseQuizQuestions(
   quizMarkdown: string,
   answerMap: Map<
@@ -178,7 +246,7 @@ function parseQuizQuestions(
       const options: StudyQuizOption[] = [];
 
       for (const line of lines) {
-        const optionMatch = line.match(/^-\s*([A-Da-d])\)\s+(.+)$/);
+        const optionMatch = line.match(/^(?:-\s*)?([A-Da-d])(?:\)|\.)\s+(.+)$/);
         if (optionMatch) {
           options.push({
             id: optionMatch[1].toUpperCase(),
@@ -225,7 +293,7 @@ function parseQuizAnswers(answerMarkdown: string) {
     }
 
     const match = line.match(
-      /^(?:\*\*)?(\d+)\.\s*(?:Answer:\s*)?(?:\*\*)?([A-Da-d])(?:\*\*)?\)?\s*[—-]\s*(.+?)(?:\*\*)?$/,
+      /^(?:\*\*)?(\d+)\.\s*(?:Answer:\s*)?(?:\*\*)?([A-Da-d])(?:\)|\.)?(?:\*\*)?\s*(?:[—-]\s*)?(.+)$/,
     );
     if (!match) {
       continue;
@@ -242,7 +310,9 @@ function parseQuizAnswers(answerMarkdown: string) {
 
 function extractQuiz(content: string) {
   const quizSectionMatch = content.match(
-    /## Check Your Understanding\s*([\s\S]*?)<details>[\s\S]*?<summary>[\s\S]*?<\/summary>\s*([\s\S]*?)<\/details>/,
+    new RegExp(
+      `## ${QUIZ_SECTION_TITLE}\\s*([\\s\\S]*?)<details>[\\s\\S]*?<summary>[\\s\\S]*?<\\/summary>\\s*([\\s\\S]*?)<\\/details>`,
+    ),
   );
 
   if (!quizSectionMatch) {
@@ -264,42 +334,55 @@ function extractQuiz(content: string) {
   };
 }
 
-function parseCounterfactualMarkdown(markdown: string): StudyPath {
-  const normalizedMarkdown = rewriteImageSources(markdown.trim());
-  const titleMatch = normalizedMarkdown.match(/^#\s+(.+)$/m);
-  const pathTitle = titleMatch?.[1]?.trim() ?? "Counterfactuals";
-  const headingMatches = COUNTERFACTUAL_NODE_TITLES.map((nodeTitle) => {
-    const escapedTitle = nodeTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const regex = new RegExp(`^##\\s+${escapedTitle}$`, "m");
-    const match = regex.exec(normalizedMarkdown);
+interface SectionMatch {
+  title: string;
+  index: number;
+  length: number;
+}
 
-    if (!match || typeof match.index !== "number") {
-      throw new Error(`Missing counterfactual node heading: ${nodeTitle}`);
-    }
+function buildLinkedNodes(sections: SectionMatch[], markdown: string) {
+  const nodes = sections.map((section, index) => {
+    const bodyStart = section.index + section.length + 1;
+    const sectionEnd =
+      index + 1 < sections.length
+        ? sections[index + 1].index - 1
+        : markdown.length;
+    const rawContent = markdown.slice(bodyStart, sectionEnd).trim();
 
     return {
-      title: nodeTitle,
-      index: match.index,
-      length: match[0].length,
+      section,
+      rawContent,
     };
   });
 
-  const nodes = headingMatches.map((match, index) => {
-    const title = match.title;
-    const sectionStart = match.index;
-    const bodyStart = sectionStart + match.length + 1;
-    const sectionEnd =
-      index + 1 < headingMatches.length
-        ? headingMatches[index + 1].index - 1
-        : normalizedMarkdown.length;
-    const rawContent = normalizedMarkdown.slice(bodyStart, sectionEnd).trim();
-    const { content, quiz } = extractQuiz(rawContent);
+  const mergedNodes: Array<{
+    title: string;
+    content: string;
+  }> = [];
+
+  for (const node of nodes) {
+    if (node.section.title === QUIZ_SECTION_TITLE && mergedNodes.length > 0) {
+      const previousNode = mergedNodes[mergedNodes.length - 1];
+      previousNode.content =
+        `${previousNode.content}\n\n## ${QUIZ_SECTION_TITLE}\n\n${node.rawContent}`.trim();
+      continue;
+    }
+
+    mergedNodes.push({
+      title: node.section.title,
+      content: node.rawContent,
+    });
+  }
+
+  const parsedNodes = mergedNodes.map((node, index) => {
+    const { content, quiz } = extractQuiz(node.content);
 
     return {
-      id: `counterfactual-node-${index + 1}-${slugify(title)}`,
-      title,
+      id: `counterfactual-node-${index + 1}-${slugify(node.title)}`,
+      title: node.title,
       content,
       order: index + 1,
+      subtopics: extractSubtopics(content),
       summary: extractSummary(content),
       learningObjectives: extractLearningObjectives(content),
       imageRefs: extractImageRefs(content),
@@ -307,14 +390,14 @@ function parseCounterfactualMarkdown(markdown: string): StudyPath {
     } satisfies StudyNode;
   });
 
-  const linkedNodes = nodes.map((node, index) => {
+  return parsedNodes.map((node, index) => {
     const links: StudyNodeLink[] = [];
 
     if (index > 0) {
-      links.push({ relation: "previous", targetId: nodes[index - 1].id });
+      links.push({ relation: "previous", targetId: parsedNodes[index - 1].id });
     }
-    if (index < nodes.length - 1) {
-      links.push({ relation: "next", targetId: nodes[index + 1].id });
+    if (index < parsedNodes.length - 1) {
+      links.push({ relation: "next", targetId: parsedNodes[index + 1].id });
     }
 
     return {
@@ -322,24 +405,52 @@ function parseCounterfactualMarkdown(markdown: string): StudyPath {
       links: links.length ? links : undefined,
     };
   });
+}
+
+function parseCounterfactualMarkdown(
+  markdown: string,
+  variant: StudyVariant,
+): StudyPath {
+  const normalizedMarkdown = rewriteImageSources(markdown.trim(), variant);
+  const titleMatch = normalizedMarkdown.match(/^#\s+(.+)$/m);
+  const pathTitle = titleMatch?.[1]?.trim() ?? "Counterfactuals";
+  const headingMatches = [...normalizedMarkdown.matchAll(/^##\s+(.+)$/gm)].map(
+    (match) => ({
+      title: match[1].trim(),
+      index: match.index ?? 0,
+      length: match[0].length,
+    }),
+  );
+
+  if (!headingMatches.length) {
+    throw new Error(
+      "Study content must include at least one '##' section heading.",
+    );
+  }
+
+  const linkedNodes = buildLinkedNodes(headingMatches, normalizedMarkdown);
 
   return {
     id: "counterfactuals",
     title: pathTitle,
     source: "static",
+    variant,
     nodes: linkedNodes,
   };
 }
 
-const loadStaticStudyPath = cache(() => {
-  const markdown = fs.readFileSync(COUNTERFACTUALS_MARKDOWN_PATH, "utf8");
-  return parseCounterfactualMarkdown(markdown);
+const loadStaticStudyPath = cache((variant: StudyVariant) => {
+  const resolvedVariant = resolveAvailableVariant(variant);
+  const markdownPath = getMarkdownPathForVariant(resolvedVariant);
+  const markdown = fs.readFileSync(markdownPath, "utf8");
+  return parseCounterfactualMarkdown(markdown, resolvedVariant);
 });
 
 export async function getStudyPath(
   options: GetStudyPathOptions = {},
 ): Promise<StudyPath> {
-  const studyPath = loadStaticStudyPath();
+  const variant = getStudyVariantFromLearnerProfile(options.learnerProfile);
+  const studyPath = loadStaticStudyPath(variant);
 
   return {
     ...studyPath,

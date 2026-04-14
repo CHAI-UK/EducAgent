@@ -16,6 +16,30 @@ interface MarkdownRendererProps {
   variant?: "default" | "compact" | "prose";
 }
 
+function slugifyHeading(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function textFromChildren(children: React.ReactNode): string {
+  return React.Children.toArray(children)
+    .map((child) => {
+      if (typeof child === "string" || typeof child === "number") {
+        return String(child);
+      }
+
+      if (React.isValidElement<{ children?: React.ReactNode }>(child)) {
+        return textFromChildren(child.props.children);
+      }
+
+      return "";
+    })
+    .join("")
+    .trim();
+}
+
 /**
  * Shared MarkdownRenderer component with KaTeX support and consistent table styling
  */
@@ -164,6 +188,19 @@ export default function MarkdownRenderer({
       ) : null,
   };
 
+  const headingComponents = {
+    h3: ({ node, children, ...props }: any) => {
+      const headingText = textFromChildren(children);
+      const headingId = slugifyHeading(headingText);
+
+      return (
+        <h3 id={headingId} {...props}>
+          {children}
+        </h3>
+      );
+    },
+  };
+
   const proseClasses =
     variant === "prose"
       ? "prose prose-slate dark:prose-invert prose-headings:font-bold prose-h1:text-2xl prose-h2:text-xl max-w-none"
@@ -179,6 +216,7 @@ export default function MarkdownRenderer({
           ...tableComponents,
           ...codeComponents,
           ...mediaComponents,
+          ...headingComponents,
         }}
       >
         {processLatexContent(content)}
