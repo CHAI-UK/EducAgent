@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 _ESCAPED_MARKDOWN_TOKENS = ("\\n", "\\r", "\\t", '\\"', "\\\\")
+_MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)\n```", re.IGNORECASE | re.DOTALL)
+_MCQ_OPTION_RE = re.compile(r"(?m)^(\s*)([A-D])[\)\.]\s+(.*)$")
 
 
 def decode_overescaped_text(value: str) -> str:
@@ -83,6 +86,55 @@ def decode_overescaped_text(value: str) -> str:
     return decoded if escape_reduced or formatting_recovered else value
 
 
+def _normalize_mermaid_code(code: str) -> str:
+    """Replace label-internal newlines with Mermaid-safe <br/> markers."""
+    parts: list[str] = []
+    in_square = 0
+    in_pipe = False
+
+    for ch in code:
+        if ch == "\n":
+            if in_square > 0 or in_pipe:
+                parts.append("<br/>")
+            else:
+                parts.append("\n")
+            continue
+
+        if ch == "[":
+            in_square += 1
+        elif ch == "]" and in_square > 0:
+            in_square -= 1
+        elif ch == "|" and in_square == 0:
+            in_pipe = not in_pipe
+
+        parts.append(ch)
+
+    return "".join(parts)
+
+
+def _normalize_mermaid_blocks(value: str) -> str:
+    """Normalize Mermaid blocks so common LLM formatting remains renderable."""
+
+    def repl(match: re.Match[str]) -> str:
+        code = match.group(1).strip("\n")
+        return f"```mermaid\n{_normalize_mermaid_code(code)}\n```"
+
+    return _MERMAID_BLOCK_RE.sub(repl, value)
+
+
+def _standardize_mcq_option_markers(value: str) -> str:
+    """Normalize multiple-choice option prefixes to A./B./C./D. style."""
+    return _MCQ_OPTION_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}. {m.group(3)}", value)
+
+
+def normalize_section_markdown(section: str, content: str) -> str:
+    """Normalize section markdown for renderer-safe output."""
+    normalized = _normalize_mermaid_blocks(content)
+    if "check your understanding" in section.strip().lower():
+        normalized = _standardize_mcq_option_markers(normalized)
+    return normalized
+
+
 def normalize_llm_payload(value: Any) -> Any:
     """Recursively normalize over-escaped strings inside parsed LLM payloads."""
     if isinstance(value, str):
@@ -90,5 +142,10 @@ def normalize_llm_payload(value: Any) -> Any:
     if isinstance(value, list):
         return [normalize_llm_payload(item) for item in value]
     if isinstance(value, dict):
-        return {key: normalize_llm_payload(item) for key, item in value.items()}
+        normalized = {key: normalize_llm_payload(item) for key, item in value.items()}
+        section = normalized.get("section")
+        content = normalized.get("content")
+        if isinstance(section, str) and isinstance(content, str):
+            normalized["content"] = normalize_section_markdown(section, content)
+        return normalized
     return value

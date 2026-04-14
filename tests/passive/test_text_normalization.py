@@ -93,3 +93,54 @@ def test_render_markdown_rewrites_user_asset_paths_to_api_outputs() -> None:
     assert "![example figure](imgs/img_00.png)" in rendered
     assert "/data/users/yyx/onProject/CHAI/EducAgent" not in rendered
     assert "*example figure*" not in rendered
+
+
+def test_normalize_llm_payload_mermaid_labels_use_html_breaks() -> None:
+    payload = [
+        {
+            "section": "The Landscape of Causal Expressiveness",
+            "content": (
+                "```mermaid\n"
+                "flowchart TD\n"
+                "    A[Observational Distribution\n"
+                "P(X)] -->|adds conditional\n"
+                "independencies| B[Causal Graphical Model\n"
+                "DAG + Markov Condition]\n"
+                "```\n"
+            ),
+            "markers": [],
+        }
+    ]
+
+    normalized = normalize_llm_payload(payload)
+    content = normalized[0]["content"]
+
+    assert "A[Observational Distribution<br/>P(X)]" in content
+    assert "-->|adds conditional<br/>independencies|" in content
+    assert "B[Causal Graphical Model<br/>DAG + Markov Condition]" in content
+
+
+def test_normalize_llm_payload_standardizes_quiz_option_markers() -> None:
+    payload = [
+        {
+            "section": "Check Your Understanding",
+            "content": (
+                "1. First question?\n\n"
+                "   A) First option\n"
+                "   B. Second option\n"
+                "   C) Third option\n"
+                "   D. Fourth option\n"
+            ),
+            "markers": [],
+        }
+    ]
+
+    normalized = normalize_llm_payload(payload)
+    content = normalized[0]["content"]
+
+    assert "A. First option" in content
+    assert "B. Second option" in content
+    assert "C. Third option" in content
+    assert "D. Fourth option" in content
+    assert "A)" not in content
+    assert "C)" not in content
