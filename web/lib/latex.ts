@@ -37,6 +37,26 @@ export function convertLatexDelimiters(content: string): string {
   return result;
 }
 
+function normalizeStandaloneDisplayMath(content: string): string {
+  return content
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (
+        trimmed.length > 4 &&
+        trimmed.startsWith("$$") &&
+        trimmed.endsWith("$$") &&
+        !trimmed.slice(2, -2).includes("$$")
+      ) {
+        const expression = trimmed.slice(2, -2).trim();
+        return expression ? `$$\n${expression}\n$$` : line;
+      }
+
+      return line;
+    })
+    .join("\n");
+}
+
 function normalizeCaptionMath(content: string): string {
   const lines = content.split("\n");
 
@@ -87,5 +107,7 @@ export function processLatexContent(content: string): string {
   );
 
   // Apply delimiter conversion
-  return convertLatexDelimiters(normalizeCaptionMath(normalizedTags));
+  return normalizeStandaloneDisplayMath(
+    convertLatexDelimiters(normalizeCaptionMath(normalizedTags)),
+  );
 }
