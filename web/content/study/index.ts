@@ -3,6 +3,7 @@ export type {
   StudyContentSource,
   StudyNode,
   StudyNodeLink,
+  StudyProfileSig,
   StudyQuizOption,
   StudyQuizQuestion,
   StudyPath,

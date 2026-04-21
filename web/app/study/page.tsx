@@ -6,7 +6,7 @@ import { getStudyPath } from "@/content/study";
 import type { Profile } from "@/types/profile";
 import StudyPageClient from "./StudyPageClient";
 
-async function getCurrentLearnerProfile() {
+async function getCurrentProfile() {
   const cookieStore = await cookies();
   const token = cookieStore.get(AUTH_TOKEN_KEY)?.value;
 
@@ -26,17 +26,23 @@ async function getCurrentLearnerProfile() {
       return null;
     }
 
-    const profile = (await response.json()) as Profile;
-    return profile.learner_profile ?? null;
+    return (await response.json()) as Profile;
   } catch {
     return null;
   }
 }
 
-export default async function StudyPage() {
-  const learnerProfile = await getCurrentLearnerProfile();
+export default async function StudyPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ concept?: string }>;
+}) {
+  const profile = await getCurrentProfile();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const studyPath = await getStudyPath({
-    learnerProfile,
+    conceptId: resolvedSearchParams?.concept,
+    learnerProfile: profile?.learner_profile ?? null,
+    learnerAdaptation: profile?.learner_adaptation ?? null,
   });
 
   return (

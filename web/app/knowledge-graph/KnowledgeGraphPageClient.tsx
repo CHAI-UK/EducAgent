@@ -143,7 +143,7 @@ export default function KnowledgeGraphPageClient({
                 ) : null}
 
                 <Link
-                  href={`/study?item=${encodeURIComponent(selectedNode.id)}`}
+                  href={`/study?concept=${encodeURIComponent(studyPath.conceptId)}&item=${encodeURIComponent(selectedNode.id)}`}
                   className="mt-5 inline-flex items-center rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
                 >
                   {t("Open in Study Mode")}

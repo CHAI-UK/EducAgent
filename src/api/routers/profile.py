@@ -12,15 +12,20 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from src.services.auth import LearnerProfile, User, current_active_user
+from src.services.auth import LearnerAdaptation, LearnerProfile, User, current_active_user
 from src.services.auth.db import get_async_session
 from src.services.auth.schemas import (
+    LearnerAdaptationRead,
     LearnerProfileCreate,
     LearnerProfileRead,
     LearnerProfileUpdate,
     ProfilePasswordUpdate,
     ProfileRead,
     ProfileUpdate,
+)
+from src.services.learner_adaptation import (
+    build_adaptation_record_payload,
+    derive_learner_adaptation,
 )
 
 router = APIRouter()
@@ -70,6 +75,7 @@ def _serialize_profile(user: User) -> ProfileRead:
         institution=user.institution,
         avatar_url=_avatar_url(user.avatar_path),
         learner_profile=_serialize_learner_profile(user.learner_profile),
+        learner_adaptation=_serialize_learner_adaptation(user.learner_adaptation),
         is_active=user.is_active,
         is_verified=user.is_verified,
         is_superuser=user.is_superuser,
@@ -84,7 +90,12 @@ def _touch_user(user: User) -> None:
 
 async def _load_current_user_record(session: AsyncSession, user_id: uuid.UUID) -> User:
     result = await session.execute(
-        select(User).options(selectinload(User.learner_profile)).where(User.id == user_id)
+        select(User)
+        .options(
+            selectinload(User.learner_profile),
+            selectinload(User.learner_adaptation),
+        )
+        .where(User.id == user_id)
     )
     user = result.scalar_one_or_none()
     if user is None:
@@ -127,7 +138,51 @@ def _ensure_learner_profile(user: User) -> LearnerProfile:
 
 def _profile_requires_reload(user: User) -> bool:
     state = inspect(user)
-    return state.persistent and "learner_profile" in state.unloaded
+    return state.persistent and (
+        "learner_profile" in state.unloaded or "learner_adaptation" in state.unloaded
+    )
+
+
+def _serialize_learner_adaptation(
+    learner_adaptation: LearnerAdaptation | None,
+) -> LearnerAdaptationRead | None:
+    if learner_adaptation is None:
+        return None
+
+    return LearnerAdaptationRead(
+        id=learner_adaptation.id,
+        profile_sig=learner_adaptation.profile_sig,
+        adaptation_ctx=learner_adaptation.adaptation_ctx,
+        generated_at=learner_adaptation.generated_at,
+        source_profile_updated_at=learner_adaptation.source_profile_updated_at,
+    )
+
+
+def _ensure_learner_adaptation(user: User) -> LearnerAdaptation:
+    if user.learner_adaptation is None:
+        user.learner_adaptation = LearnerAdaptation(
+            id=uuid.uuid4(),
+            user_id=user.id,
+            profile_sig="default",
+            adaptation_ctx={},
+            generated_at=datetime.now(timezone.utc),
+            source_profile_updated_at=None,
+        )
+    return user.learner_adaptation
+
+
+async def _refresh_learner_adaptation(session: AsyncSession, user: User) -> None:
+    derivation = await derive_learner_adaptation(user.learner_profile)
+    learner_adaptation = _ensure_learner_adaptation(user)
+    payload = build_adaptation_record_payload(
+        derivation,
+        source_profile_updated_at=user.learner_profile.updated_at if user.learner_profile else None,
+    )
+    learner_adaptation.profile_sig = payload["profile_sig"]
+    learner_adaptation.adaptation_ctx = payload["adaptation_ctx"]
+    learner_adaptation.generated_at = payload["generated_at"]
+    learner_adaptation.source_profile_updated_at = payload["source_profile_updated_at"]
+    await session.commit()
 
 
 @router.get("/profile", response_model=ProfileRead)
@@ -264,6 +319,7 @@ async def upsert_learner_profile(
     )
 
     await session.commit()
+    await _refresh_learner_adaptation(session, user)
     user = await _load_current_user_record(session, current_user.id)
     return _serialize_profile(user)
 
@@ -292,6 +348,7 @@ async def update_learner_profile(
     learner_profile.updated_at = datetime.now(timezone.utc)
 
     await session.commit()
+    await _refresh_learner_adaptation(session, user)
     user = await _load_current_user_record(session, current_user.id)
     return _serialize_profile(user)
 
@@ -314,5 +371,6 @@ async def skip_learner_profile(
     )
 
     await session.commit()
+    await _refresh_learner_adaptation(session, user)
     user = await _load_current_user_record(session, current_user.id)
     return _serialize_profile(user)
