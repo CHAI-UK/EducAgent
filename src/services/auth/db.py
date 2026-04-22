@@ -44,6 +44,11 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
         cascade="all, delete-orphan",
         uselist=False,
     )
+    learner_adaptation: Mapped["LearnerAdaptation | None"] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        uselist=False,
+    )
 
 
 class LearnerProfile(Base):
@@ -74,6 +79,30 @@ class LearnerProfile(Base):
     )
 
     user: Mapped[User] = relationship(back_populates="learner_profile")
+
+
+class LearnerAdaptation(Base):
+    __tablename__ = "learner_adaptations"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False,
+    )
+    profile_sig: Mapped[str] = mapped_column(String(32), default="default", nullable=False)
+    adaptation_ctx: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    generated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+    source_profile_updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
+    user: Mapped[User] = relationship(back_populates="learner_adaptation")
 
 
 engine = create_async_engine(DATABASE_URL, future=True)

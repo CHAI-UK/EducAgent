@@ -4,7 +4,7 @@ from datetime import datetime
 import uuid
 
 from fastapi_users import schemas
-from pydantic import Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 PRIOR_KNOWLEDGE_CHOICES = {
     "probability_statistics",
@@ -86,6 +86,7 @@ class UserUpdate(schemas.BaseUserUpdate):
 class ProfileRead(UserRead):
     avatar_url: str | None = None
     learner_profile: "LearnerProfileRead | None" = None
+    learner_adaptation: "LearnerAdaptationRead | None" = None
 
 
 class LearnerProfileBase(schemas.CreateUpdateDictModel):
@@ -151,6 +152,23 @@ class LearnerProfileRead(LearnerProfileBase):
     created_at: datetime
     updated_at: datetime
     is_skipped: bool
+
+
+class LearnerAdaptationContext(BaseModel):
+    background_summary: str | None = None
+    role_summary: str | None = None
+    prior_knowledge: list[str] = Field(default_factory=list)
+    expertise_level: str | None = None
+    learning_goal_summary: str | None = None
+    domain_framing: str | None = None
+
+
+class LearnerAdaptationRead(BaseModel):
+    id: uuid.UUID
+    profile_sig: str
+    adaptation_ctx: LearnerAdaptationContext
+    generated_at: datetime
+    source_profile_updated_at: datetime | None = None
 
 
 class LearnerProfileCreate(LearnerProfileBase):

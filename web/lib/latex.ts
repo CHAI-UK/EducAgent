@@ -37,6 +37,56 @@ export function convertLatexDelimiters(content: string): string {
   return result;
 }
 
+function normalizeStandaloneDisplayMath(content: string): string {
+  return content
+    .split("\n")
+    .map((line) => {
+      const trimmed = line.trim();
+      if (
+        trimmed.length > 4 &&
+        trimmed.startsWith("$$") &&
+        trimmed.endsWith("$$") &&
+        !trimmed.slice(2, -2).includes("$$")
+      ) {
+        const expression = trimmed.slice(2, -2).trim();
+        return expression ? `$$\n${expression}\n$$` : line;
+      }
+
+      return line;
+    })
+    .join("\n");
+}
+
+function normalizeCaptionMath(content: string): string {
+  const lines = content.split("\n");
+
+  return lines
+    .map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("*") || !trimmed.endsWith("*")) {
+        return line;
+      }
+
+      const segments = line.split(/(\$[^$]+\$)/g);
+      const normalized = segments
+        .map((segment) => {
+          if (segment.startsWith("$") && segment.endsWith("$")) {
+            return segment;
+          }
+
+          return segment.replace(
+            /\b([A-Za-z])_([A-Za-z0-9]+)(\s*=\s*[-+]?\d+(?:\.\d+)?)?/g,
+            (_match, symbol: string, subscript: string, suffix = "") =>
+              `$${symbol}_${subscript}${suffix.replace(/\s+/g, "")}$`,
+          );
+        })
+        .join("");
+
+      return normalized;
+    })
+    .join("\n");
+}
+
 /**
  * Process content for ReactMarkdown rendering with proper LaTeX support
  * This is a convenience wrapper that applies all necessary transformations.
@@ -50,6 +100,14 @@ export function processLatexContent(content: string): string {
   // Convert to string if not already
   const str = String(content);
 
+  // Rewrite unsupported equation tags into visible text labels before parsing.
+  const normalizedTags = str.replace(
+    /\\tag\{([^}]+)\}/g,
+    "\\qquad \\text{($1)}",
+  );
+
   // Apply delimiter conversion
-  return convertLatexDelimiters(str);
+  return normalizeStandaloneDisplayMath(
+    convertLatexDelimiters(normalizeCaptionMath(normalizedTags)),
+  );
 }

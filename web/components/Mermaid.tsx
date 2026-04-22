@@ -15,9 +15,9 @@ mermaid.initialize({
   theme: "neutral",
   securityLevel: "loose",
   fontFamily: "ui-sans-serif, system-ui, sans-serif",
+  htmlLabels: false,
   flowchart: {
-    useMaxWidth: true,
-    htmlLabels: true,
+    useMaxWidth: false,
     curve: "basis",
   },
   themeVariables: {
@@ -31,6 +31,13 @@ mermaid.initialize({
 });
 
 let mermaidIdCounter = 0;
+const MERMAID_SVG_STYLE = `
+<style>
+  svg { overflow: visible; }
+  .nodeLabel, .edgeLabel {
+    overflow: visible;
+  }
+</style>`;
 
 export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
   const { t } = useTranslation();
@@ -45,11 +52,15 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
 
       try {
         // Clean up the chart code
-        const cleanedChart = chart.trim();
+        const cleanedChart = chart.trim().replace(/\\n/g, "<br/>");
 
         // Validate and render
         const { svg: renderedSvg } = await mermaid.render(id, cleanedChart);
-        setSvg(renderedSvg);
+        setSvg(
+          renderedSvg
+            .replace("<svg ", '<svg style="overflow: visible;" ')
+            .replace("><style>", `>${MERMAID_SVG_STYLE}<style>`),
+        );
         setError(null);
       } catch (err) {
         console.error("Mermaid rendering error:", err);
@@ -86,7 +97,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
   return (
     <div
       ref={containerRef}
-      className={`my-6 flex justify-center overflow-x-auto ${className}`}
+      className={`not-prose my-6 flex justify-center overflow-x-auto pb-2 [&_svg]:block [&_svg]:h-auto [&_svg]:w-auto [&_svg]:max-w-full ${className}`}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
