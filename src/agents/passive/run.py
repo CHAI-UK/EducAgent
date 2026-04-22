@@ -41,15 +41,62 @@ from src.agents.passive.mock_data import (
 from src.agents.passive.text_normalization import normalize_llm_payload
 
 
-def setup_logging():
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s %(name)-24s %(levelname)-5s │ %(message)s",
+def setup_logging(*, user_id: str | None = None, concept_id: str | None = None) -> Path | None:
+    # Use a stream handler bound to stdout with line buffering so logs appear
+    # in real time (conda run sometimes buffers stderr). force=True replaces
+    # any handler installed by upstream imports.
+    formatter = logging.Formatter(
+        fmt="%(asctime)s.%(msecs)03d %(name)-24s %(levelname)-5s │ %(message)s",
         datefmt="%H:%M:%S",
     )
+    handlers: list[logging.Handler] = []
+
+    stream_handler = logging.StreamHandler(stream=sys.stdout)
+    stream_handler.setFormatter(formatter)
+    handlers.append(stream_handler)
+
+    timestamp = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime())
+    slug_parts = [part for part in (user_id, concept_id) if part]
+    stem = "_".join(slug_parts) if slug_parts else "manual"
+    log_dir = PROJECT_ROOT / "data" / "user" / "logs"
+    log_path: Path | None = None
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_path = log_dir / f"passive_run_{stem}_{timestamp}.log"
+        file_handler = logging.FileHandler(log_path, encoding="utf-8")
+        file_handler.setFormatter(formatter)
+        handlers.append(file_handler)
+    except OSError:
+        log_path = None
+
+    logging.basicConfig(level=logging.INFO, handlers=handlers, force=True)
+    try:
+        sys.stdout.reconfigure(line_buffering=True)
+    except AttributeError:
+        pass
     logging.getLogger("httpx").setLevel(logging.WARNING)
     logging.getLogger("openai").setLevel(logging.WARNING)
     logging.getLogger("httpcore").setLevel(logging.WARNING)
+    return log_path
+
+
+async def _pipeline_heartbeat(
+    logger: logging.Logger,
+    *,
+    started_at: float,
+    user_id: str,
+    concept_id: str,
+    interval_s: float = 20.0,
+) -> None:
+    """Emit periodic liveness logs while the pipeline is running."""
+    while True:
+        await asyncio.sleep(interval_s)
+        logger.info(
+            "[run] Pipeline still running for user=%s concept=%s (elapsed %.1fs)",
+            user_id,
+            concept_id,
+            time.perf_counter() - started_at,
+        )
 
 
 def _expand_details_blocks(markdown: str) -> str:
@@ -88,6 +135,12 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
                 return resolved_path.as_posix()
         return url.replace("\\", "/")
 
+    def render_image(kind: str, desc: str, url: str) -> str:
+        image = f"![{to_markdown_alt_text(desc)}]({url})"
+        if kind == "PEDAGOGICAL_IMAGE":
+            return f"{image}\n*Figure. {desc}*"
+        return image
+
     # Build image lookups
     img_by_marker: dict[tuple[str, str], str] = {}
     img_by_desc: dict[str, str] = {}
@@ -100,10 +153,14 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
         img_by_marker[(kind, desc)] = path
         img_by_desc.setdefault(desc, path)
 
-    lines = [f"# {concept_id.replace('-', ' ').title()}\n"]
+    lines: list[str] = []
+    if concept_id:
+        lines.append(f"**Concept:** {concept_id.replace('-', ' ').title()}\n")
 
     for node in nodes:
+        node_title = node.get("node_title") or node.get("title") or "Untitled Node"
         sections = node.get("sections", [])
+        lines.append(f"# {node_title}\n")
 
         for sec in sections:
             heading = sec.get("section", "")
@@ -117,7 +174,7 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
                 url = img_by_marker.get((kind, desc)) or img_by_desc.get(desc)
                 if url:
                     used_markers.add((kind, desc))
-                    return f"![{to_markdown_alt_text(desc)}]({url})"
+                    return render_image(kind, desc, url)
                 return f"*[Illustration: {kind}: {desc}]*"
 
             content = re.sub(
@@ -138,11 +195,11 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
                     url = img_by_marker.get((kind, desc)) or img_by_desc.get(desc)
                     if url:
                         used_markers.add((kind, desc))
-                        lines.append(f"\n![{to_markdown_alt_text(desc)}]({url})")
+                        lines.append(f"\n{render_image(kind, desc, url)}")
 
             lines.append("")
 
-        lines.append("---\n")
+        lines.append("")
 
     rendered = "\n".join(lines)
     return _expand_details_blocks(rendered) if expand_answers else rendered
@@ -168,17 +225,20 @@ async def main():
     )
     args = parser.parse_args()
 
-    setup_logging()
+    chosen_concept = (args.concept or "counterfactuals") if args.user else None
+    log_path = setup_logging(user_id=args.user, concept_id=chosen_concept)
     logger = logging.getLogger("passive_agent.run")
 
     logger.info("=" * 60)
     logger.info("passive_course_agent — ContentGenerator")
     logger.info("=" * 60)
+    if log_path is not None:
+        logger.info("Log file: %s", log_path)
 
-    graph = compile_graph()
+    graph = compile_graph(sync_mode=True)
 
     if args.user:
-        concept = args.concept or "counterfactuals"
+        concept = chosen_concept or "counterfactuals"
         input_path = get_passive_input_path(args.user, concept)
         if not input_path.exists():
             logger.error("Input not found: %s", input_path)
@@ -197,9 +257,29 @@ async def main():
     }
 
     logger.info("Invoking pipeline with: %s", json.dumps(initial_state, indent=2))
+    logger.info("Input file: %s", get_passive_input_path(initial_state["user_id"], initial_state["concept_id"]))
+    logger.info(
+        "Output dir: %s",
+        get_passive_course_dir(initial_state["user_id"], initial_state["concept_id"]),
+    )
     t0 = time.perf_counter()
 
-    result = await graph.ainvoke(initial_state)
+    heartbeat_task = asyncio.create_task(
+        _pipeline_heartbeat(
+            logger,
+            started_at=t0,
+            user_id=initial_state["user_id"],
+            concept_id=initial_state["concept_id"],
+        )
+    )
+    try:
+        result = await asyncio.to_thread(graph.invoke, initial_state)
+    finally:
+        heartbeat_task.cancel()
+        try:
+            await heartbeat_task
+        except asyncio.CancelledError:
+            pass
 
     elapsed = time.perf_counter() - t0
     logger.info("Pipeline completed in %.1fs", elapsed)
@@ -208,15 +288,20 @@ async def main():
     outline = result.get("outline", [])
     nodes = result.get("nodes", [])
     images = result.get("image_refs", [])
+    issues = result.get("fact_check_issues", [])
+    critical_issues = sum(1 for issue in issues if issue.get("severity") == "critical")
+    minor_issues = len(issues) - critical_issues
 
     print("\n" + "=" * 70)
     print("PIPELINE SUMMARY")
     print("=" * 70)
     print(f"Cache key:    {result.get('cache_key', 'N/A')}")
+    print(f"Cache hit:    {result.get('cache_hit', False)}")
     print(f"Depth tier:   {result.get('depth_tier', 'N/A')}")
     print(f"Profile:      {result.get('profile_sig', 'N/A')}")
     print(f"Outline:      {len(outline)} learning nodes")
     print(f"Content:      {len(nodes)} nodes generated")
+    print(f"Fact check:   {len(issues)} issues ({critical_issues} critical, {minor_issues} minor)")
     print(f"Images:       {len(images)} generated")
     print(f"Time:         {elapsed:.1f}s")
 
@@ -224,17 +309,6 @@ async def main():
     for i, node in enumerate(outline, 1):
         print(f"  {i}. {node.get('title', '?')}")
         print(f"     {node.get('summary', '')}")
-
-    print("\n--- CONTENT ---")
-    for node in nodes:
-        print(f"\n{'=' * 50}")
-        print(f"NODE: {node.get('node_title', '?')}")
-        print(f"{'=' * 50}")
-        for sec in node.get("sections", []):
-            heading = sec.get("section", "?")
-            content = sec.get("content", "")
-            print(f"\n  ## {heading}")
-            print(f"  {content[:400]}{'...' if len(content) > 400 else ''}")
 
     print("\n" + "=" * 70)
 

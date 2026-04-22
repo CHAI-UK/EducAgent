@@ -30,6 +30,12 @@ system: |
      A biology student's outline should reference experiments, gene regulation,
      or drug trials. The RAG source material provides the formal content;
      your job is to wrap it in the learner's world.
+  6. **Navigation-aware structure**: Node titles will be rendered as top-level
+     headings in the final document. Therefore:
+     - Make each title a concise, stable navigational label, ideally 2-8 words.
+     - Prefer noun phrases over full sentences or rhetorical hooks.
+     - Put nuance, motivation, and pacing in the summary, not the title.
+     - Avoid repeating nearly identical prefixes across many nodes.
 
   ## Output format
   Output ONLY valid JSON — no markdown fences, no commentary.

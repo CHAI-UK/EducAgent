@@ -6,6 +6,38 @@ from typing import Any
 _ESCAPED_MARKDOWN_TOKENS = ("\\n", "\\r", "\\t", '\\"', "\\\\")
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)\n```", re.IGNORECASE | re.DOTALL)
 _MCQ_OPTION_RE = re.compile(r"(?m)^(\s*)([A-D])[\)\.]\s+(.*)$")
+_DISPLAY_MATH_LINE_RE = re.compile(r"(?m)^[ \t]*(\$\$.*?\$\$)[ \t]*$")
+
+_MERMAID_INLINE_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\$"), ""),
+    (re.compile(r"\\mathcal\{([^{}]+)\}"), r"\1"),
+    (re.compile(r"\\mathrm\{([^{}]+)\}"), r"\1"),
+    (re.compile(r"\\operatorname\{([^{}]+)\}"), r"\1"),
+    (re.compile(r"\\text\{([^{}]+)\}"), r"\1"),
+    (re.compile(r"\\left"), ""),
+    (re.compile(r"\\right"), ""),
+    (re.compile(r"\\to"), "→"),
+    (re.compile(r"\\rightarrow"), "→"),
+    (re.compile(r"\\mid"), " | "),
+    (re.compile(r"\\cdot"), "·"),
+    (re.compile(r"\\otimes"), "⊗"),
+    (re.compile(r"\\delta"), "delta"),
+    (re.compile(r"\\\{"), "{"),
+    (re.compile(r"\\\}"), "}"),
+)
+
+_MERMAID_BRACED_SUBSCRIPT_RE = re.compile(r"([A-Za-z0-9_]+)_\{([^{}]+)\}")
+_MERMAID_BRACED_SUPERSCRIPT_RE = re.compile(r"([A-Za-z0-9_]+)\^\{([^{}]+)\}")
+_MERMAID_COMMAND_RE = re.compile(r"\\([A-Za-z]+)")
+
+
+def _simplify_mermaid_index(match: re.Match[str], operator: str) -> str:
+    """Render Mermaid subscripts/superscripts as readable plain text."""
+    base = match.group(1)
+    index = " ".join(match.group(2).split())
+    if re.fullmatch(r"[A-Za-z0-9_]+", index):
+        return f"{base}{operator}{index}"
+    return f"{base}{operator}({index})"
 
 
 def decode_overescaped_text(value: str) -> str:
@@ -88,13 +120,21 @@ def decode_overescaped_text(value: str) -> str:
 
 def _normalize_mermaid_code(code: str) -> str:
     """Replace label-internal newlines with Mermaid-safe <br/> markers."""
+    # Pre-pass: convert literal \n (backslash + n) to real newlines so the
+    # character loop can handle them uniformly.  The LLM sometimes writes \\n
+    # in JSON (literal backslash-n) to represent line breaks inside Mermaid
+    # labels.  After JSON parsing that becomes the two-character sequence \ + n
+    # which the character loop below would not recognise as a newline.
+    code = code.replace("\\n", "\n")
+
     parts: list[str] = []
     in_square = 0
+    in_curly = 0
     in_pipe = False
 
     for ch in code:
         if ch == "\n":
-            if in_square > 0 or in_pipe:
+            if in_square > 0 or in_curly > 0 or in_pipe:
                 parts.append("<br/>")
             else:
                 parts.append("\n")
@@ -104,12 +144,26 @@ def _normalize_mermaid_code(code: str) -> str:
             in_square += 1
         elif ch == "]" and in_square > 0:
             in_square -= 1
-        elif ch == "|" and in_square == 0:
+        elif ch == "{":
+            in_curly += 1
+        elif ch == "}" and in_curly > 0:
+            in_curly -= 1
+        elif ch == "|" and in_square == 0 and in_curly == 0:
             in_pipe = not in_pipe
 
         parts.append(ch)
 
-    return "".join(parts)
+    normalized = "".join(parts)
+    for pattern, replacement in _MERMAID_INLINE_REPLACEMENTS:
+        normalized = pattern.sub(replacement, normalized)
+    normalized = _MERMAID_BRACED_SUBSCRIPT_RE.sub(
+        lambda m: _simplify_mermaid_index(m, "_"), normalized
+    )
+    normalized = _MERMAID_BRACED_SUPERSCRIPT_RE.sub(
+        lambda m: _simplify_mermaid_index(m, "^"), normalized
+    )
+    normalized = _MERMAID_COMMAND_RE.sub(r"\1", normalized)
+    return normalized
 
 
 def _normalize_mermaid_blocks(value: str) -> str:
@@ -122,6 +176,16 @@ def _normalize_mermaid_blocks(value: str) -> str:
     return _MERMAID_BLOCK_RE.sub(repl, value)
 
 
+def _normalize_display_math_blocks(value: str) -> str:
+    """Ensure single-line display math blocks are separated by blank lines."""
+
+    def repl(match: re.Match[str]) -> str:
+        return f"\n{match.group(1)}\n"
+
+    normalized = _DISPLAY_MATH_LINE_RE.sub(repl, value)
+    return re.sub(r"\n{3,}", "\n\n", normalized)
+
+
 def _standardize_mcq_option_markers(value: str) -> str:
     """Normalize multiple-choice option prefixes to A./B./C./D. style."""
     return _MCQ_OPTION_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}. {m.group(3)}", value)
@@ -129,7 +193,8 @@ def _standardize_mcq_option_markers(value: str) -> str:
 
 def normalize_section_markdown(section: str, content: str) -> str:
     """Normalize section markdown for renderer-safe output."""
-    normalized = _normalize_mermaid_blocks(content)
+    normalized = _normalize_display_math_blocks(content)
+    normalized = _normalize_mermaid_blocks(normalized)
     if "check your understanding" in section.strip().lower():
         normalized = _standardize_mcq_option_markers(normalized)
     return normalized

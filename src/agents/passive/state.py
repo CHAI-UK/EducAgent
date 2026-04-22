@@ -49,9 +49,28 @@ class PipelineState(TypedDict, total=False):
     # Collected from all nodes
     image_prompts: list[dict[str, Any]]  # [{node_title, description, kind, section?}]
 
+    # ── Phase 2.5: Fact-check critique (domain expert review) ──────────
+    # [{node_title, section, claim, problem, severity, suggestion}]
+    fact_check_issues: list[dict[str, Any]]
+
+    # Per-node QA routing decisions and issue counts (Story 5.3 AC-6/7/8).
+    # [{node_title, qa_path, risk, issues, critical, rewrites}]
+    # qa_path ∈ {"rule-only", "critic-ran", "critic-ran+rewrite",
+    #            "critic-ran+rewrite+recheck", "critic-failed"}
+    qa_log: list[dict[str, Any]]
+
     # ── Phase 3: Image generation ───────────────────────────────────────
     image_refs: list[dict[str, Any]]  # [{description, kind, section?, url, model}]
 
     # ── Cache metadata ──────────────────────────────────────────────────
     cache_key: str
     cache_hit: bool
+
+    # ── Run metrics (Story 5.3 AC-11) ───────────────────────────────────
+    # Keyed by phase name:
+    #   {"outline": {"duration_s": ...},
+    #    "content": {"duration_s": ..., "per_node_durations_s": [...], "nodes": N},
+    #    "fact_check": {"duration_s": ..., "qa_log_summary": {...}},
+    #    "image": {"duration_s": ..., "generated": N, "prompts": M, "skipped": bool}}
+    # Persisted to run_metrics.json alongside content.json on successful run.
+    run_metrics: dict[str, Any]
