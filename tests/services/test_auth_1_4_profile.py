@@ -14,7 +14,11 @@ from src.api.main import app
 from src.api.routers import profile as profile_router
 from src.services.auth import current_active_user
 from src.services.auth.config import AUTH_ALGORITHM, AUTH_SECRET
-from src.services.auth.db import LearnerProfile, User, get_async_session
+from src.services.auth.db import LearnerAdaptation, LearnerProfile, User, get_async_session
+from src.services.learner_adaptation import (
+    LearnerAdaptationDerivation,
+    build_default_adaptation,
+)
 
 
 def _auth_headers(user_id: uuid.UUID) -> dict[str, str]:
@@ -110,6 +114,7 @@ def test_profile_fetch_returns_expected_fields(
     assert response.json()["institution"] == "EducAgent University"
     assert response.json()["avatar_url"] is None
     assert response.json()["learner_profile"] is None
+    assert response.json()["learner_adaptation"] is None
     assert response.json()["updated_at"] == "2026-01-01T00:00:00Z"
 
 
@@ -205,7 +210,24 @@ def test_avatar_upload_accepts_valid_image(
 def test_put_learner_profile_creates_profile(
     sample_user: User,
     clear_profile_overrides,
+    monkeypatch,
 ) -> None:
+    async def fake_derive(_learner_profile):
+        return LearnerAdaptationDerivation.model_validate(
+            {
+                "profile_sig": "cs",
+                "adaptation_ctx": {
+                    "background_summary": "Computer science learner",
+                    "role_summary": "Researcher studying causal models",
+                    "prior_knowledge": ["none"],
+                    "expertise_level": "knows_correlation_confounding",
+                    "learning_goal_summary": "Learn causal inference",
+                    "domain_framing": "computer_science",
+                },
+            }
+        )
+
+    monkeypatch.setattr(profile_router, "derive_learner_adaptation", fake_derive)
     session = FakeAsyncSession(sample_user)
     app.dependency_overrides[current_active_user] = lambda: sample_user
     app.dependency_overrides[get_async_session] = lambda: session
@@ -229,12 +251,33 @@ def test_put_learner_profile_creates_profile(
     assert sample_user.learner_profile.prior_knowledge == ["none"]
     assert sample_user.learner_profile.expertise_level == "knows_correlation_confounding"
     assert sample_user.learner_profile.is_skipped is False
+    assert sample_user.learner_adaptation is not None
+    assert sample_user.learner_adaptation.profile_sig == "cs"
+    assert response.json()["learner_adaptation"]["profile_sig"] == "cs"
+    assert session.commits == 2
 
 
 def test_patch_learner_profile_updates_existing_profile_and_clears_skip(
     sample_user: User,
     clear_profile_overrides,
+    monkeypatch,
 ) -> None:
+    async def fake_derive(_learner_profile):
+        return LearnerAdaptationDerivation.model_validate(
+            {
+                "profile_sig": "bio",
+                "adaptation_ctx": {
+                    "background_summary": "Biology learner",
+                    "role_summary": "Learner studying experimental design",
+                    "prior_knowledge": ["dags_causal_graphs"],
+                    "expertise_level": None,
+                    "learning_goal_summary": "Get stronger with DAGs",
+                    "domain_framing": "biology",
+                },
+            }
+        )
+
+    monkeypatch.setattr(profile_router, "derive_learner_adaptation", fake_derive)
     sample_user.learner_profile = LearnerProfile(
         id=uuid.uuid4(),
         user_id=sample_user.id,
@@ -268,12 +311,20 @@ def test_patch_learner_profile_updates_existing_profile_and_clears_skip(
     assert sample_user.learner_profile.prior_knowledge == ["dags_causal_graphs"]
     assert sample_user.learner_profile.learning_goal == "Get stronger with DAGs"
     assert sample_user.learner_profile.is_skipped is False
+    assert sample_user.learner_adaptation is not None
+    assert sample_user.learner_adaptation.profile_sig == "bio"
+    assert session.commits == 2
 
 
 def test_skip_learner_profile_upserts_skipped_row(
     sample_user: User,
     clear_profile_overrides,
+    monkeypatch,
 ) -> None:
+    async def fake_derive(learner_profile):
+        return build_default_adaptation(learner_profile)
+
+    monkeypatch.setattr(profile_router, "derive_learner_adaptation", fake_derive)
     session = FakeAsyncSession(sample_user)
     app.dependency_overrides[current_active_user] = lambda: sample_user
     app.dependency_overrides[get_async_session] = lambda: session
@@ -288,6 +339,9 @@ def test_skip_learner_profile_upserts_skipped_row(
     assert sample_user.learner_profile is not None
     assert sample_user.learner_profile.is_skipped is True
     assert sample_user.learner_profile.prior_knowledge == []
+    assert sample_user.learner_adaptation is not None
+    assert sample_user.learner_adaptation.profile_sig == "default"
+    assert session.commits == 2
 
 
 def test_learner_profile_rejects_invalid_expertise_level(

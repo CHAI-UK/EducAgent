@@ -168,6 +168,11 @@ async def _openai_complete(
     if base_url:
         base_url = sanitize_url(base_url, model)
 
+    # `messages=None` breaks LightRAG's internal prompt->messages conversion because
+    # it treats the explicit key as an override. Drop it unless we have a real value.
+    if kwargs.get("messages") is None:
+        kwargs.pop("messages", None)
+
     # Handle API Parameter Compatibility using capabilities
     # Remove response_format for providers that don't support it (e.g., DeepSeek)
     if not supports_response_format(binding, model):

@@ -29,6 +29,25 @@ export interface LearnerProfile {
   updated_at: string;
 }
 
+export type LearnerAdaptationProfileSig = "default" | "bio" | "cs" | "econ";
+
+export interface LearnerAdaptationContext {
+  background_summary: string | null;
+  role_summary: string | null;
+  prior_knowledge: LearnerProfilePriorKnowledge[];
+  expertise_level: LearnerProfileExpertiseLevel | null;
+  learning_goal_summary: string | null;
+  domain_framing: string | null;
+}
+
+export interface LearnerAdaptation {
+  id: string;
+  profile_sig: LearnerAdaptationProfileSig;
+  adaptation_ctx: LearnerAdaptationContext;
+  generated_at: string;
+  source_profile_updated_at: string | null;
+}
+
 export interface Profile {
   id: string;
   email: string;
@@ -43,4 +62,5 @@ export interface Profile {
   created_at: string | null;
   updated_at: string | null;
   learner_profile: LearnerProfile | null;
+  learner_adaptation: LearnerAdaptation | null;
 }

@@ -3,10 +3,10 @@ import "server-only";
 import { cache } from "react";
 import fs from "node:fs";
 import path from "node:path";
-import type { LearnerProfile } from "@/types/profile";
+import type { LearnerAdaptation, LearnerProfile } from "@/types/profile";
 
 export type StudyContentSource = "static" | "generated";
-export type StudyVariant = "default" | "bio" | "cs" | "econ";
+export type StudyProfileSig = "default" | "bio" | "cs" | "econ";
 
 export interface StudyNodeLink {
   relation: "previous" | "next";
@@ -49,24 +49,24 @@ export interface StudyPath {
   id: string;
   title: string;
   source: StudyContentSource;
-  variant: StudyVariant;
+  conceptId: string;
+  profileSig: StudyProfileSig;
   learnerProfile?: LearnerProfile | null;
+  learnerAdaptation?: LearnerAdaptation | null;
   generatedAt?: string;
   nodes: StudyNode[];
 }
 
 export interface GetStudyPathOptions {
+  conceptId?: string;
   learnerProfile?: LearnerProfile | null;
+  learnerAdaptation?: LearnerAdaptation | null;
 }
 
-const COUNTERFACTUALS_CONTENT_ROOT = path.resolve(
-  process.cwd(),
-  "content",
-  "study",
-  "counterfactuals",
-);
-const DEFAULT_STUDY_VARIANT: StudyVariant = "default";
-const STUDY_VARIANTS: StudyVariant[] = ["default", "bio", "cs", "econ"];
+const STUDY_CONTENT_ROOT = path.resolve(process.cwd(), "content", "study");
+const DEFAULT_CONCEPT_ID = "counterfactuals";
+const DEFAULT_PROFILE_SIG: StudyProfileSig = "default";
+const STUDY_PROFILE_SIGS: StudyProfileSig[] = ["default", "bio", "cs", "econ"];
 const QUIZ_SECTION_TITLE = "Check Your Understanding";
 
 function slugify(value: string) {
@@ -76,65 +76,71 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function getStudyVariantFromLearnerProfile(
-  learnerProfile?: LearnerProfile | null,
-): StudyVariant {
-  const background = learnerProfile?.background?.trim().toLowerCase();
-  if (!background) {
-    return DEFAULT_STUDY_VARIANT;
-  }
-
-  if (
-    /(economics|economist|economic|policy|public policy|finance|financial)/.test(
-      background,
-    )
-  ) {
-    return "econ";
-  }
-
-  if (
-    /(computer science|computing|software|programming|engineer|engineering|ai|a\.?i\.?|ml|machine learning|data science)/.test(
-      background,
-    )
-  ) {
-    return "cs";
-  }
-
-  if (
-    /(biology|biologist|bioinformatics|biomedical|medicine|medical|health|healthcare|neuroscience|neuro|genetics|life science)/.test(
-      background,
-    )
-  ) {
-    return "bio";
-  }
-
-  return DEFAULT_STUDY_VARIANT;
+function normalizeConceptId(conceptId?: string) {
+  const normalized = (conceptId ?? DEFAULT_CONCEPT_ID).trim();
+  return normalized || DEFAULT_CONCEPT_ID;
 }
 
-function getMarkdownPathForVariant(variant: StudyVariant) {
-  return path.join(COUNTERFACTUALS_CONTENT_ROOT, variant, "content.md");
+function getStudyProfileSigFromAdaptation(
+  learnerAdaptation?: LearnerAdaptation | null,
+): StudyProfileSig {
+  const profileSig = learnerAdaptation?.profile_sig;
+  return STUDY_PROFILE_SIGS.includes(profileSig ?? DEFAULT_PROFILE_SIG)
+    ? (profileSig as StudyProfileSig)
+    : DEFAULT_PROFILE_SIG;
 }
 
-function resolveAvailableVariant(variant: StudyVariant) {
-  const requestedMarkdownPath = getMarkdownPathForVariant(variant);
+function resolveConceptRoot(conceptId: string) {
+  const conceptRoot = path.resolve(STUDY_CONTENT_ROOT, conceptId);
+  const allowedRoot = `${STUDY_CONTENT_ROOT}${path.sep}`;
+
+  if (
+    conceptRoot !== STUDY_CONTENT_ROOT &&
+    !conceptRoot.startsWith(allowedRoot)
+  ) {
+    throw new Error(`Invalid concept id: ${conceptId}`);
+  }
+
+  return conceptRoot;
+}
+
+function getMarkdownPathForProfileSig(
+  conceptId: string,
+  profileSig: StudyProfileSig,
+) {
+  return path.join(resolveConceptRoot(conceptId), profileSig, "content.md");
+}
+
+function resolveAvailableProfileSig(
+  conceptId: string,
+  profileSig: StudyProfileSig,
+) {
+  const requestedMarkdownPath = getMarkdownPathForProfileSig(
+    conceptId,
+    profileSig,
+  );
   if (fs.existsSync(requestedMarkdownPath)) {
-    return variant;
+    return profileSig;
   }
 
-  if (variant !== DEFAULT_STUDY_VARIANT) {
+  if (profileSig !== DEFAULT_PROFILE_SIG) {
     console.warn(
-      `[study] Missing content for variant "${variant}", falling back to "${DEFAULT_STUDY_VARIANT}".`,
+      `[study] Missing content for profile_sig "${profileSig}" in concept "${conceptId}", falling back to "${DEFAULT_PROFILE_SIG}".`,
     );
   }
 
-  return DEFAULT_STUDY_VARIANT;
+  return DEFAULT_PROFILE_SIG;
 }
 
-function rewriteImageSources(content: string, variant: StudyVariant) {
+function rewriteImageSources(
+  content: string,
+  conceptId: string,
+  profileSig: StudyProfileSig,
+) {
   return content.replace(
     /!\[([^\]]*)\]\((imgs\/[^)]+)\)/g,
     (_match, altText: string, relativePath: string) =>
-      `![${altText}](/study-assets/${variant}/${relativePath.replace(/^imgs\//, "")})`,
+      `![${altText}](/study-assets/${conceptId}/${profileSig}/${relativePath.replace(/^imgs\//, "")})`,
   );
 }
 
@@ -340,7 +346,11 @@ interface SectionMatch {
   length: number;
 }
 
-function buildLinkedNodes(sections: SectionMatch[], markdown: string) {
+function buildLinkedNodes(
+  sections: SectionMatch[],
+  markdown: string,
+  conceptId: string,
+) {
   const nodes = sections.map((section, index) => {
     const bodyStart = section.index + section.length + 1;
     const sectionEnd =
@@ -378,7 +388,7 @@ function buildLinkedNodes(sections: SectionMatch[], markdown: string) {
     const { content, quiz } = extractQuiz(node.content);
 
     return {
-      id: `counterfactual-node-${index + 1}-${slugify(node.title)}`,
+      id: `${conceptId}-node-${index + 1}-${slugify(node.title)}`,
       title: node.title,
       content,
       order: index + 1,
@@ -407,13 +417,18 @@ function buildLinkedNodes(sections: SectionMatch[], markdown: string) {
   });
 }
 
-function parseCounterfactualMarkdown(
+function parseStudyMarkdown(
   markdown: string,
-  variant: StudyVariant,
+  conceptId: string,
+  profileSig: StudyProfileSig,
 ): StudyPath {
-  const normalizedMarkdown = rewriteImageSources(markdown.trim(), variant);
+  const normalizedMarkdown = rewriteImageSources(
+    markdown.trim(),
+    conceptId,
+    profileSig,
+  );
   const titleMatch = normalizedMarkdown.match(/^#\s+(.+)$/m);
-  const pathTitle = titleMatch?.[1]?.trim() ?? "Counterfactuals";
+  const pathTitle = titleMatch?.[1]?.trim() ?? conceptId;
   const headingMatches = [...normalizedMarkdown.matchAll(/^##\s+(.+)$/gm)].map(
     (match) => ({
       title: match[1].trim(),
@@ -428,32 +443,49 @@ function parseCounterfactualMarkdown(
     );
   }
 
-  const linkedNodes = buildLinkedNodes(headingMatches, normalizedMarkdown);
+  const linkedNodes = buildLinkedNodes(
+    headingMatches,
+    normalizedMarkdown,
+    conceptId,
+  );
 
   return {
-    id: "counterfactuals",
+    id: conceptId,
     title: pathTitle,
     source: "static",
-    variant,
+    conceptId,
+    profileSig,
     nodes: linkedNodes,
   };
 }
 
-const loadStaticStudyPath = cache((variant: StudyVariant) => {
-  const resolvedVariant = resolveAvailableVariant(variant);
-  const markdownPath = getMarkdownPathForVariant(resolvedVariant);
-  const markdown = fs.readFileSync(markdownPath, "utf8");
-  return parseCounterfactualMarkdown(markdown, resolvedVariant);
-});
+const loadStaticStudyPath = cache(
+  (conceptId: string, profileSig: StudyProfileSig) => {
+    const resolvedProfileSig = resolveAvailableProfileSig(
+      conceptId,
+      profileSig,
+    );
+    const markdownPath = getMarkdownPathForProfileSig(
+      conceptId,
+      resolvedProfileSig,
+    );
+    const markdown = fs.readFileSync(markdownPath, "utf8");
+    return parseStudyMarkdown(markdown, conceptId, resolvedProfileSig);
+  },
+);
 
 export async function getStudyPath(
   options: GetStudyPathOptions = {},
 ): Promise<StudyPath> {
-  const variant = getStudyVariantFromLearnerProfile(options.learnerProfile);
-  const studyPath = loadStaticStudyPath(variant);
+  const conceptId = normalizeConceptId(options.conceptId);
+  const profileSig = getStudyProfileSigFromAdaptation(
+    options.learnerAdaptation,
+  );
+  const studyPath = loadStaticStudyPath(conceptId, profileSig);
 
   return {
     ...studyPath,
     learnerProfile: options.learnerProfile ?? null,
+    learnerAdaptation: options.learnerAdaptation ?? null,
   };
 }

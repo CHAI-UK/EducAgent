@@ -2,14 +2,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { NextResponse } from "next/server";
 
-const CONTENT_ROOT = path.resolve(
-  process.cwd(),
-  "content",
-  "study",
-  "counterfactuals",
-);
-const ALLOWED_VARIANTS = new Set(["default", "bio", "cs", "econ"]);
-const DEFAULT_VARIANT = "default";
+const CONTENT_ROOT = path.resolve(process.cwd(), "content", "study");
+const ALLOWED_PROFILE_SIGS = new Set(["default", "bio", "cs", "econ"]);
+const DEFAULT_PROFILE_SIG = "default";
 
 function getContentType(filePath: string) {
   const extension = path.extname(filePath).toLowerCase();
@@ -31,50 +26,78 @@ function getContentType(filePath: string) {
   }
 }
 
+function resolveImagePath(
+  conceptId: string,
+  profileSig: string,
+  imagePath: string[],
+) {
+  const conceptRoot = path.resolve(CONTENT_ROOT, conceptId);
+  const allowedConceptRoot = `${CONTENT_ROOT}${path.sep}`;
+
+  if (
+    conceptRoot !== CONTENT_ROOT &&
+    !conceptRoot.startsWith(allowedConceptRoot)
+  ) {
+    return null;
+  }
+
+  const requestedPath = path.join(
+    conceptRoot,
+    profileSig,
+    "imgs",
+    ...imagePath,
+  );
+  const normalizedPath = path.normalize(requestedPath);
+  const allowedRoot = path.join(conceptRoot, profileSig, "imgs") + path.sep;
+
+  if (!normalizedPath.startsWith(allowedRoot)) {
+    return null;
+  }
+
+  return normalizedPath;
+}
+
 export async function GET(
   _request: Request,
   context: {
     params: Promise<{
-      variant: string;
+      conceptId: string;
+      profileSig: string;
       imagePath: string[];
     }>;
   },
 ) {
-  const { variant, imagePath } = await context.params;
+  const { conceptId, profileSig, imagePath } = await context.params;
 
-  if (!ALLOWED_VARIANTS.has(variant) || !imagePath.length) {
+  if (!ALLOWED_PROFILE_SIGS.has(profileSig) || !imagePath.length) {
     return new NextResponse("Not found", { status: 404 });
   }
 
-  const requestedPath = path.join(CONTENT_ROOT, variant, "imgs", ...imagePath);
-  const normalizedPath = path.normalize(requestedPath);
-  const allowedRoot = path.join(CONTENT_ROOT, variant, "imgs") + path.sep;
-
-  if (!normalizedPath.startsWith(allowedRoot)) {
+  const requestedPath = resolveImagePath(conceptId, profileSig, imagePath);
+  if (!requestedPath) {
     return new NextResponse("Not found", { status: 404 });
   }
 
   try {
-    const file = await fs.readFile(normalizedPath);
+    const file = await fs.readFile(requestedPath);
 
     return new NextResponse(file, {
       headers: {
-        "Content-Type": getContentType(normalizedPath),
+        "Content-Type": getContentType(requestedPath),
         "Cache-Control": "public, max-age=3600",
       },
     });
   } catch {
-    if (variant === DEFAULT_VARIANT) {
+    if (profileSig === DEFAULT_PROFILE_SIG) {
       return new NextResponse("Not found", { status: 404 });
     }
 
-    const fallbackPath = path.normalize(
-      path.join(CONTENT_ROOT, DEFAULT_VARIANT, "imgs", ...imagePath),
+    const fallbackPath = resolveImagePath(
+      conceptId,
+      DEFAULT_PROFILE_SIG,
+      imagePath,
     );
-    const fallbackRoot =
-      path.join(CONTENT_ROOT, DEFAULT_VARIANT, "imgs") + path.sep;
-
-    if (!fallbackPath.startsWith(fallbackRoot)) {
+    if (!fallbackPath) {
       return new NextResponse("Not found", { status: 404 });
     }
 
