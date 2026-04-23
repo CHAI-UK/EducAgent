@@ -39,7 +39,11 @@ fact_check:
   enabled: true
   model: openai/gpt-5
   temperature: 0.0
-  max_tokens: 2048
+  # Raised from 2048 on 2026-04-22: gpt-5 reasoning tokens consume part of the
+  # completion budget, so the critic was routinely hitting `finish=length` at
+  # 2048 and may have silently truncated issue lists. 8192 gives clear headroom
+  # while still well under gpt-5's per-call ceiling.
+  max_tokens: 8192
   # When a section is flagged "critical", regenerate it with the critic's
   # suggestions injected back into the content prompt. "minor" issues are
   # logged only.
@@ -54,8 +58,8 @@ fact_check:
 
 # Phase 3: Image generation
 image:
-  model: google/gemini-3.1-flash-image-preview  # primary (supports modalities: image)
-  fallback_model: black-forest-labs/flux.2-klein-4b  # backup
+  model: openai/gpt-5.4-image-2  # primary (supports modalities: image, text)
+  fallback_model: google/gemini-3.1-flash-image-preview  # backup
   # Images are generated for [CONTEXT_IMAGE: ...] and [PEDAGOGICAL_IMAGE: ...]
   # markers in content. Legacy [IMAGE: ...] markers are still accepted.
   # Story 5.3 AC-9: set enabled=false to skip image generation entirely for
@@ -67,3 +71,10 @@ image:
   # first and images are layered in afterward. image_generator updates the
   # cached artifact on completion when mode=deferred.
   mode: inline
+  # At most N image calls in flight concurrently, governed by asyncio.Semaphore.
+  # Image endpoints are slower and have tighter per-provider rate limits than
+  # text — 2 is conservative and safe, 3 usually works on paid OpenRouter but
+  # may see 429s under burst load. Set to 1 for previous serial behavior.
+  # Filenames stay ordered by input prompt index regardless of concurrency, so
+  # the first finished image is NOT necessarily img_00.
+  concurrency: 3

@@ -131,7 +131,7 @@ system: |
 
   5. Visual Synthesis — A Mermaid diagram showing mathematical relationships,
      decision procedures, or proof structure. Wrap in a ```mermaid block.
-     Add a caption in *italics* below. The diagram should reinforce the same
+     Add a caption wrapped in `<em>...</em>` below. The diagram should reinforce the same
      formal structure already introduced rather than adding new claims.
      Mermaid formatting rules are STRICT:
      - Keep each Mermaid statement on a single source line whenever possible.
@@ -230,15 +230,89 @@ system: |
   - Escape all LaTeX backslashes for JSON strings (e.g., \mathcal, \alpha,
     \frac). This is critical at the advanced tier where LaTeX is dense.
   - Use escaped newlines (\n) in string values instead of literal line breaks.
-  - **Never** put a straight double-quote `"` inside an italic phrase like
-    `*"..."*`. Instead use ONE of:
-      - Curly quotes:  *\u201cDid we even need that?\u201d*
-      - Single quotes: *'Did we even need that?'*
-      - Em-dash framing: *\u2014 Did we even need that? \u2014*
-    These render the same to the reader and are JSON-safe.
-  - Any other internal `"` inside a string value MUST be escaped as `\\"`.
-  - Each section object MUST have exactly the keys "section", "content",
-    "markers", "part" — nothing else. Never invent other keys.
+  - For emphasis, use HTML `<em>...</em>` tags rather than markdown `*...*`.
+    Asymmetric open/close tags make mismatches impossible and let you embed
+    straight quotes without extra escaping: `<em>"Did we even need that?"</em>`
+    is valid JSON content and renders as an italic caption.
+    Reserve `**bold**` for strong emphasis; avoid single `*` in prose.
+  - Any internal `"` inside a string value MUST be escaped as `\\"`.
+  - Each section object MUST have these keys: "section", "content", "markers", "part". It MAY also have "self_flagged_risks" (see below). Never invent other keys.
+
+  ## PRECISION PRINCIPLES (causality-domain general)
+
+  These recurring precision traps apply to every causal concept — DAGs,
+  interventions, counterfactuals, identification, causal discovery,
+  propensity scores, IV, mediation, transportability. Content that violates
+  these triggers costly fact-check rewrites.
+
+  1. Association is not causation. Never present an observational correlation
+     as a causal claim without naming the additional structure or assumptions
+     that elevate it (randomisation, identification strategy, DAG, graphical
+     criterion).
+
+  2. Conditioning is not intervention. P(Y | X = x), regression adjustment,
+     "controlling for" — these are operations on the observational
+     distribution. P(Y | do(X = x)) is an operation on a modified system. Do
+     not equate them; explicitly mark the transition between regimes.
+
+  3. State the assumptions your claim rests on. Common ones: Markov,
+     faithfulness, positivity, conditional ignorability / no unmeasured
+     confounding, SUTVA, consistency, correct model specification. Prefer
+     "under assumption X, Y holds" over absolute claims. Do not hide the
+     assumption.
+
+  4. The three rungs (association / intervention / counterfactual) are
+     qualitatively different. Do not flatten them into a single concept.
+     Mark which rung a given example or claim belongs to.
+
+  5. Selection and conditioning choices have causal consequences. Conditioning
+     on a collider, or on a descendant of treatment, or on a selection
+     variable, can introduce spurious association. Do not treat "control
+     for everything you observe" as neutral.
+
+  6. Time ordering matters. Causes precede their effects. Any feedback loop
+     in a domain example must use time-indexed variables (X_t -> Y_{t+1})
+     or a dynamic / equilibrium model — never same-time self-feedback of a
+     quantity that is physically measured after the process completes.
+
+  7. Causal verbs are precise. "Caused by", "effect of X on Y", "predicted
+     by", "associated with", "correlates with" are not interchangeable.
+     Match the verb to the operation you are describing.
+
+  8. Internal self-consistency. If you say "three variables", the worked
+     example must have exactly three variables. If you say "four arrows",
+     they must all appear. Counts in narrative must match counts in
+     diagrams and worked examples.
+
+  ## SELF-FLAGGED RISKS (generator-side uncertainty)
+
+  For each section, you MAY append a ``self_flagged_risks`` array pointing
+  the fact-checker at specific claims you are uncertain about. This is a
+  narrow mechanism for three — and only three — reasons:
+
+    - ``domain_fact_substituted``: a specific domain fact (number, protocol,
+      mechanism, tool name, clinical / engineering / biological convention)
+      that is NOT directly supported by the grounded RAG chunks — you filled
+      it in from general knowledge.
+    - ``unstated_assumption``: an absolute claim whose source actually
+      depends on a named assumption (Markov, faithfulness, positivity,
+      ignorability, SUTVA, etc.) which you may not have stated explicitly.
+    - ``countable_detail_uncertain``: a narrative count (N nodes, M arrows,
+      K steps) where you are not 100% sure the diagram / worked example
+      will match.
+
+  Rules:
+    - Abstract causal concepts (confounder, collider, do-operator,
+      d-separation, etc.) are NOT to be self-flagged — those are the
+      critic's scope, and the source material covers them.
+    - Maximum 2 flags per section. Fewer is fine; empty ``[]`` is PREFERRED
+      over manufactured flags.
+    - Each flag: {"claim": "<verbatim quote from content>",
+      "reason": "<one of the three above>", "detail": "<one short sentence>"}.
+    - Do not flag stylistic or pedagogical choices — only factual gaps.
+    - Do not flag to "look rigorous" — empty lists are perfectly valid.
+
+  When in doubt, prefer an empty list.
 
 user: |
   Generate content for this learning node:
@@ -264,6 +338,7 @@ user: |
     - Use Learning goal to decide what to emphasise
     - Use Domain framing to choose examples, tables, and image prompts
     - Preserve the source causal meaning even when rewriting examples
+  - Never name the learner's background directly in running prose (e.g. avoid "As a chemist you know..."); let it show implicitly through the examples you choose. The profile shapes WHAT scenarios you pick, not HOW you address the reader.
 
   Prerequisite gaps (mastery < 0.5): {prereq_gaps}
   Confusion carry-forward: {confusion_fwd}

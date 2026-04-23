@@ -314,6 +314,6 @@ def test_repair_prompt_requires_part_field(monkeypatch: pytest.MonkeyPatch) -> N
         )
     )
 
-    assert parsed["sections"][0]["part"] == "hook"
+    assert parsed[0]["part"] == "hook"
     assert '"part"' in client.last_user_message
     assert "hook, recall, definition, intuition, visual, checkpoint, extra" in client.last_user_message

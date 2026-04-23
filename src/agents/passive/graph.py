@@ -74,7 +74,13 @@ from .text_normalization import normalize_llm_payload
 # bogus keys like "earlier." or "CT?". See schemas.py for context.
 # ``part`` is the canonical pedagogical-part enum introduced in Story 5.3; it
 # is optional on input (defaults to "extra" via the pydantic model).
-_ALLOWED_SECTION_KEYS = frozenset({"section", "content", "markers", "part"})
+_ALLOWED_SECTION_KEYS = frozenset(
+    {"section", "content", "markers", "part", "self_flagged_risks"}
+)
+# Generator may emit at most 2 self-flags per section — see prompt rules.
+# We clamp silently on the validator path so a slightly over-eager generator
+# does not crash the whole pipeline.
+_MAX_SELF_FLAGS_PER_SECTION = 2
 
 # Valid values for the ``part`` field — kept in sync with schemas.PedagogicalPart.
 # We avoid importing the enum members into a set comprehension at module load
@@ -639,6 +645,19 @@ def _validate_sections(parsed: Any) -> list[dict[str, Any]]:
             f"quote inside an italic phrase: {trailing_star}"
         )
 
+    # Silently clamp any over-eager self_flagged_risks list to the cap.
+    # The generator prompt asks for <=2; if it emits more we keep the first 2
+    # rather than rejecting the whole payload. Non-list values are dropped.
+    for sec in raw_sections:
+        if not isinstance(sec, dict):
+            continue
+        raw_flags = sec.get("self_flagged_risks")
+        if not isinstance(raw_flags, list):
+            sec.pop("self_flagged_risks", None)
+            continue
+        if len(raw_flags) > _MAX_SELF_FLAGS_PER_SECTION:
+            sec["self_flagged_risks"] = raw_flags[:_MAX_SELF_FLAGS_PER_SECTION]
+
     # Final pydantic pass — catches missing fields / wrong types and invalid
     # ``part`` enum values. Missing ``part`` falls back to the model default
     # (``extra``), preserving backward compatibility with older payloads.
@@ -682,8 +701,39 @@ def _salvage_sections(parsed: Any) -> list[dict[str, Any]]:
         part = item.get("part")
         if not isinstance(part, str) or part not in _VALID_PART_VALUES:
             part = "extra"
+        # Preserve self_flagged_risks if it is already a list of dicts with
+        # the minimum required shape; otherwise drop it silently. Salvage is
+        # best-effort — we never fabricate flags.
+        raw_flags = item.get("self_flagged_risks")
+        salvaged_flags: list[dict[str, Any]] = []
+        if isinstance(raw_flags, list):
+            for flag in raw_flags[:_MAX_SELF_FLAGS_PER_SECTION]:
+                if not isinstance(flag, dict):
+                    continue
+                claim = flag.get("claim")
+                reason = flag.get("reason")
+                if not isinstance(claim, str) or not isinstance(reason, str):
+                    continue
+                if reason not in {
+                    "domain_fact_substituted",
+                    "unstated_assumption",
+                    "countable_detail_uncertain",
+                }:
+                    continue
+                detail = flag.get("detail", "")
+                if not isinstance(detail, str):
+                    detail = ""
+                salvaged_flags.append(
+                    {"claim": claim, "reason": reason, "detail": detail}
+                )
         out.append(
-            {"section": section, "content": content, "markers": markers, "part": part}
+            {
+                "section": section,
+                "content": content,
+                "markers": markers,
+                "part": part,
+                "self_flagged_risks": salvaged_flags,
+            }
         )
     return out
 
@@ -1850,14 +1900,16 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
             ),
         }
 
-    logger.info("[④c] ImageGenerator: generating %d images...", len(prompts))
+    concurrency = max(1, int(cfg.get("concurrency", 1)))
+    logger.info(
+        "[④c] ImageGenerator: generating %d images with concurrency=%d...",
+        len(prompts),
+        concurrency,
+    )
     stage_started = time.perf_counter()
-    per_image_durations: list[float] = []
     image_metrics = _new_llm_metrics()
-    failed_prompts: list[dict[str, Any]] = []
 
     client = _get_client()
-    image_refs: list[dict[str, str]] = []
 
     user_id = state.get("user_id", "unknown_user")
     concept_id = state.get("concept_ctx", {}).get("concept_id") or state.get(
@@ -1866,141 +1918,172 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
     img_dir = get_passive_images_dir(user_id, concept_id)
     img_dir.mkdir(parents=True, exist_ok=True)
 
-    for img_idx, ip in enumerate(prompts, 1):
+    semaphore = asyncio.Semaphore(concurrency)
+    depth_tier = state.get("depth_tier") or state.get("adaptation_ctx", {}).get(
+        "depth_tier"
+    )
+
+    async def _generate_one(input_idx: int, ip: dict[str, Any]) -> dict[str, Any]:
+        """Run primary + fallback models for one prompt, returning bytes or errors.
+
+        Disk IO (filenames, counters) is handled by the main loop after all
+        tasks finish so numbering stays stable regardless of completion order.
+        """
         desc = ip["description"]
         kind = ip.get("kind", "PEDAGOGICAL_IMAGE")
         prompt_errors: list[str] = []
-        prompt_succeeded = False
-        eta_str = ""
-        if per_image_durations:
-            avg = sum(per_image_durations) / len(per_image_durations)
-            remaining = avg * (len(prompts) - img_idx + 1)
-            eta_str = f" (ETA ~{remaining:.0f}s)"
-        logger.info(
-            "[④c]   Image %d/%d [%s]: %s%s",
-            img_idx,
-            len(prompts),
-            kind,
-            desc[:80],
-            eta_str,
-        )
-        img_started = time.perf_counter()
+        b64_bytes: bytes | None = None
+        model_used: str | None = None
+        stage_tag = f"[④c]   Image {input_idx + 1}/{len(prompts)}"
 
-        for model in [cfg["model"], cfg.get("fallback_model")]:
-            if not model:
-                continue
-            call_stats: dict[str, Any] = {}
-            try:
-                _log_llm_call_start(f"[④c]   Image {img_idx}/{len(prompts)}", model)
-                def _make_call():
-                    return client.chat.completions.create(
-                        model=model,
-                        messages=[
-                            {
-                                "role": "user",
-                                "content": image_generation_brief(kind, desc),
-                            }
-                        ],
-                        extra_body={"modalities": ["image", "text"]},
-                        max_tokens=1024,
+        async with semaphore:
+            logger.info("%s [%s]: %s", stage_tag, kind, desc[:80])
+            started = time.perf_counter()
+
+            for model in [cfg["model"], cfg.get("fallback_model")]:
+                if not model:
+                    continue
+                call_stats: dict[str, Any] = {}
+                try:
+                    _log_llm_call_start(stage_tag, model)
+
+                    def _make_call(m: str = model) -> Any:
+                        return client.chat.completions.create(
+                            model=m,
+                            messages=[
+                                {
+                                    "role": "user",
+                                    "content": image_generation_brief(
+                                        kind, desc, depth_tier=depth_tier
+                                    ),
+                                }
+                            ],
+                            extra_body={"modalities": ["image", "text"]},
+                            max_tokens=1024,
+                        )
+
+                    response = await _llm_call_with_retry(
+                        _make_call,
+                        stage=stage_tag,
+                        stats=call_stats,
+                    )
+                    _record_llm_success(
+                        image_metrics,
+                        response,
+                        call_stats=call_stats,
+                        stage=f"image:{model}",
                     )
 
-                response = await _llm_call_with_retry(
-                    _make_call,
-                    stage=f"[④c]   Image {img_idx}/{len(prompts)}",
-                    stats=call_stats,
-                )
-                _record_llm_success(
-                    image_metrics,
-                    response,
-                    call_stats=call_stats,
-                    stage=f"image:{model}",
-                )
+                    msg = response.choices[0].message
+                    raw = msg.model_dump() if hasattr(msg, "model_dump") else {}
 
-                msg = response.choices[0].message
-                raw = msg.model_dump() if hasattr(msg, "model_dump") else {}
-
-                # Gemini returns images in msg.images as [{image_url: {url: "data:..."}}]
-                images = getattr(msg, "images", None) or raw.get("images", [])
-                if images:
-                    for img_data in images:
-                        data_url = ""
-                        if isinstance(img_data, dict):
-                            data_url = img_data.get("image_url", {}).get("url", "")
-                        if data_url and data_url.startswith("data:image"):
-                            # Extract base64 and save
-                            b64_part = data_url.split(",", 1)[1] if "," in data_url else ""
-                            if b64_part:
-                                fname = f"img_{len(image_refs):02d}.png"
-                                img_path = img_dir / fname
-                                with open(img_path, "wb") as f:
-                                    f.write(base64.b64decode(b64_part))
-                                image_refs.append(
-                                    {
-                                        "node_title": ip["node_title"],
-                                        "description": desc,
-                                        "kind": kind,
-                                        "section": ip.get("section", ""),
-                                        "url": str(img_path),
-                                        "model": model,
-                                    }
+                    # Primary path: msg.images[{image_url: {url: "data:..."}}]
+                    images = getattr(msg, "images", None) or raw.get("images", [])
+                    if images:
+                        for img_data in images:
+                            data_url = ""
+                            if isinstance(img_data, dict):
+                                data_url = img_data.get("image_url", {}).get("url", "")
+                            if data_url and data_url.startswith("data:image"):
+                                b64_part = (
+                                    data_url.split(",", 1)[1] if "," in data_url else ""
                                 )
-                                logger.info("[④c]   Saved: %s", fname)
-                                prompt_succeeded = True
-                                break
-                    else:
-                        logger.warning("[④c]   %s: images field present but no data URL", model)
+                                if b64_part:
+                                    b64_bytes = base64.b64decode(b64_part)
+                                    model_used = model
+                                    break
+                        if b64_bytes is not None:
+                            break
+                        logger.warning(
+                            "[④c]   %s: images field present but no data URL", model
+                        )
                         prompt_errors.append(f"{model}: no data URL in images field")
                         continue
-                    break  # success, skip fallback
 
-                # Fallback: check content for data URLs
-                content = msg.content or ""
-                b64_match = re.search(r"data:image/[^;]+;base64,([A-Za-z0-9+/=]+)", content)
-                if b64_match:
-                    fname = f"img_{len(image_refs):02d}.png"
-                    img_path = img_dir / fname
-                    with open(img_path, "wb") as f:
-                        f.write(base64.b64decode(b64_match.group(1)))
-                    image_refs.append(
-                        {
-                            "node_title": ip["node_title"],
-                            "description": desc,
-                            "kind": kind,
-                            "section": ip.get("section", ""),
-                            "url": str(img_path),
-                            "model": model,
-                        }
+                    # Fallback: a data URL embedded in the text content.
+                    content = msg.content or ""
+                    b64_match = re.search(
+                        r"data:image/[^;]+;base64,([A-Za-z0-9+/=]+)", content
                     )
-                    logger.info("[④c]   Saved (from content): %s", fname)
-                    prompt_succeeded = True
-                    break
+                    if b64_match:
+                        b64_bytes = base64.b64decode(b64_match.group(1))
+                        model_used = model
+                        break
 
-                logger.warning("[④c]   %s returned no image data", model)
-                prompt_errors.append(f"{model}: no image data returned")
+                    logger.warning("[④c]   %s returned no image data", model)
+                    prompt_errors.append(f"{model}: no image data returned")
 
-            except Exception as e:
-                _record_llm_failure(
-                    image_metrics,
-                    call_stats=call_stats,
-                    error=f"{type(e).__name__}: {str(e)[:200]}",
-                    stage=f"image:{model}",
-                )
-                logger.warning("[④c]   %s failed: %s", model, str(e)[:200])
-                prompt_errors.append(f"{model}: {type(e).__name__}: {str(e)[:120]}")
-                continue
+                except Exception as e:
+                    _record_llm_failure(
+                        image_metrics,
+                        call_stats=call_stats,
+                        error=f"{type(e).__name__}: {str(e)[:200]}",
+                        stage=f"image:{model}",
+                    )
+                    logger.warning(
+                        "[④c]   %s failed: %s", model, str(e)[:200]
+                    )
+                    prompt_errors.append(
+                        f"{model}: {type(e).__name__}: {str(e)[:120]}"
+                    )
+                    continue
 
-        if not prompt_succeeded:
+            duration = time.perf_counter() - started
+
+        return {
+            "input_idx": input_idx,
+            "ip": ip,
+            "b64_bytes": b64_bytes,
+            "model_used": model_used,
+            "errors": prompt_errors,
+            "duration_s": duration,
+        }
+
+    tasks = [asyncio.create_task(_generate_one(i, p)) for i, p in enumerate(prompts)]
+    gathered = await asyncio.gather(*tasks)
+    # Results are already in input order because we built tasks in enumeration
+    # order and asyncio.gather preserves that order regardless of completion.
+    results = sorted(gathered, key=lambda r: r["input_idx"])
+
+    image_refs: list[dict[str, str]] = []
+    failed_prompts: list[dict[str, Any]] = []
+    per_image_durations: list[float] = [round(r["duration_s"], 3) for r in results]
+
+    for r in results:
+        ip = r["ip"]
+        desc = ip["description"]
+        kind = ip.get("kind", "PEDAGOGICAL_IMAGE")
+        b64_bytes = r["b64_bytes"]
+        if b64_bytes is not None:
+            # Sequential numbering by input prompt order; failed prompts leave
+            # no gap in the counter so downstream ``img_by_desc`` lookups stay
+            # compact. The (kind, desc) mapping in run.render_markdown is what
+            # actually ties markers to files, not the filename itself.
+            fname = f"img_{len(image_refs):02d}.png"
+            img_path = img_dir / fname
+            with open(img_path, "wb") as f:
+                f.write(b64_bytes)
+            image_refs.append(
+                {
+                    "node_title": ip["node_title"],
+                    "description": desc,
+                    "kind": kind,
+                    "section": ip.get("section", ""),
+                    "url": str(img_path),
+                    "model": r["model_used"] or "",
+                }
+            )
+            logger.info("[④c]   Saved: %s (%.1fs)", fname, r["duration_s"])
+        else:
             failed_prompts.append(
                 {
                     "node_title": ip["node_title"],
                     "description": desc,
                     "kind": kind,
                     "section": ip.get("section", ""),
-                    "errors": prompt_errors,
+                    "errors": r["errors"],
                 }
             )
-        per_image_durations.append(time.perf_counter() - img_started)
 
     image_duration = time.perf_counter() - stage_started
     logger.info(

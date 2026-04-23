@@ -61,6 +61,8 @@ class PipelineState(TypedDict, total=False):
 
     # ── Phase 3: Image generation ───────────────────────────────────────
     image_refs: list[dict[str, Any]]  # [{description, kind, section?, url, model}]
+    # Set True when image.enabled=false short-circuits the generator (AC-9).
+    image_skipped: bool
 
     # ── Cache metadata ──────────────────────────────────────────────────
     cache_key: str

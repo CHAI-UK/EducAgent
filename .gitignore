@@ -12,6 +12,9 @@ run_code_workspace/
 src/agents/question/reference_papers/
 src/services/rag/eg_only_for_analysis/
 
+# Local experimentation / throwaway scripts — never commit.
+scratch/
+
 # ============================================
 # Python Related
 # ============================================
