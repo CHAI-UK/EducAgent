@@ -1974,16 +1974,31 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                         stage=f"image:{model}",
                     )
 
-                    msg = response.choices[0].message
+                    # Some providers return ``choices=None`` or an empty
+                    # list for image-only responses with no text part — guard
+                    # against both before subscripting.
+                    choices = getattr(response, "choices", None) or []
+                    if not choices:
+                        logger.warning(
+                            "[④c]   %s: response has no choices", model
+                        )
+                        prompt_errors.append(f"{model}: empty choices")
+                        continue
+                    msg = choices[0].message
                     raw = msg.model_dump() if hasattr(msg, "model_dump") else {}
 
                     # Primary path: msg.images[{image_url: {url: "data:..."}}]
-                    images = getattr(msg, "images", None) or raw.get("images", [])
+                    images = getattr(msg, "images", None) or raw.get("images") or []
                     if images:
                         for img_data in images:
                             data_url = ""
                             if isinstance(img_data, dict):
-                                data_url = img_data.get("image_url", {}).get("url", "")
+                                # ``image_url`` may be absent OR explicitly
+                                # ``None`` (OpenRouter for some providers);
+                                # both cases must yield "" not crash.
+                                image_url_obj = img_data.get("image_url") or {}
+                                if isinstance(image_url_obj, dict):
+                                    data_url = image_url_obj.get("url", "") or ""
                             if data_url and data_url.startswith("data:image"):
                                 b64_part = (
                                     data_url.split(",", 1)[1] if "," in data_url else ""

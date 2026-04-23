@@ -223,6 +223,65 @@ def test_image_fallback_still_fires_under_concurrency(
     assert client.calls_by_model.get("primary") == 2
 
 
+def test_image_survives_malformed_response_shapes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Provider can return ``choices=None``, ``image_url=None``, etc. — must not crash.
+
+    Reproduces the learner_1/interventions run symptom where gpt-5.4-image-2
+    intermittently returned malformed response shapes and our loop raised
+    `'NoneType' object is not subscriptable` before falling back.
+    """
+    monkeypatch.setattr(
+        graph_mod, "_config", _base_config(concurrency=2, fallback_model="fallback")
+    )
+    monkeypatch.setattr(
+        graph_mod,
+        "get_passive_images_dir",
+        lambda user_id, concept_id: tmp_path / user_id / concept_id / "imgs",
+    )
+
+    class _NullChoices:
+        """Response whose ``choices`` attr is literally None."""
+
+        def __init__(self) -> None:
+            self.choices = None
+
+    class _ImageUrlIsNone:
+        """Response whose ``message.images[0].image_url`` is explicitly None."""
+
+        def __init__(self) -> None:
+            msg = _FakeMessage(images=[{"image_url": None}])
+            self.choices = [type("C", (), {"finish_reason": "stop", "message": msg})()]
+            self.usage = _FakeUsage()
+
+    class _MixedClient(_TrackingImageClient):
+        """Primary returns malformed shapes; fallback succeeds."""
+
+        async def create(self, *, messages, model, **kwargs):  # type: ignore[no-untyped-def]
+            self.calls_by_model[model] = self.calls_by_model.get(model, 0) + 1
+            self.current_active += 1
+            self.max_active = max(self.max_active, self.current_active)
+            try:
+                if model == "primary":
+                    # Alternate shape so both pathological branches are exercised
+                    # across a run.
+                    calls = self.calls_by_model[model]
+                    return _NullChoices() if calls % 2 == 1 else _ImageUrlIsNone()
+                return _FakeResponse(images=[{"image_url": {"url": _DATA_URL}}])
+            finally:
+                self.current_active -= 1
+
+    client = _MixedClient()
+    monkeypatch.setattr(graph_mod, "_get_client", lambda: client)
+
+    out = asyncio.run(graph_mod.image_generator(_base_state(["d_a"])))
+    # Primary returned malformed shapes twice, then fallback produced a valid
+    # image. The single prompt should still end up as a success, never a crash.
+    assert len(out["image_refs"]) == 1
+    assert out["run_metrics"]["image"]["failed_count"] == 0
+
+
 def test_image_failed_prompt_goes_to_failed_list(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
