@@ -74,13 +74,7 @@ from .text_normalization import normalize_llm_payload
 # bogus keys like "earlier." or "CT?". See schemas.py for context.
 # ``part`` is the canonical pedagogical-part enum introduced in Story 5.3; it
 # is optional on input (defaults to "extra" via the pydantic model).
-_ALLOWED_SECTION_KEYS = frozenset(
-    {"section", "content", "markers", "part", "self_flagged_risks"}
-)
-# Generator may emit at most 2 self-flags per section — see prompt rules.
-# We clamp silently on the validator path so a slightly over-eager generator
-# does not crash the whole pipeline.
-_MAX_SELF_FLAGS_PER_SECTION = 2
+_ALLOWED_SECTION_KEYS = frozenset({"section", "content", "markers", "part"})
 
 # Valid values for the ``part`` field — kept in sync with schemas.PedagogicalPart.
 # We avoid importing the enum members into a set comprehension at module load
@@ -645,19 +639,6 @@ def _validate_sections(parsed: Any) -> list[dict[str, Any]]:
             f"quote inside an italic phrase: {trailing_star}"
         )
 
-    # Silently clamp any over-eager self_flagged_risks list to the cap.
-    # The generator prompt asks for <=2; if it emits more we keep the first 2
-    # rather than rejecting the whole payload. Non-list values are dropped.
-    for sec in raw_sections:
-        if not isinstance(sec, dict):
-            continue
-        raw_flags = sec.get("self_flagged_risks")
-        if not isinstance(raw_flags, list):
-            sec.pop("self_flagged_risks", None)
-            continue
-        if len(raw_flags) > _MAX_SELF_FLAGS_PER_SECTION:
-            sec["self_flagged_risks"] = raw_flags[:_MAX_SELF_FLAGS_PER_SECTION]
-
     # Final pydantic pass — catches missing fields / wrong types and invalid
     # ``part`` enum values. Missing ``part`` falls back to the model default
     # (``extra``), preserving backward compatibility with older payloads.
@@ -701,39 +682,8 @@ def _salvage_sections(parsed: Any) -> list[dict[str, Any]]:
         part = item.get("part")
         if not isinstance(part, str) or part not in _VALID_PART_VALUES:
             part = "extra"
-        # Preserve self_flagged_risks if it is already a list of dicts with
-        # the minimum required shape; otherwise drop it silently. Salvage is
-        # best-effort — we never fabricate flags.
-        raw_flags = item.get("self_flagged_risks")
-        salvaged_flags: list[dict[str, Any]] = []
-        if isinstance(raw_flags, list):
-            for flag in raw_flags[:_MAX_SELF_FLAGS_PER_SECTION]:
-                if not isinstance(flag, dict):
-                    continue
-                claim = flag.get("claim")
-                reason = flag.get("reason")
-                if not isinstance(claim, str) or not isinstance(reason, str):
-                    continue
-                if reason not in {
-                    "domain_fact_substituted",
-                    "unstated_assumption",
-                    "countable_detail_uncertain",
-                }:
-                    continue
-                detail = flag.get("detail", "")
-                if not isinstance(detail, str):
-                    detail = ""
-                salvaged_flags.append(
-                    {"claim": claim, "reason": reason, "detail": detail}
-                )
         out.append(
-            {
-                "section": section,
-                "content": content,
-                "markers": markers,
-                "part": part,
-                "self_flagged_risks": salvaged_flags,
-            }
+            {"section": section, "content": content, "markers": markers, "part": part}
         )
     return out
 
@@ -1621,21 +1571,36 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
     all_issues: list[dict[str, Any]] = []
     qa_log: list[dict[str, Any]] = []
     fact_check_metrics = _new_llm_metrics()
-    for node_idx, node in enumerate(nodes):
+    fc_concurrency = max(1, int(cfg.get("concurrency", 1)))
+    semaphore = asyncio.Semaphore(fc_concurrency)
+    logger.info(
+        "[④b.5] FactChecker: reviewing %d nodes with concurrency=%d",
+        len(nodes),
+        fc_concurrency,
+    )
+
+    async def _review_one(
+        node_idx: int, node: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Critic + rewrite cycle for ONE node. Runs under the semaphore.
+
+        Each node mutates only its own ``sections`` in-place; the outer loop
+        never reads/writes another node's state from inside this coroutine,
+        so parallelism is race-free without additional locks.
+        """
         node_title = node.get("node_title", f"Node {node_idx + 1}")
         node_metrics = _new_llm_metrics()
+        tag = f"[④b.5]   Node {node_idx + 1}/{len(nodes)}"
 
         # Rule-based risk classification runs first — low-risk nodes skip the
         # expensive critic call entirely (Story 5.3 AC-6).
         risk = _classify_node_risk(node)
         if risk == "low":
-            logger.info(
-                "[④b.5]   Node %d/%d: LOW risk — skipping critic (rule-only)",
-                node_idx + 1,
-                len(nodes),
-            )
-            qa_log.append(
-                {
+            logger.info("%s: LOW risk — skipping critic (rule-only)", tag)
+            return {
+                "node_idx": node_idx,
+                "issues": [],
+                "qa_log_entry": {
                     "node_title": node_title,
                     "qa_path": "rule-only",
                     "risk": "low",
@@ -1648,130 +1613,14 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
                     "prompt_tokens": 0,
                     "completion_tokens": 0,
                     "total_tokens": 0,
-                }
-            )
-            continue
+                },
+                "metrics": node_metrics,
+            }
 
-        logger.info(
-            "[④b.5]   Node %d/%d: HIGH risk — critiquing '%s'",
-            node_idx + 1,
-            len(nodes),
-            node_title,
-        )
-        try:
-            issues = await _critique_node(
-                client=client,
-                cfg=cfg,
-                ctx=ctx,
-                depth_tier=depth_tier,
-                concept_id=concept_id,
-                node=node,
-                metrics=node_metrics,
-            )
-        except Exception as e:
-            logger.warning("[④b.5]   critique failed for '%s': %s", node_title, str(e)[:200])
-            qa_log.append(
-                {
-                    "node_title": node_title,
-                    "qa_path": "critic-failed",
-                    "risk": "high",
-                    "issues": 0,
-                    "critical": 0,
-                    "rewrites": 0,
-                    "attempts": int(node_metrics["attempts"]),
-                    "llm_calls": int(node_metrics["llm_calls"]),
-                    "failed_calls": int(node_metrics["failed_calls"]),
-                    "prompt_tokens": int(node_metrics["prompt_tokens"]),
-                    "completion_tokens": int(node_metrics["completion_tokens"]),
-                    "total_tokens": int(node_metrics["total_tokens"]),
-                    "errors": list(node_metrics["errors"]),
-                }
-            )
-            _merge_llm_metrics(fact_check_metrics, node_metrics)
-            continue
-
-        rewrite_count = 0
-        if issues:
-            for issue in issues:
-                issue["node_title"] = node_title
-            all_issues.extend(issues)
-            crit = sum(1 for i in issues if i.get("severity") == "critical")
-            minor = len(issues) - crit
-            logger.info(
-                "[④b.5]   Node %d/%d: %d critical, %d minor",
-                node_idx + 1,
-                len(nodes),
-                crit,
-                minor,
-            )
-            for issue in issues:
-                logger.info(
-                    "[④b.5]     [%s] %s — %s",
-                    issue.get("severity", "?"),
-                    issue.get("section", "?")[:40],
-                    issue.get("problem", "")[:120],
-                )
-
-            if regen_critical:
-                critical_by_section: dict[str, list[dict[str, Any]]] = {}
-                for issue in issues:
-                    if issue.get("severity") == "critical":
-                        critical_by_section.setdefault(
-                            issue.get("section", ""), []
-                        ).append(issue)
-
-                for section_idx, section in enumerate(node.get("sections", [])):
-                    sec_title = section.get("section", "")
-                    critiques = critical_by_section.get(sec_title)
-                    if not critiques:
-                        continue
-                    for attempt in range(max_attempts):
-                        logger.info(
-                            "[④b.5]   Regenerating '%s' / '%s' (attempt %d)",
-                            node_title,
-                            sec_title,
-                            attempt + 1,
-                        )
-                        rewritten = await _regenerate_section_with_critique(
-                            client=client,
-                            cfg=content_cfg,
-                            ctx=ctx,
-                            depth_tier=depth_tier,
-                            concept_id=concept_id,
-                            chunks_text=chunks_text,
-                            gaps=gaps,
-                            confusion=confusion,
-                            outline=outline,
-                            node_idx=node_idx,
-                            node=node,
-                            section_idx=section_idx,
-                            section=section,
-                            critiques=critiques,
-                            content_system_prompt=tier_prompts["system"],
-                            content_user_template=tier_prompts["user"],
-                            metrics=node_metrics,
-                        )
-                        if rewritten:
-                            node["sections"][section_idx] = rewritten
-                            rewrite_count += 1
-                            break
-        else:
-            logger.info("[④b.5]   Node %d/%d: no issues", node_idx + 1, len(nodes))
-
-        # Targeted re-critique (Story 5.3 AC-8): if we rewrote at least one
-        # section AND the operator opted in, run the critic ONCE more on the
-        # updated node. Any residual issues are logged but do not trigger
-        # another rewrite — this caps per-node cost at 3 critic calls.
-        recheck_ran = False
-        if targeted_recheck and rewrite_count > 0:
-            logger.info(
-                "[④b.5]   Node %d/%d: targeted re-check after %d rewrite(s)",
-                node_idx + 1,
-                len(nodes),
-                rewrite_count,
-            )
+        async with semaphore:
+            logger.info("%s: HIGH risk — critiquing '%s'", tag, node_title)
             try:
-                recheck_issues = await _critique_node(
+                issues = await _critique_node(
                     client=client,
                     cfg=cfg,
                     ctx=ctx,
@@ -1780,41 +1629,172 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
                     node=node,
                     metrics=node_metrics,
                 )
-                recheck_ran = True
-                if recheck_issues:
-                    for issue in recheck_issues:
-                        issue["node_title"] = node_title
-                        issue["phase"] = "recheck"
-                    all_issues.extend(recheck_issues)
             except Exception as e:
                 logger.warning(
-                    "[④b.5]   recheck failed for '%s': %s", node_title, str(e)[:200]
+                    "%s: critique failed for '%s': %s",
+                    tag,
+                    node_title,
+                    str(e)[:200],
                 )
+                return {
+                    "node_idx": node_idx,
+                    "issues": [],
+                    "qa_log_entry": {
+                        "node_title": node_title,
+                        "qa_path": "critic-failed",
+                        "risk": "high",
+                        "issues": 0,
+                        "critical": 0,
+                        "rewrites": 0,
+                        "attempts": int(node_metrics["attempts"]),
+                        "llm_calls": int(node_metrics["llm_calls"]),
+                        "failed_calls": int(node_metrics["failed_calls"]),
+                        "prompt_tokens": int(node_metrics["prompt_tokens"]),
+                        "completion_tokens": int(node_metrics["completion_tokens"]),
+                        "total_tokens": int(node_metrics["total_tokens"]),
+                        "errors": list(node_metrics["errors"]),
+                    },
+                    "metrics": node_metrics,
+                }
 
-        if rewrite_count > 0 and recheck_ran:
-            qa_path = "critic-ran+rewrite+recheck"
-        elif rewrite_count > 0:
-            qa_path = "critic-ran+rewrite"
-        else:
-            qa_path = "critic-ran"
-        qa_log.append(
-            {
-                "node_title": node_title,
-                "qa_path": qa_path,
-                "risk": "high",
-                "issues": len(issues),
-                "critical": sum(1 for i in issues if i.get("severity") == "critical"),
-                "rewrites": rewrite_count,
-                "attempts": int(node_metrics["attempts"]),
-                "llm_calls": int(node_metrics["llm_calls"]),
-                "failed_calls": int(node_metrics["failed_calls"]),
-                "prompt_tokens": int(node_metrics["prompt_tokens"]),
-                "completion_tokens": int(node_metrics["completion_tokens"]),
-                "total_tokens": int(node_metrics["total_tokens"]),
-                "errors": list(node_metrics["errors"]),
+            collected_issues: list[dict[str, Any]] = []
+            rewrite_count = 0
+            if issues:
+                for issue in issues:
+                    issue["node_title"] = node_title
+                collected_issues.extend(issues)
+                crit = sum(1 for i in issues if i.get("severity") == "critical")
+                minor = len(issues) - crit
+                logger.info("%s: %d critical, %d minor", tag, crit, minor)
+                for issue in issues:
+                    logger.info(
+                        "%s   [%s] %s — %s",
+                        tag,
+                        issue.get("severity", "?"),
+                        issue.get("section", "?")[:40],
+                        issue.get("problem", "")[:120],
+                    )
+
+                if regen_critical:
+                    critical_by_section: dict[str, list[dict[str, Any]]] = {}
+                    for issue in issues:
+                        if issue.get("severity") == "critical":
+                            critical_by_section.setdefault(
+                                issue.get("section", ""), []
+                            ).append(issue)
+
+                    for section_idx, section in enumerate(node.get("sections", [])):
+                        sec_title = section.get("section", "")
+                        critiques = critical_by_section.get(sec_title)
+                        if not critiques:
+                            continue
+                        for attempt in range(max_attempts):
+                            logger.info(
+                                "%s: Regenerating '%s' / '%s' (attempt %d)",
+                                tag,
+                                node_title,
+                                sec_title,
+                                attempt + 1,
+                            )
+                            rewritten = await _regenerate_section_with_critique(
+                                client=client,
+                                cfg=content_cfg,
+                                ctx=ctx,
+                                depth_tier=depth_tier,
+                                concept_id=concept_id,
+                                chunks_text=chunks_text,
+                                gaps=gaps,
+                                confusion=confusion,
+                                outline=outline,
+                                node_idx=node_idx,
+                                node=node,
+                                section_idx=section_idx,
+                                section=section,
+                                critiques=critiques,
+                                content_system_prompt=tier_prompts["system"],
+                                content_user_template=tier_prompts["user"],
+                                metrics=node_metrics,
+                            )
+                            if rewritten:
+                                node["sections"][section_idx] = rewritten
+                                rewrite_count += 1
+                                break
+            else:
+                logger.info("%s: no issues", tag)
+
+            # Targeted re-critique (Story 5.3 AC-8): if we rewrote at least one
+            # section AND the operator opted in, run the critic ONCE more on the
+            # updated node. Any residual issues are logged but do not trigger
+            # another rewrite — this caps per-node cost at 3 critic calls.
+            recheck_ran = False
+            if targeted_recheck and rewrite_count > 0:
+                logger.info(
+                    "%s: targeted re-check after %d rewrite(s)", tag, rewrite_count
+                )
+                try:
+                    recheck_issues = await _critique_node(
+                        client=client,
+                        cfg=cfg,
+                        ctx=ctx,
+                        depth_tier=depth_tier,
+                        concept_id=concept_id,
+                        node=node,
+                        metrics=node_metrics,
+                    )
+                    recheck_ran = True
+                    if recheck_issues:
+                        for issue in recheck_issues:
+                            issue["node_title"] = node_title
+                            issue["phase"] = "recheck"
+                        collected_issues.extend(recheck_issues)
+                except Exception as e:
+                    logger.warning(
+                        "%s: recheck failed for '%s': %s",
+                        tag,
+                        node_title,
+                        str(e)[:200],
+                    )
+
+            if rewrite_count > 0 and recheck_ran:
+                qa_path = "critic-ran+rewrite+recheck"
+            elif rewrite_count > 0:
+                qa_path = "critic-ran+rewrite"
+            else:
+                qa_path = "critic-ran"
+
+            return {
+                "node_idx": node_idx,
+                "issues": collected_issues,
+                "qa_log_entry": {
+                    "node_title": node_title,
+                    "qa_path": qa_path,
+                    "risk": "high",
+                    "issues": len(issues),
+                    "critical": sum(
+                        1 for i in issues if i.get("severity") == "critical"
+                    ),
+                    "rewrites": rewrite_count,
+                    "attempts": int(node_metrics["attempts"]),
+                    "llm_calls": int(node_metrics["llm_calls"]),
+                    "failed_calls": int(node_metrics["failed_calls"]),
+                    "prompt_tokens": int(node_metrics["prompt_tokens"]),
+                    "completion_tokens": int(node_metrics["completion_tokens"]),
+                    "total_tokens": int(node_metrics["total_tokens"]),
+                    "errors": list(node_metrics["errors"]),
+                },
+                "metrics": node_metrics,
             }
-        )
-        _merge_llm_metrics(fact_check_metrics, node_metrics)
+
+    tasks = [asyncio.create_task(_review_one(i, n)) for i, n in enumerate(nodes)]
+    gathered = await asyncio.gather(*tasks)
+    # Preserve outline order for qa_log + issue emission regardless of
+    # completion order — tasks finish out-of-order but downstream consumers
+    # (UI, metrics) expect node 1, 2, 3, ... ordering.
+    gathered.sort(key=lambda r: r["node_idx"])
+    for result in gathered:
+        all_issues.extend(result["issues"])
+        qa_log.append(result["qa_log_entry"])
+        _merge_llm_metrics(fact_check_metrics, result["metrics"])
 
     fact_check_duration = time.perf_counter() - stage_started
     logger.info(

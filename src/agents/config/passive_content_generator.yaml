@@ -44,6 +44,12 @@ fact_check:
   # 2048 and may have silently truncated issue lists. 8192 gives clear headroom
   # while still well under gpt-5's per-call ceiling.
   max_tokens: 8192
+  # Review nodes in parallel. Each critique + rewrite cycle for a node is
+  # independent of other nodes — only the per-node section list is mutated,
+  # never shared state. Default 2 is safe on paid OpenRouter with gpt-5; 3
+  # usually works; 4+ may see 429s under burst load. Set to 1 for the
+  # previous serial behavior.
+  concurrency: 2
   # When a section is flagged "critical", regenerate it with the critic's
   # suggestions injected back into the content prompt. "minor" issues are
   # logged only.

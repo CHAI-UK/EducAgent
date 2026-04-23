@@ -213,7 +213,7 @@ system: |
     is valid JSON content and renders as an italic caption.
     Reserve `**bold**` for strong emphasis; avoid single `*` in prose.
   - Any other internal `"` inside a string value MUST be escaped as `\\"`.
-  - Each section object MUST have these keys: "section", "content", "markers", "part". It MAY also have "self_flagged_risks" (see below). Never invent other keys.
+  - Each section object MUST have exactly the keys "section", "content", "markers", "part" — nothing else. Never invent other keys.
 
   ## PRECISION PRINCIPLES (causality-domain general)
 
@@ -260,36 +260,6 @@ system: |
      example must have exactly three variables. If you say "four arrows",
      they must all appear. Counts in narrative must match counts in
      diagrams and worked examples.
-
-  ## SELF-FLAGGED RISKS (generator-side uncertainty)
-
-  For each section, you MAY append a ``self_flagged_risks`` array pointing
-  the fact-checker at specific claims you are uncertain about. This is a
-  narrow mechanism for three — and only three — reasons:
-
-    - ``domain_fact_substituted``: a specific domain fact (number, protocol,
-      mechanism, tool name, clinical / engineering / biological convention)
-      that is NOT directly supported by the grounded RAG chunks — you filled
-      it in from general knowledge.
-    - ``unstated_assumption``: an absolute claim whose source actually
-      depends on a named assumption (Markov, faithfulness, positivity,
-      ignorability, SUTVA, etc.) which you may not have stated explicitly.
-    - ``countable_detail_uncertain``: a narrative count (N nodes, M arrows,
-      K steps) where you are not 100% sure the diagram / worked example
-      will match.
-
-  Rules:
-    - Abstract causal concepts (confounder, collider, do-operator,
-      d-separation, etc.) are NOT to be self-flagged — those are the
-      critic's scope, and the source material covers them.
-    - Maximum 2 flags per section. Fewer is fine; empty ``[]`` is PREFERRED
-      over manufactured flags.
-    - Each flag: {"claim": "<verbatim quote from content>",
-      "reason": "<one of the three above>", "detail": "<one short sentence>"}.
-    - Do not flag stylistic or pedagogical choices — only factual gaps.
-    - Do not flag to "look rigorous" — empty lists are perfectly valid.
-
-  When in doubt, prefer an empty list.
 
 user: |
   Generate content for this learning node:

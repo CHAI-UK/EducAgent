@@ -32,16 +32,9 @@ def test_validate_sections_accepts_clean_payload() -> None:
         ]
     }
     out = _validate_sections(payload)
-    # part defaults to "extra" when not provided (Story 5.3 backward compat);
-    # self_flagged_risks defaults to [] (Story 5.3 self-flagged schema).
+    # part defaults to "extra" when not provided (Story 5.3 backward compat)
     assert out == [
-        {
-            "section": "Intro",
-            "content": "Hello world.",
-            "markers": [],
-            "part": "extra",
-            "self_flagged_risks": [],
-        }
+        {"section": "Intro", "content": "Hello world.", "markers": [], "part": "extra"}
     ]
 
 
@@ -97,102 +90,6 @@ def test_validate_sections_allows_bold_terminator() -> None:
     assert out[0]["content"].endswith("**")
 
 
-def test_validate_accepts_self_flagged_risks() -> None:
-    """Generator-side self-flag list is accepted when well-formed."""
-    payload = {
-        "sections": [
-            {
-                "section": "Intro",
-                "content": "The ACR recommends MRI for this indication.",
-                "markers": [],
-                "part": "definition",
-                "self_flagged_risks": [
-                    {
-                        "claim": "The ACR recommends MRI for this indication.",
-                        "reason": "domain_fact_substituted",
-                        "detail": "Not in grounded_chunks; filled from general knowledge.",
-                    }
-                ],
-            }
-        ]
-    }
-    out = _validate_sections(payload)
-    assert len(out[0]["self_flagged_risks"]) == 1
-    assert out[0]["self_flagged_risks"][0]["reason"] == "domain_fact_substituted"
-
-
-def test_validate_clamps_too_many_self_flagged_risks() -> None:
-    """More than 2 flags per section are silently clamped to 2."""
-    payload = {
-        "sections": [
-            {
-                "section": "Intro",
-                "content": "x",
-                "markers": [],
-                "self_flagged_risks": [
-                    {"claim": "a", "reason": "domain_fact_substituted"},
-                    {"claim": "b", "reason": "unstated_assumption"},
-                    {"claim": "c", "reason": "countable_detail_uncertain"},
-                ],
-            }
-        ]
-    }
-    out = _validate_sections(payload)
-    assert len(out[0]["self_flagged_risks"]) == 2
-    assert [f["claim"] for f in out[0]["self_flagged_risks"]] == ["a", "b"]
-
-
-def test_validate_rejects_invalid_self_flag_reason() -> None:
-    """Unknown reason enum values are rejected by pydantic."""
-    payload = {
-        "sections": [
-            {
-                "section": "Intro",
-                "content": "x",
-                "markers": [],
-                "self_flagged_risks": [
-                    {"claim": "a", "reason": "made_up_category"}
-                ],
-            }
-        ]
-    }
-    with pytest.raises(ValueError, match="Pydantic validation failed"):
-        _validate_sections(payload)
-
-
-def test_validate_missing_self_flagged_risks_defaults_to_empty() -> None:
-    """Backward compat: sections without the field get empty list."""
-    payload = {
-        "sections": [
-            {"section": "Intro", "content": "x", "markers": [], "part": "hook"}
-        ]
-    }
-    out = _validate_sections(payload)
-    assert out[0]["self_flagged_risks"] == []
-
-
-def test_salvage_drops_malformed_self_flagged_risks_silently() -> None:
-    """Salvage preserves valid flags, drops malformed ones, fabricates nothing."""
-    payload = {
-        "sections": [
-            {
-                "section": "Intro",
-                "content": "x",
-                "markers": [],
-                "self_flagged_risks": [
-                    {"claim": "good", "reason": "unstated_assumption", "detail": "ok"},
-                    "not a dict",
-                    {"claim": "bad-reason", "reason": "fabricated_category"},
-                    {"reason": "domain_fact_substituted"},  # missing claim
-                ],
-            }
-        ]
-    }
-    out = _salvage_sections(payload)
-    assert len(out[0]["self_flagged_risks"]) == 1
-    assert out[0]["self_flagged_risks"][0]["claim"] == "good"
-
-
 def test_validate_sections_allows_em_tag_caption() -> None:
     """Story 5.3 switched italic captions to `<em>...</em>` — must pass validator."""
     payload = {
@@ -230,14 +127,12 @@ def test_salvage_sections_drops_unknown_keys_and_keeps_valid_entries() -> None:
     }
     out = _salvage_sections(payload)
     assert len(out) == 2
-    # part defaults to "extra" when not provided (Story 5.3 backward compat);
-    # self_flagged_risks defaults to [] (Story 5.3 self-flagged schema).
+    # part defaults to "extra" when not provided (Story 5.3 backward compat)
     assert out[0] == {
         "section": "Intro",
         "content": "Hello.",
         "markers": [],
         "part": "extra",
-        "self_flagged_risks": [],
     }
     assert out[1]["markers"] == ["[CONTEXT_IMAGE: x]"]
 

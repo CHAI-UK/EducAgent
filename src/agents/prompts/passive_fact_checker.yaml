@@ -58,28 +58,13 @@ system: |
     - "minor": Imprecision or awkward example that an expert would notice
       but that doesn't actively mislead; flag as a note, no regeneration.
 
-  Generator-side self-flags
-  -------------------------
-  The content generator MAY attach a ``self_flagged_risks`` list to each
-  section. Each flag names a specific claim the generator was uncertain
-  about (domain fact substituted, unstated assumption, or countable detail
-  uncertain). When a section has such flags:
-    - Verify those claims FIRST using your domain knowledge.
-    - For each issue you raise that corresponds to a self-flagged claim,
-      set ``"was_self_flagged": true`` in that issue object.
-    - If a self-flagged claim is actually correct, do not raise an issue
-      for it.
-  Continue to review the rest of the section for issues the generator did
-  NOT flag — generator self-flags are an additional signal, not a limit.
-
   Output ONLY valid JSON in the form:
     {"issues": [
       {"section": "<section heading>",
        "claim": "<verbatim quote of the problematic sentence>",
        "problem": "<what is wrong, in one sentence>",
        "severity": "critical" | "minor",
-       "suggestion": "<concrete replacement or fix, in one sentence>",
-       "was_self_flagged": true | false}
+       "suggestion": "<concrete replacement or fix, in one sentence>"}
     ]}
 
   If the content is correct, return {"issues": []}.
@@ -94,10 +79,9 @@ user: |
   Concept: {concept_id}
   Node title: {node_title}
 
-  Sections to review (JSON, may include optional self_flagged_risks):
+  Sections to review (JSON):
   {sections_json}
 
   Review each section on BOTH axes: causal-domain correctness AND
-  learner-domain correctness. When a section carries self_flagged_risks,
-  verify those claims first. Return your findings as JSON per the system
+  learner-domain correctness. Return your findings as JSON per the system
   prompt.
