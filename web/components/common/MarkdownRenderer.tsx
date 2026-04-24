@@ -40,6 +40,13 @@ function textFromChildren(children: React.ReactNode): string {
     .trim();
 }
 
+function renderSourceLabels(content: string) {
+  return content.replace(
+    /\(Source:\s*([^)]+)\)/g,
+    '<span class="study-source-label">(Source: $1)</span>',
+  );
+}
+
 /**
  * Shared MarkdownRenderer component with KaTeX support and consistent table styling
  */
@@ -219,7 +226,7 @@ export default function MarkdownRenderer({
           ...headingComponents,
         }}
       >
-        {processLatexContent(content)}
+        {processLatexContent(renderSourceLabels(content))}
       </ReactMarkdown>
     </div>
   );

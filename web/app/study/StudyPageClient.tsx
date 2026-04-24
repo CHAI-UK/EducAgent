@@ -37,6 +37,32 @@ export default function StudyPageClient({ studyPath }: StudyPageClientProps) {
     activeIndex >= 0 && activeIndex < studyPath.nodes.length - 1
       ? studyPath.nodes[activeIndex + 1]
       : null;
+  const nodeGroups = useMemo(() => {
+    const groups: Array<{
+      id: string;
+      title: string;
+      nodes: typeof studyPath.nodes;
+    }> = [];
+
+    for (const node of studyPath.nodes) {
+      const groupId = node.topic?.id ?? "study-sections";
+      const groupTitle = node.topic?.title ?? t("Sections");
+      const existingGroup = groups.find((group) => group.id === groupId);
+
+      if (existingGroup) {
+        existingGroup.nodes.push(node);
+        continue;
+      }
+
+      groups.push({
+        id: groupId,
+        title: groupTitle,
+        nodes: [node],
+      });
+    }
+
+    return groups;
+  }, [studyPath.nodes, t]);
 
   const openNode = (nodeId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -143,47 +169,71 @@ export default function StudyPageClient({ studyPath }: StudyPageClientProps) {
             </div>
           ) : null}
 
-          <div className="space-y-1">
-            {studyPath.nodes.map((node) => {
-              const isActive = activeNode.id === node.id;
+          <div className="space-y-4">
+            {nodeGroups.map((group) => {
+              const groupIsActive = group.nodes.some(
+                (node) => activeNode.id === node.id,
+              );
 
               return (
-                <div key={node.id} className="space-y-1">
-                  <button
-                    type="button"
-                    onClick={() => openNode(node.id)}
-                    className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${
-                      isActive
-                        ? "bg-indigo-50 text-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-100"
-                        : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60"
+                <div key={group.id} className="space-y-1.5">
+                  <div
+                    className={`rounded-lg px-3 py-2 text-sm font-semibold ${
+                      groupIsActive
+                        ? "bg-slate-100 text-slate-950 dark:bg-slate-700/60 dark:text-white"
+                        : "text-slate-700 dark:text-slate-200"
                     }`}
                   >
-                    <p className="text-sm font-medium">{node.title}</p>
-                  </button>
+                    {group.title}
+                  </div>
 
-                  {node.subtopics?.length ? (
-                    <div className="ml-3 space-y-1 border-l border-slate-200 pl-3 dark:border-slate-700">
-                      {node.subtopics.map((subtopic) => {
-                        const isActiveSection =
-                          isActive && activeSectionId === subtopic.id;
+                  <div className="ml-3 space-y-1 border-l border-slate-200 pl-3 dark:border-slate-700">
+                    {group.nodes.map((node) => {
+                      const isActive = activeNode.id === node.id;
 
-                        return (
+                      return (
+                        <div key={node.id} className="space-y-1">
                           <button
-                            key={subtopic.id}
                             type="button"
-                            onClick={() => openSection(node.id, subtopic.id)}
-                            className={`w-full rounded-md px-2 py-1.5 text-left text-xs transition-colors ${
-                              isActiveSection
-                                ? "bg-slate-100 text-slate-900 dark:bg-slate-700/70 dark:text-white"
-                                : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                            onClick={() => openNode(node.id)}
+                            className={`w-full rounded-lg px-3 py-2 text-left transition-colors ${
+                              isActive
+                                ? "bg-indigo-50 text-indigo-900 dark:bg-indigo-900/30 dark:text-indigo-100"
+                                : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60"
                             }`}
                           >
-                            {subtopic.title}
+                            <p className="text-sm font-medium">{node.title}</p>
                           </button>
-                        );
-                      })}
-                    </div>
-                  ) : null}
+
+                          {node.subtopics?.length ? (
+                            <div className="ml-3 space-y-1 border-l border-slate-200 pl-3 dark:border-slate-700">
+                              {node.subtopics.map((subtopic) => {
+                                const isActiveSection =
+                                  isActive && activeSectionId === subtopic.id;
+
+                                return (
+                                  <button
+                                    key={subtopic.id}
+                                    type="button"
+                                    onClick={() =>
+                                      openSection(node.id, subtopic.id)
+                                    }
+                                    className={`w-full rounded-md px-2 py-1.5 text-left text-xs transition-colors ${
+                                      isActiveSection
+                                        ? "bg-slate-100 text-slate-900 dark:bg-slate-700/70 dark:text-white"
+                                        : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                                    }`}
+                                  >
+                                    {subtopic.title}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}
@@ -201,9 +251,11 @@ export default function StudyPageClient({ studyPath }: StudyPageClientProps) {
             </h2>
           </div>
 
-          <div className="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-            <MarkdownRenderer content={activeNode.content} variant="prose" />
-          </div>
+          {activeNode.content ? (
+            <div className="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
+              <MarkdownRenderer content={activeNode.content} variant="prose" />
+            </div>
+          ) : null}
 
           {activeNode.quiz?.length ? (
             <InteractiveQuiz questions={activeNode.quiz} />
