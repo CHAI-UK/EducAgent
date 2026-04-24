@@ -90,7 +90,11 @@ class LearnerAdaptation(Base):
         unique=True,
         nullable=False,
     )
-    profile_sig: Mapped[str] = mapped_column(String(32), default="default", nullable=False)
+    profile_sig: Mapped[str] = mapped_column(
+        String(32),
+        default="computer_science_ml",
+        nullable=False,
+    )
     adaptation_ctx: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     generated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

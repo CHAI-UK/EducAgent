@@ -33,7 +33,7 @@ async def test_derive_learner_adaptation_sanitizes_pii(monkeypatch, learner_prof
     async def fake_complete(**_kwargs):
         return """
         {
-          "profile_sig": "bio",
+          "profile_sig": "biologist",
           "adaptation_ctx": {
             "background_summary": "Biology learner at Example University",
             "role_summary": "Student learning experiment design",
@@ -49,7 +49,7 @@ async def test_derive_learner_adaptation_sanitizes_pii(monkeypatch, learner_prof
 
     derivation = await derive_learner_adaptation(learner_profile)
 
-    assert derivation.profile_sig == "bio"
+    assert derivation.profile_sig == "biologist"
     assert derivation.adaptation_ctx.background_summary is None
     assert derivation.adaptation_ctx.learning_goal_summary is None
     assert derivation.adaptation_ctx.role_summary == "Student learning experiment design"

@@ -12,9 +12,21 @@ from src.services.auth.db import LearnerProfile
 from src.services.auth.schemas import LearnerAdaptationContext
 from src.services.llm import complete
 
-ProfileSig: TypeAlias = Literal["default", "bio", "cs", "econ"]
-PROFILE_SIG_VALUES: tuple[ProfileSig, ...] = ("default", "bio", "cs", "econ")
-DEFAULT_PROFILE_SIG: ProfileSig = "default"
+ProfileSig: TypeAlias = Literal[
+    "computer_science_ml",
+    "radiologist",
+    "biologist",
+    "material",
+    "education",
+]
+PROFILE_SIG_VALUES: tuple[ProfileSig, ...] = (
+    "computer_science_ml",
+    "radiologist",
+    "biologist",
+    "material",
+    "education",
+)
+DEFAULT_PROFILE_SIG: ProfileSig = "computer_science_ml"
 EMAIL_RE = re.compile(r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b", re.IGNORECASE)
 URL_RE = re.compile(r"https?://\S+|www\.\S+", re.IGNORECASE)
 ORG_RE = re.compile(
@@ -105,7 +117,7 @@ def _build_prompt(learner_profile: LearnerProfile) -> str:
         "learning_goal": learner_profile.learning_goal,
     }
     schema_hint = {
-        "profile_sig": "default | bio | cs | econ",
+        "profile_sig": "computer_science_ml | radiologist | biologist | material | education",
         "adaptation_ctx": {
             "background_summary": "string or null",
             "role_summary": "string or null",
@@ -121,11 +133,11 @@ def _build_prompt(learner_profile: LearnerProfile) -> str:
         "a PII-free adaptation context for future content generation.\n\n"
         "Rules:\n"
         "- Output valid JSON only.\n"
-        "- profile_sig must be exactly one of: default, bio, cs, econ.\n"
+        "- profile_sig must be exactly one of: computer_science_ml, radiologist, biologist, material, education.\n"
         "- adaptation_ctx must exclude names, emails, institutions, employer names, "
         "lab names, and any direct identifiers.\n"
         "- Use broad summaries, not verbatim copies.\n"
-        "- If the domain is unclear, use profile_sig='default'.\n\n"
+        "- If the domain is unclear, use profile_sig='computer_science_ml'.\n\n"
         f"Input profile:\n{json.dumps(learner_payload, ensure_ascii=True, indent=2)}\n\n"
         f"Output schema:\n{json.dumps(schema_hint, ensure_ascii=True, indent=2)}"
     )

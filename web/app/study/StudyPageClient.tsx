@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight, Layers } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import MarkdownRenderer from "@/components/common/MarkdownRenderer";
 import type { StudyPath } from "@/content/study";
@@ -41,6 +41,14 @@ export default function StudyPageClient({ studyPath }: StudyPageClientProps) {
   const openNode = (nodeId: string) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("item", nodeId);
+    params.delete("section");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  };
+
+  const openConcept = (conceptId: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("concept", conceptId);
+    params.delete("item");
     params.delete("section");
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
@@ -105,6 +113,35 @@ export default function StudyPageClient({ studyPath }: StudyPageClientProps) {
               {studyPath.title}
             </h1>
           </div>
+
+          {studyPath.availableConcepts.length > 1 ? (
+            <div className="mb-4">
+              <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase text-slate-500 dark:text-slate-400">
+                <Layers className="h-3.5 w-3.5" />
+                {t("Concepts")}
+              </div>
+              <div className="space-y-1">
+                {studyPath.availableConcepts.map((concept) => {
+                  const isActive = studyPath.conceptId === concept.id;
+
+                  return (
+                    <button
+                      key={concept.id}
+                      type="button"
+                      onClick={() => openConcept(concept.id)}
+                      className={`w-full rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                        isActive
+                          ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                          : "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700/60"
+                      }`}
+                    >
+                      {concept.title}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
 
           <div className="space-y-1">
             {studyPath.nodes.map((node) => {

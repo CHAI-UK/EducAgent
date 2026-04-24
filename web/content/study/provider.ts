@@ -6,7 +6,7 @@ import path from "node:path";
 import type { LearnerAdaptation, LearnerProfile } from "@/types/profile";
 
 export type StudyContentSource = "static" | "generated";
-export type StudyProfileSig = "default" | "bio" | "cs" | "econ";
+export type StudyProfileSig = string;
 
 export interface StudyNodeLink {
   relation: "previous" | "next";
@@ -51,10 +51,16 @@ export interface StudyPath {
   source: StudyContentSource;
   conceptId: string;
   profileSig: StudyProfileSig;
+  availableConcepts: StudyConceptSummary[];
   learnerProfile?: LearnerProfile | null;
   learnerAdaptation?: LearnerAdaptation | null;
   generatedAt?: string;
   nodes: StudyNode[];
+}
+
+export interface StudyConceptSummary {
+  id: string;
+  title: string;
 }
 
 export interface GetStudyPathOptions {
@@ -64,10 +70,17 @@ export interface GetStudyPathOptions {
 }
 
 const STUDY_CONTENT_ROOT = path.resolve(process.cwd(), "content", "study");
-const DEFAULT_CONCEPT_ID = "counterfactuals";
-const DEFAULT_PROFILE_SIG: StudyProfileSig = "default";
-const STUDY_PROFILE_SIGS: StudyProfileSig[] = ["default", "bio", "cs", "econ"];
+const DEFAULT_PROFILE_SIG = "computer_science_ml";
 const QUIZ_SECTION_TITLE = "Check Your Understanding";
+const SAFE_PATH_SEGMENT = /^[A-Za-z0-9_-]+$/;
+const STUDY_COURSES_BY_PROFILE = {
+  computer_science_ml: ["directed-acyclic-graph-dag", "interventions"],
+  radiologist: ["causal-discovery"],
+  biologist: ["pc-algorithm"],
+  material: ["directed-acyclic-graph-dag", "interventions"],
+  education: ["directed-acyclic-graph-dag", "interventions"],
+} as const satisfies Record<string, readonly string[]>;
+type StudyConfiguredProfileSig = keyof typeof STUDY_COURSES_BY_PROFILE;
 
 function slugify(value: string) {
   return value
@@ -76,18 +89,42 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function normalizeConceptId(conceptId?: string) {
-  const normalized = (conceptId ?? DEFAULT_CONCEPT_ID).trim();
-  return normalized || DEFAULT_CONCEPT_ID;
+function normalizeRequestedConceptId(conceptId?: string) {
+  const normalized = conceptId?.trim();
+  return normalized && isSafePathSegment(normalized) ? normalized : null;
+}
+
+function isConfiguredProfileSig(
+  profileSig: string,
+): profileSig is StudyConfiguredProfileSig {
+  return Object.prototype.hasOwnProperty.call(
+    STUDY_COURSES_BY_PROFILE,
+    profileSig,
+  );
+}
+
+function resolveStudyProfileSig(
+  profileSig?: string | null,
+): StudyConfiguredProfileSig {
+  const normalizedProfileSig = profileSig?.trim();
+  if (!normalizedProfileSig || !isSafePathSegment(normalizedProfileSig)) {
+    return DEFAULT_PROFILE_SIG;
+  }
+
+  return isConfiguredProfileSig(normalizedProfileSig)
+    ? normalizedProfileSig
+    : DEFAULT_PROFILE_SIG;
+}
+
+function getConfiguredConceptIds(profileSig: StudyProfileSig): string[] {
+  const resolvedProfileSig = resolveStudyProfileSig(profileSig);
+  return [...STUDY_COURSES_BY_PROFILE[resolvedProfileSig]];
 }
 
 function getStudyProfileSigFromAdaptation(
   learnerAdaptation?: LearnerAdaptation | null,
 ): StudyProfileSig {
-  const profileSig = learnerAdaptation?.profile_sig;
-  return STUDY_PROFILE_SIGS.includes(profileSig ?? DEFAULT_PROFILE_SIG)
-    ? (profileSig as StudyProfileSig)
-    : DEFAULT_PROFILE_SIG;
+  return resolveStudyProfileSig(learnerAdaptation?.profile_sig);
 }
 
 function resolveConceptRoot(conceptId: string) {
@@ -104,11 +141,80 @@ function resolveConceptRoot(conceptId: string) {
   return conceptRoot;
 }
 
+function isSafePathSegment(value: string) {
+  return SAFE_PATH_SEGMENT.test(value);
+}
+
+function resolveProfileRoot(conceptId: string, profileSig: StudyProfileSig) {
+  const normalizedProfileSig = profileSig.trim();
+  if (!normalizedProfileSig || !isSafePathSegment(normalizedProfileSig)) {
+    return null;
+  }
+
+  const profileRoot = path.resolve(
+    resolveConceptRoot(conceptId),
+    normalizedProfileSig,
+  );
+  const conceptRoot = resolveConceptRoot(conceptId);
+  const allowedRoot = `${conceptRoot}${path.sep}`;
+
+  if (profileRoot !== conceptRoot && !profileRoot.startsWith(allowedRoot)) {
+    return null;
+  }
+
+  return profileRoot;
+}
+
 function getMarkdownPathForProfileSig(
   conceptId: string,
   profileSig: StudyProfileSig,
 ) {
-  return path.join(resolveConceptRoot(conceptId), profileSig, "content.md");
+  const profileRoot = resolveProfileRoot(conceptId, profileSig);
+  return profileRoot ? path.join(profileRoot, "content.md") : null;
+}
+
+function hasMarkdownForProfileSig(conceptId: string, profileSig: StudyProfileSig) {
+  const markdownPath = getMarkdownPathForProfileSig(conceptId, profileSig);
+  return Boolean(markdownPath && fs.existsSync(markdownPath));
+}
+
+function hasContentForConcept(conceptId: string, profileSig: StudyProfileSig) {
+  return (
+    hasMarkdownForProfileSig(conceptId, profileSig) ||
+    hasMarkdownForProfileSig(conceptId, DEFAULT_PROFILE_SIG)
+  );
+}
+
+function resolveAvailableConceptId(
+  requestedConceptId: string | null,
+  profileSig: StudyProfileSig,
+) {
+  const configuredConceptIds = getConfiguredConceptIds(profileSig);
+  const allowedConceptIds = configuredConceptIds.filter((conceptId) =>
+    hasContentForConcept(conceptId, profileSig),
+  );
+
+  if (!allowedConceptIds.length) {
+    throw new Error(`No study content is available for profile "${profileSig}".`);
+  }
+
+  if (
+    requestedConceptId &&
+    configuredConceptIds.includes(requestedConceptId) &&
+    hasContentForConcept(requestedConceptId, profileSig)
+  ) {
+    return requestedConceptId;
+  }
+
+  const fallbackConceptId = allowedConceptIds[0];
+
+  if (requestedConceptId && requestedConceptId !== fallbackConceptId) {
+    console.warn(
+      `[study] Concept "${requestedConceptId}" is unavailable for profile "${profileSig}", falling back to "${fallbackConceptId}".`,
+    );
+  }
+
+  return fallbackConceptId;
 }
 
 function resolveAvailableProfileSig(
@@ -119,7 +225,7 @@ function resolveAvailableProfileSig(
     conceptId,
     profileSig,
   );
-  if (fs.existsSync(requestedMarkdownPath)) {
+  if (requestedMarkdownPath && fs.existsSync(requestedMarkdownPath)) {
     return profileSig;
   }
 
@@ -130,6 +236,43 @@ function resolveAvailableProfileSig(
   }
 
   return DEFAULT_PROFILE_SIG;
+}
+
+function getConceptTitle(conceptId: string, profileSig: StudyProfileSig) {
+  const resolvedProfileSig = resolveAvailableProfileSig(conceptId, profileSig);
+  const markdownPath = getMarkdownPathForProfileSig(
+    conceptId,
+    resolvedProfileSig,
+  );
+  if (!markdownPath || !fs.existsSync(markdownPath)) {
+    return conceptId;
+  }
+
+  const markdown = fs.readFileSync(markdownPath, "utf8");
+  return extractConceptTitle(markdown) ?? conceptId;
+}
+
+function extractConceptTitle(markdown: string) {
+  const conceptMatch = markdown.match(
+    /^\s*(?:\*\*)?Concept(?:\*\*)?\s*:\s*(?:\*\*)?(.+?)(?:\*\*)?\s*$/im,
+  );
+  if (conceptMatch?.[1]?.trim()) {
+    return conceptMatch[1].trim();
+  }
+
+  const titleMatch = markdown.match(/^#\s+(.+)$/m);
+  return titleMatch?.[1]?.trim();
+}
+
+function getAvailableConcepts(
+  profileSig: StudyProfileSig,
+): StudyConceptSummary[] {
+  return getConfiguredConceptIds(profileSig)
+    .filter((conceptId) => hasContentForConcept(conceptId, profileSig))
+    .map((conceptId) => ({
+      id: conceptId,
+      title: getConceptTitle(conceptId, profileSig),
+    }));
 }
 
 function rewriteImageSources(
@@ -427,8 +570,7 @@ function parseStudyMarkdown(
     conceptId,
     profileSig,
   );
-  const titleMatch = normalizedMarkdown.match(/^#\s+(.+)$/m);
-  const pathTitle = titleMatch?.[1]?.trim() ?? conceptId;
+  const pathTitle = extractConceptTitle(normalizedMarkdown) ?? conceptId;
   const headingMatches = [...normalizedMarkdown.matchAll(/^##\s+(.+)$/gm)].map(
     (match) => ({
       title: match[1].trim(),
@@ -455,32 +597,49 @@ function parseStudyMarkdown(
     source: "static",
     conceptId,
     profileSig,
+    availableConcepts: [],
     nodes: linkedNodes,
   };
 }
 
 const loadStaticStudyPath = cache(
-  (conceptId: string, profileSig: StudyProfileSig) => {
+  (requestedConceptId: string | null, profileSig: StudyProfileSig) => {
+    const resolvedConceptId = resolveAvailableConceptId(
+      requestedConceptId,
+      profileSig,
+    );
     const resolvedProfileSig = resolveAvailableProfileSig(
-      conceptId,
+      resolvedConceptId,
       profileSig,
     );
     const markdownPath = getMarkdownPathForProfileSig(
-      conceptId,
+      resolvedConceptId,
       resolvedProfileSig,
     );
+    if (!markdownPath) {
+      throw new Error(`Invalid study profile signature: ${resolvedProfileSig}`);
+    }
     const markdown = fs.readFileSync(markdownPath, "utf8");
-    return parseStudyMarkdown(markdown, conceptId, resolvedProfileSig);
+    const studyPath = parseStudyMarkdown(
+      markdown,
+      resolvedConceptId,
+      resolvedProfileSig,
+    );
+
+    return {
+      ...studyPath,
+      availableConcepts: getAvailableConcepts(profileSig),
+    };
   },
 );
 
 export async function getStudyPath(
   options: GetStudyPathOptions = {},
 ): Promise<StudyPath> {
-  const conceptId = normalizeConceptId(options.conceptId);
   const profileSig = getStudyProfileSigFromAdaptation(
     options.learnerAdaptation,
   );
+  const conceptId = normalizeRequestedConceptId(options.conceptId);
   const studyPath = loadStaticStudyPath(conceptId, profileSig);
 
   return {

@@ -24,6 +24,7 @@ from src.services.auth.schemas import (
     ProfileUpdate,
 )
 from src.services.learner_adaptation import (
+    DEFAULT_PROFILE_SIG,
     build_adaptation_record_payload,
     derive_learner_adaptation,
 )
@@ -163,7 +164,7 @@ def _ensure_learner_adaptation(user: User) -> LearnerAdaptation:
         user.learner_adaptation = LearnerAdaptation(
             id=uuid.uuid4(),
             user_id=user.id,
-            profile_sig="default",
+            profile_sig=DEFAULT_PROFILE_SIG,
             adaptation_ctx={},
             generated_at=datetime.now(timezone.utc),
             source_profile_updated_at=None,
