@@ -95,7 +95,10 @@ export default function Sidebar() {
   } = useGlobal();
   const { t } = useTranslation();
 
-  const [showTooltip, setShowTooltip] = useState<string | null>(null);
+  const [showTooltip, setShowTooltip] = useState<{
+    key: string;
+    top: number;
+  } | null>(null);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
   const [editingDescriptionValue, setEditingDescriptionValue] =
     useState(sidebarDescription);
@@ -426,16 +429,25 @@ export default function Sidebar() {
                       href={item.href}
                       className={`flex items-center rounded-md border transition-all duration-200 ${
                         sidebarCollapsed
-                          ? "justify-center p-2"
+                          ? "mx-auto h-10 w-10 justify-center p-0"
                           : "gap-2.5 pl-2 pr-1.5 py-2"
                       } ${
                         isActive
                           ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm border-slate-100 dark:border-slate-600"
                           : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 hover:shadow-sm border-transparent hover:border-slate-100 dark:hover:border-slate-600"
                       }`}
-                      onMouseEnter={() =>
-                        sidebarCollapsed && setShowTooltip(item.href)
-                      }
+                      onMouseEnter={(event) => {
+                        if (!sidebarCollapsed) {
+                          return;
+                        }
+
+                        const rect =
+                          event.currentTarget.getBoundingClientRect();
+                        setShowTooltip({
+                          key: item.href,
+                          top: rect.top + rect.height / 2,
+                        });
+                      }}
                       onMouseLeave={() => setShowTooltip(null)}
                     >
                       <item.icon
@@ -446,10 +458,10 @@ export default function Sidebar() {
                         }`}
                       />
                       <span
-                        className={`font-medium text-sm whitespace-nowrap flex-1 transition-all duration-300 ${
+                        className={`font-medium text-sm whitespace-nowrap transition-all duration-300 ${
                           sidebarCollapsed
                             ? "opacity-0 w-0 overflow-hidden"
-                            : "opacity-100"
+                            : "flex-1 opacity-100"
                         }`}
                       >
                         {item.name}
@@ -466,8 +478,14 @@ export default function Sidebar() {
                       </div>
                     </Link>
                     {/* Tooltip for collapsed state */}
-                    {sidebarCollapsed && showTooltip === item.href && (
-                      <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+                    {sidebarCollapsed && showTooltip?.key === item.href && (
+                      <div
+                        className="fixed z-50 -translate-y-1/2 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none"
+                        style={{
+                          left: SIDEBAR_COLLAPSED_WIDTH + 8,
+                          top: showTooltip.top,
+                        }}
+                      >
                         {item.name}
                         <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-900 dark:border-r-slate-700" />
                       </div>
@@ -495,14 +513,24 @@ export default function Sidebar() {
             href="/settings"
             className={`flex items-center rounded-md text-sm transition-all duration-200 ${
               sidebarCollapsed
-                ? "justify-center p-2"
+                ? "mx-auto h-10 w-10 justify-center p-0"
                 : "gap-2.5 pl-2 pr-1.5 py-2"
             } ${
               pathname === "/settings"
                 ? "bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-sm border border-slate-100 dark:border-slate-600"
                 : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100"
             }`}
-            onMouseEnter={() => sidebarCollapsed && setShowTooltip("/settings")}
+            onMouseEnter={(event) => {
+              if (!sidebarCollapsed) {
+                return;
+              }
+
+              const rect = event.currentTarget.getBoundingClientRect();
+              setShowTooltip({
+                key: "/settings",
+                top: rect.top + rect.height / 2,
+              });
+            }}
             onMouseLeave={() => setShowTooltip(null)}
           >
             <Settings
@@ -513,18 +541,24 @@ export default function Sidebar() {
               }`}
             />
             <span
-              className={`whitespace-nowrap flex-1 transition-all duration-300 ${
+              className={`whitespace-nowrap transition-all duration-300 ${
                 sidebarCollapsed
                   ? "opacity-0 w-0 overflow-hidden"
-                  : "opacity-100"
+                  : "flex-1 opacity-100"
               }`}
             >
               {t("Settings")}
             </span>
           </Link>
           {/* Tooltip for collapsed state */}
-          {sidebarCollapsed && showTooltip === "/settings" && (
-            <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none">
+          {sidebarCollapsed && showTooltip?.key === "/settings" && (
+            <div
+              className="fixed z-50 -translate-y-1/2 px-2.5 py-1.5 bg-slate-900 dark:bg-slate-700 text-white text-xs rounded-lg shadow-lg whitespace-nowrap pointer-events-none"
+              style={{
+                left: SIDEBAR_COLLAPSED_WIDTH + 8,
+                top: showTooltip.top,
+              }}
+            >
               {t("Settings")}
               <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-slate-900 dark:border-r-slate-700" />
             </div>
@@ -535,7 +569,9 @@ export default function Sidebar() {
         <button
           onClick={toggleSidebar}
           className={`w-full mt-2 flex items-center rounded-md text-slate-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-700 hover:text-blue-500 dark:hover:text-blue-400 hover:shadow-sm border border-transparent hover:border-slate-100 dark:hover:border-slate-600 transition-all duration-200 ${
-            sidebarCollapsed ? "justify-center p-2" : "gap-2.5 pl-2 pr-1.5 py-2"
+            sidebarCollapsed
+              ? "mx-auto h-10 w-10 justify-center p-0"
+              : "gap-2.5 pl-2 pr-1.5 py-2"
           }`}
           title={sidebarCollapsed ? t("Expand sidebar") : t("Collapse sidebar")}
         >
@@ -547,8 +583,10 @@ export default function Sidebar() {
             )}
           </div>
           <span
-            className={`text-sm whitespace-nowrap flex-1 transition-all duration-300 ${
-              sidebarCollapsed ? "opacity-0 w-0 overflow-hidden" : "opacity-100"
+            className={`text-sm whitespace-nowrap transition-all duration-300 ${
+              sidebarCollapsed
+                ? "opacity-0 w-0 overflow-hidden"
+                : "flex-1 opacity-100"
             }`}
           >
             {t("Collapse sidebar")}

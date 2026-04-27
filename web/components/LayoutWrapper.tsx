@@ -24,11 +24,11 @@ export default function LayoutWrapper({ children }: LayoutWrapperProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50 transition-colors duration-200 dark:bg-slate-900">
       <Sidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <header className="flex h-12 flex-shrink-0 items-center justify-end border-b border-slate-200 bg-slate-50/80 px-4 dark:border-slate-700 dark:bg-slate-800/80">
           <UserNav />
         </header>
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
+        <main className="min-w-0 flex-1 overflow-y-auto overflow-x-hidden bg-slate-50 dark:bg-slate-900">
           {children}
         </main>
       </div>

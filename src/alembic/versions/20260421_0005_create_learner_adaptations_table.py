@@ -26,7 +26,7 @@ def upgrade() -> None:
             "profile_sig",
             sa.String(length=32),
             nullable=False,
-            server_default="default",
+            server_default="computer_science_ml",
         ),
         sa.Column(
             "adaptation_ctx",

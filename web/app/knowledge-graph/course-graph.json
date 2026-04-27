@@ -1,0 +1,34 @@
+{
+  "nodes": [
+    {
+      "id": "directed-acyclic-graph-dag",
+      "label": "DAG"
+    },
+    {
+      "id": "interventions",
+      "label": "Intervention"
+    },
+    {
+      "id": "causal-discovery",
+      "label": "Causal Discovery"
+    },
+    {
+      "id": "pc-algorithm",
+      "label": "PC Algorithm"
+    }
+  ],
+  "edges": [
+    {
+      "from": "directed-acyclic-graph-dag",
+      "to": "causal-discovery"
+    },
+    {
+      "from": "interventions",
+      "to": "causal-discovery"
+    },
+    {
+      "from": "causal-discovery",
+      "to": "pc-algorithm"
+    }
+  ]
+}

@@ -3,8 +3,9 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 
 const CONTENT_ROOT = path.resolve(process.cwd(), "content", "study");
-const ALLOWED_PROFILE_SIGS = new Set(["default", "bio", "cs", "econ"]);
-const DEFAULT_PROFILE_SIG = "default";
+const DEFAULT_PROFILE_SIG = "computer_science_ml";
+const SAFE_PATH_SEGMENT = /^[A-Za-z0-9_-]+$/;
+const SAFE_IMAGE_PATH_SEGMENT = /^[A-Za-z0-9_.-]+$/;
 
 function getContentType(filePath: string) {
   const extension = path.extname(filePath).toLowerCase();
@@ -41,6 +42,16 @@ function resolveImagePath(
     return null;
   }
 
+  if (
+    !SAFE_PATH_SEGMENT.test(profileSig) ||
+    !imagePath.every(
+      (part) =>
+        SAFE_IMAGE_PATH_SEGMENT.test(part) && part !== "." && part !== "..",
+    )
+  ) {
+    return null;
+  }
+
   const requestedPath = path.join(
     conceptRoot,
     profileSig,
@@ -69,7 +80,7 @@ export async function GET(
 ) {
   const { conceptId, profileSig, imagePath } = await context.params;
 
-  if (!ALLOWED_PROFILE_SIGS.has(profileSig) || !imagePath.length) {
+  if (!imagePath.length) {
     return new NextResponse("Not found", { status: 404 });
   }
 

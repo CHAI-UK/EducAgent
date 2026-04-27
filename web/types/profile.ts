@@ -29,7 +29,12 @@ export interface LearnerProfile {
   updated_at: string;
 }
 
-export type LearnerAdaptationProfileSig = "default" | "bio" | "cs" | "econ";
+export type LearnerAdaptationProfileSig =
+  | "computer_science_ml"
+  | "radiologist"
+  | "biologist"
+  | "material"
+  | "education";
 
 export interface LearnerAdaptationContext {
   background_summary: string | null;

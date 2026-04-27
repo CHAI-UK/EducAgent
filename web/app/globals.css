@@ -85,6 +85,8 @@
 
 .prose code {
   @apply bg-slate-100 text-slate-900 px-1.5 py-0.5 rounded text-sm font-mono;
+  display: inline;
+  white-space: normal;
 }
 
 .dark .prose code {
@@ -93,6 +95,8 @@
 
 .prose pre code {
   @apply bg-transparent text-inherit p-0;
+  display: block;
+  white-space: pre;
 }
 
 .prose h1,
@@ -145,6 +149,10 @@
 
 .dark .prose a {
   @apply text-blue-400 hover:text-blue-300;
+}
+
+.study-source-label {
+  @apply align-baseline text-[0.78em] font-normal text-slate-500 dark:text-slate-400;
 }
 
 /* Prose strong/bold */

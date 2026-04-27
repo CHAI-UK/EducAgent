@@ -215,7 +215,7 @@ def test_put_learner_profile_creates_profile(
     async def fake_derive(_learner_profile):
         return LearnerAdaptationDerivation.model_validate(
             {
-                "profile_sig": "cs",
+                "profile_sig": "computer_science_ml",
                 "adaptation_ctx": {
                     "background_summary": "Computer science learner",
                     "role_summary": "Researcher studying causal models",
@@ -252,8 +252,8 @@ def test_put_learner_profile_creates_profile(
     assert sample_user.learner_profile.expertise_level == "knows_correlation_confounding"
     assert sample_user.learner_profile.is_skipped is False
     assert sample_user.learner_adaptation is not None
-    assert sample_user.learner_adaptation.profile_sig == "cs"
-    assert response.json()["learner_adaptation"]["profile_sig"] == "cs"
+    assert sample_user.learner_adaptation.profile_sig == "computer_science_ml"
+    assert response.json()["learner_adaptation"]["profile_sig"] == "computer_science_ml"
     assert session.commits == 2
 
 
@@ -265,7 +265,7 @@ def test_patch_learner_profile_updates_existing_profile_and_clears_skip(
     async def fake_derive(_learner_profile):
         return LearnerAdaptationDerivation.model_validate(
             {
-                "profile_sig": "bio",
+                "profile_sig": "biologist",
                 "adaptation_ctx": {
                     "background_summary": "Biology learner",
                     "role_summary": "Learner studying experimental design",
@@ -312,7 +312,7 @@ def test_patch_learner_profile_updates_existing_profile_and_clears_skip(
     assert sample_user.learner_profile.learning_goal == "Get stronger with DAGs"
     assert sample_user.learner_profile.is_skipped is False
     assert sample_user.learner_adaptation is not None
-    assert sample_user.learner_adaptation.profile_sig == "bio"
+    assert sample_user.learner_adaptation.profile_sig == "biologist"
     assert session.commits == 2
 
 
@@ -340,7 +340,7 @@ def test_skip_learner_profile_upserts_skipped_row(
     assert sample_user.learner_profile.is_skipped is True
     assert sample_user.learner_profile.prior_knowledge == []
     assert sample_user.learner_adaptation is not None
-    assert sample_user.learner_adaptation.profile_sig == "default"
+    assert sample_user.learner_adaptation.profile_sig == "computer_science_ml"
     assert session.commits == 2
 
 

@@ -1,5 +1,6 @@
 export type {
   GetStudyPathOptions,
+  StudyConceptSummary,
   StudyContentSource,
   StudyNode,
   StudyNodeLink,

@@ -6,6 +6,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import rehypeRaw from "rehype-raw";
 import { useTranslation } from "react-i18next";
 import type { StudyQuizQuestion } from "@/content/study";
 import { processLatexContent } from "@/lib/latex";
@@ -14,18 +15,25 @@ interface InteractiveQuizProps {
   questions: StudyQuizQuestion[];
 }
 
+function renderSourceLabels(content: string) {
+  return content.replace(
+    /\(Source:\s*([^)]+)\)/g,
+    '<span class="study-source-label">(Source: $1)</span>',
+  );
+}
+
 function InlineMarkdown({ content }: { content: string }) {
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
+      rehypePlugins={[rehypeRaw, rehypeKatex]}
       components={{
         p: ({ children }) => <>{children}</>,
         em: ({ children }) => <em>{children}</em>,
         strong: ({ children }) => <strong>{children}</strong>,
       }}
     >
-      {processLatexContent(content)}
+      {processLatexContent(renderSourceLabels(content))}
     </ReactMarkdown>
   );
 }

@@ -1,155 +1,219 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { BookOpen, X } from "lucide-react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
-import rehypeKatex from "rehype-katex";
 import { useTranslation } from "react-i18next";
 import type { StudyPath } from "@/content/study";
-import { processLatexContent } from "@/lib/latex";
+import courseGraph from "./course-graph.json";
 
 interface KnowledgeGraphPageClientProps {
   studyPath: StudyPath;
 }
 
-function ObjectiveMarkdown({ content }: { content: string }) {
-  return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeKatex]}
-      components={{
-        p: ({ children }) => <>{children}</>,
-      }}
-    >
-      {processLatexContent(content)}
-    </ReactMarkdown>
+interface CourseNode {
+  id: string;
+  label: string;
+}
+
+interface CourseEdge {
+  from: string;
+  to: string;
+}
+
+interface PositionedCourseNode extends CourseNode {
+  x: number;
+  y: number;
+}
+
+const COURSE_NODES: CourseNode[] = courseGraph.nodes;
+const COURSE_EDGES: CourseEdge[] = courseGraph.edges;
+const NODE_RADIUS = 68;
+const GRAPH_WIDTH = 760;
+const GRAPH_HEIGHT = 360;
+const HORIZONTAL_PADDING = 110;
+const VERTICAL_PADDING = 85;
+
+function buildCourseLayout() {
+  const nodeIds = new Set(COURSE_NODES.map((node) => node.id));
+  const incomingByNode = new Map<string, string[]>(
+    COURSE_NODES.map((node) => [node.id, []]),
   );
+  const depthByNode = new Map<string, number>();
+
+  for (const edge of COURSE_EDGES) {
+    if (!nodeIds.has(edge.from) || !nodeIds.has(edge.to)) {
+      throw new Error(`Invalid course graph edge: ${edge.from} -> ${edge.to}`);
+    }
+
+    incomingByNode.get(edge.to)?.push(edge.from);
+  }
+
+  function getDepth(nodeId: string, visiting = new Set<string>()): number {
+    const cachedDepth = depthByNode.get(nodeId);
+    if (cachedDepth !== undefined) {
+      return cachedDepth;
+    }
+
+    if (visiting.has(nodeId)) {
+      throw new Error(`Course graph contains a cycle at "${nodeId}".`);
+    }
+
+    visiting.add(nodeId);
+    const incoming = incomingByNode.get(nodeId) ?? [];
+    const depth = incoming.length
+      ? Math.max(...incoming.map((parentId) => getDepth(parentId, visiting))) +
+        1
+      : 0;
+    visiting.delete(nodeId);
+    depthByNode.set(nodeId, depth);
+    return depth;
+  }
+
+  for (const node of COURSE_NODES) {
+    getDepth(node.id);
+  }
+
+  const columns = new Map<number, CourseNode[]>();
+  for (const node of COURSE_NODES) {
+    const depth = depthByNode.get(node.id) ?? 0;
+    columns.set(depth, [...(columns.get(depth) ?? []), node]);
+  }
+
+  const maxDepth = Math.max(...depthByNode.values(), 0);
+  const horizontalStep =
+    maxDepth > 0 ? (GRAPH_WIDTH - HORIZONTAL_PADDING * 2) / maxDepth : 0;
+  const positionedNodes = new Map<string, PositionedCourseNode>();
+
+  for (const [depth, nodes] of columns) {
+    const availableHeight = GRAPH_HEIGHT - VERTICAL_PADDING * 2;
+    const verticalStep =
+      nodes.length > 1 ? availableHeight / (nodes.length - 1) : 0;
+    const startY = nodes.length > 1 ? VERTICAL_PADDING : GRAPH_HEIGHT / 2;
+
+    nodes.forEach((node, index) => {
+      positionedNodes.set(node.id, {
+        ...node,
+        x: HORIZONTAL_PADDING + horizontalStep * depth,
+        y: startY + verticalStep * index,
+      });
+    });
+  }
+
+  return positionedNodes;
+}
+
+const POSITIONED_COURSE_NODES = buildCourseLayout();
+
+function getNode(id: string) {
+  const node = POSITIONED_COURSE_NODES.get(id);
+  if (!node) {
+    throw new Error(`Unknown course node: ${id}`);
+  }
+  return node;
+}
+
+function getEdgePoints(edge: CourseEdge) {
+  const from = getNode(edge.from);
+  const to = getNode(edge.to);
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const distance = Math.hypot(dx, dy);
+  const offsetX = (dx / distance) * NODE_RADIUS;
+  const offsetY = (dy / distance) * NODE_RADIUS;
+
+  return {
+    x1: from.x + offsetX,
+    y1: from.y + offsetY,
+    x2: to.x - offsetX,
+    y2: to.y - offsetY,
+  };
 }
 
 export default function KnowledgeGraphPageClient({
   studyPath,
 }: KnowledgeGraphPageClientProps) {
   const { t } = useTranslation();
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(
-    studyPath.nodes[0]?.id ?? null,
-  );
-
-  const selectedNode = useMemo(
-    () => studyPath.nodes.find((node) => node.id === selectedNodeId) ?? null,
-    [selectedNodeId, studyPath.nodes],
-  );
-  const visibleObjectives = useMemo(
-    () =>
-      (selectedNode?.learningObjectives ?? []).filter(
-        (objective) => objective.trim().length > 0,
-      ),
-    [selectedNode],
+  const availableConceptIds = new Set(
+    studyPath.availableConcepts.map((concept) => concept.id),
   );
 
   return (
     <div className="min-h-screen p-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
-              {t("Knowledge Graph")}
-            </h1>
-            <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-              {studyPath.title}
-            </p>
-          </div>
+      <div className="mx-auto max-w-6xl">
+        <div className="mb-4">
+          <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+            {t("Knowledge Graph")}
+          </h1>
         </div>
 
-        <section className="relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-4 md:p-8 min-h-[420px]">
-          <div className="relative flex flex-col md:flex-row gap-6">
-            <div className="relative flex-1 flex flex-col items-center justify-center py-6">
-              {studyPath.nodes.map((node, index) => (
-                <div
-                  key={node.id}
-                  className="w-full flex flex-col items-center"
-                >
+        <section className="min-h-[440px] overflow-x-auto rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800 md:p-8">
+          <div
+            className="relative mx-auto"
+            style={{
+              height: `${GRAPH_HEIGHT}px`,
+              width: `${GRAPH_WIDTH}px`,
+            }}
+            aria-label={t("Knowledge Graph")}
+          >
+            <svg
+              aria-hidden="true"
+              className="absolute inset-0 h-full w-full"
+              viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
+            >
+              {COURSE_EDGES.map((edge) => {
+                const points = getEdgePoints(edge);
+
+                return (
+                  <line
+                    key={`${edge.from}-${edge.to}`}
+                    x1={points.x1}
+                    y1={points.y1}
+                    x2={points.x2}
+                    y2={points.y2}
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    className="text-slate-900 dark:text-slate-100"
+                  />
+                );
+              })}
+            </svg>
+
+            {[...POSITIONED_COURSE_NODES.values()].map((node) => {
+              const isEnabled = availableConceptIds.has(node.id);
+              const commonClassName =
+                "absolute flex h-[136px] w-[136px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 text-center text-sm font-semibold transition-colors";
+              const style = {
+                left: `${node.x}px`,
+                top: `${node.y}px`,
+              };
+
+              if (!isEnabled) {
+                return (
                   <button
+                    key={node.id}
                     type="button"
-                    onClick={() =>
-                      setSelectedNodeId((prev) =>
-                        prev === node.id ? null : node.id,
-                      )
-                    }
-                    className={`rounded-2xl border p-4 md:p-5 shadow-sm text-left transition-colors ${
-                      selectedNodeId === node.id
-                        ? "border-blue-500 dark:border-blue-400 bg-blue-100 dark:bg-blue-900/40 ring-2 ring-blue-300/70 dark:ring-blue-500/70"
-                        : "border-blue-200 dark:border-blue-700 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100/70 dark:hover:bg-blue-900/40"
-                    }`}
-                    style={{ width: "min(100%, 360px)" }}
-                    aria-pressed={selectedNodeId === node.id}
+                    disabled
+                    aria-disabled="true"
+                    title={t("Not available for your profile")}
+                    className={`${commonClassName} cursor-not-allowed border-slate-300 bg-slate-100 text-slate-400 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-500`}
+                    style={style}
                   >
-                    <div className="flex items-start gap-2">
-                      <BookOpen className="w-4 h-4 mt-0.5 text-blue-600 dark:text-blue-300" />
-                      <p className="text-sm md:text-base font-semibold text-slate-900 dark:text-white">
-                        {node.title}
-                      </p>
-                    </div>
+                    {node.label}
                   </button>
+                );
+              }
 
-                  {index < studyPath.nodes.length - 1 && (
-                    <div
-                      aria-hidden
-                      className="relative h-16 w-6 mt-4 flex items-start justify-center"
-                    >
-                      <div className="w-1 h-12 bg-blue-600 dark:bg-blue-400 rounded-full" />
-                      <div className="absolute top-11 w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[10px] border-t-blue-600 dark:border-t-blue-400" />
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {selectedNode && (
-              <aside className="w-full md:w-[360px] rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-4 md:p-5 self-start">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-                      {selectedNode.title}
-                    </h2>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedNodeId(null)}
-                    className="rounded-md p-1 text-slate-500 hover:bg-slate-200/80 dark:text-slate-300 dark:hover:bg-slate-700"
-                    aria-label={t("Close panel")}
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-                {visibleObjectives.length ? (
-                  <div className="mt-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                      {t("Learning objectives")}
-                    </p>
-                    <ul className="mt-2 space-y-2 text-sm text-slate-700 dark:text-slate-200">
-                      {visibleObjectives.map((objective) => (
-                        <li key={objective} className="flex gap-2">
-                          <span className="mt-1 shrink-0">•</span>
-                          <span>
-                            <ObjectiveMarkdown content={objective} />
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : null}
-
+              return (
                 <Link
-                  href={`/study?concept=${encodeURIComponent(studyPath.conceptId)}&item=${encodeURIComponent(selectedNode.id)}`}
-                  className="mt-5 inline-flex items-center rounded-lg border border-blue-200 dark:border-blue-700 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-slate-700"
+                  key={node.id}
+                  href={`/study?concept=${encodeURIComponent(node.id)}`}
+                  className={`${commonClassName} border-slate-900 bg-white text-slate-950 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-500 dark:border-slate-100 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700`}
+                  style={style}
                 >
-                  {t("Open in Study Mode")}
+                  {node.label}
                 </Link>
-              </aside>
-            )}
+              );
+            })}
           </div>
         </section>
       </div>
