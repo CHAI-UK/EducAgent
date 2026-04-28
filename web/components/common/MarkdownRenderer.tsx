@@ -13,6 +13,7 @@ import { processLatexContent } from "@/lib/latex";
 interface MarkdownRendererProps {
   content: string;
   className?: string;
+  imageClassName?: string;
   variant?: "default" | "compact" | "prose";
 }
 
@@ -53,6 +54,7 @@ function renderSourceLabels(content: string) {
 export default function MarkdownRenderer({
   content,
   className = "",
+  imageClassName = "w-full",
   variant = "default",
 }: MarkdownRendererProps) {
   const paragraphComponents = {
@@ -188,7 +190,7 @@ export default function MarkdownRenderer({
         <img
           src={src}
           alt={alt || ""}
-          className="my-4 h-auto w-full rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm"
+          className={`my-4 h-auto rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm ${imageClassName}`}
           loading="lazy"
           {...props}
         />

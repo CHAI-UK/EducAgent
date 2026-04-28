@@ -253,7 +253,11 @@ export default function StudyPageClient({ studyPath }: StudyPageClientProps) {
 
           {activeNode.content ? (
             <div className="rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-5">
-              <MarkdownRenderer content={activeNode.content} variant="prose" />
+              <MarkdownRenderer
+                content={activeNode.content}
+                imageClassName="w-full max-w-3xl mx-auto"
+                variant="prose"
+              />
             </div>
           ) : null}
 

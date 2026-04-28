@@ -33,7 +33,7 @@ mermaid.initialize({
 let mermaidIdCounter = 0;
 const MERMAID_SVG_STYLE = `
 <style>
-  svg { overflow: visible; }
+  svg { overflow: visible; max-width: none; }
   .nodeLabel, .edgeLabel {
     overflow: visible;
   }
@@ -97,7 +97,7 @@ export const Mermaid: React.FC<MermaidProps> = ({ chart, className = "" }) => {
   return (
     <div
       ref={containerRef}
-      className={`not-prose my-6 flex justify-center overflow-x-auto pb-2 [&_svg]:block [&_svg]:h-auto [&_svg]:w-auto [&_svg]:max-w-full ${className}`}
+      className={`not-prose my-6 overflow-x-auto pb-2 [&_svg]:mx-auto [&_svg]:block [&_svg]:h-auto [&_svg]:w-auto [&_svg]:max-w-none ${className}`}
       dangerouslySetInnerHTML={{ __html: svg }}
     />
   );
