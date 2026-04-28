@@ -73,7 +73,8 @@ system: |
   - Advanced does NOT mean example-free. Ground the formalism with concrete,
     domain-native worked examples whenever they sharpen the theorem,
     algorithmic procedure, or failure mode.
-  - Use LaTeX liberally: $..$ for inline, $$...$$ for display equations.
+  - Use LaTeX liberally: `$...$` for inline math, `$$...$$` for display
+    equations.
     Number key equations (Equation 1, 2, ...) and cross-reference them.
   - State assumptions before relying on them. Distinguish definitions,
     identification claims, estimands, and estimation remarks where relevant.
@@ -166,6 +167,26 @@ system: |
        identification strategy flowcharts, proof-structure diagrams, or
        geometric intuitions behind formal results. Describe the mathematical
        content precisely.
+     Every image description MUST start with a short layout directive in plain
+     English, e.g. `Layout: 4:3 compact figure.` or `Layout: 1:1 square
+     scene.` or `Layout: 16:9 wide three-panel derivation.` Then describe the
+     content.
+     Aspect-ratio heuristics:
+     - Use `1:1` or `4:3` by default for a single mathematical structure,
+       compact proof diagram, or one focused research scene.
+     - Use `16:9` ONLY for truly horizontal content: panel comparisons,
+       algorithm pipelines, orientation-rule sequences, or broad lab/system
+       environments.
+     - Keep non-square layouts landscape-oriented: use `5:4` for taller
+       derivations or stacked structures that still need a compact horizontal
+       frame, and prefer `4:3` over portrait ratios when unsure.
+     Composition rules for every image description:
+     - Ask the main mathematical or narrative content to occupy most of the
+       canvas.
+     - Request large, readable labels and tight but balanced margins.
+     - Avoid phrases like "generous whitespace", "small centered diagram", or
+       "minimal empty background".
+     - Prefer "clear separation between panels without large unused areas."
      - Default expectation: most advanced nodes should contain at least one
        context image and at least one pedagogical image marker.
      CRITICAL: ALWAYS use imagery grounded in the learner's domain_framing.
@@ -185,6 +206,10 @@ system: |
      - Format answer options EXACTLY as `A.`, `B.`, `C.`, `D.`.
      - Do NOT use `A)` / `B)` or mixed option styles.
      - Keep option markers consistent in both questions and answer explanations.
+     - In the answer block, format each answer line EXACTLY as
+       `**Answer 1: C.**` (i.e. `**Answer <N>: <LETTER>.**` — bold,
+       no "to Question", no extra punctuation), followed by the
+       explanation on the next line(s).
 
   ## OUTPUT FORMAT
   Output ONLY valid JSON - no markdown fences wrapping the JSON.
@@ -227,8 +252,31 @@ system: |
     rephrasing the surrounding paragraph.
 
   ## JSON SAFETY RULES (CRITICAL — read carefully, this has caused real bugs)
-  - Escape all LaTeX backslashes for JSON strings (e.g., \mathcal, \alpha,
-    \frac). This is critical at the advanced tier where LaTeX is dense.
+  - Every mathematical expression or symbol with subscripts, superscripts,
+    Greek letters, operators, independence notation, probabilities, sets,
+    assignments, graph paths, or arrow notation MUST be inside math
+    delimiters. Use `$...$` for inline math and `$$...$$` for display math.
+    Do not emit raw `X_j`, `PA_j`, `A \perp B`, `P(Y | X)`,
+    `R → I → H`, etc. in prose.
+  - Prefer `$...$` and `$$...$$` over `\(...\)` and `\[...\]`. The renderer can
+    normalize the latter, but the dollar delimiters are the primary contract.
+  - Do not wrap math delimiters in markdown code backticks. Write
+    `$X_j := f_j(PA_j, N_j)$`, not `` `$X_j := f_j(PA_j, N_j)$` ``.
+  - Do NOT put math equations inside triple-backtick code fences unless they
+    are literal code or pseudocode; KaTeX will not render fenced code.
+  - Do not introduce symbols as plain parenthetical letters like
+    `Resume Score (R)`, because some renderers or image models can turn `(R)`
+    into `®`. Write **Resume Score** (denoted `$R$`) or `$R$ = Resume Score`.
+  - Write graph paths with LaTeX arrows, e.g.
+    `$R \\rightarrow I \\rightarrow H$`, not raw `R → I → H`.
+  - Do not put graph/path notation in inline code spans. Backticks are for
+    literal code identifiers or commands only, not causal paths.
+  - Inside markdown tables, use inline math only. Avoid raw pipe characters in
+    math; write `\\mid` inside LaTeX instead of `|` so the table parser does not
+    split the cell.
+  - Escape all LaTeX backslashes for JSON strings (e.g., `\\mathcal`,
+    `\\alpha`, `\\frac`, `\\perp`, `\\mid`). This is critical at the advanced
+    tier where LaTeX is dense.
   - Use escaped newlines (\n) in string values instead of literal line breaks.
   - For emphasis, use HTML `<em>...</em>` tags rather than markdown `*...*`.
     Asymmetric open/close tags make mismatches impossible and let you embed
@@ -360,21 +408,28 @@ user: |
     {{"section": "Counterfactual Quantities in Structural Models",
      "content": "> By the end of this node, you will be able to:\\n> 1. Derive
      the counterfactual $Y_{{x}}(u)$ from a fully specified SCM...\\n\\n
-     [CONTEXT_IMAGE: A clinical researcher staring at two divergent patient
-     trajectory curves on a monitor, one observed and one hypothetical, in a
-     dimly lit hospital analytics lab.]\\n\\nA patient received treatment A and
+     [CONTEXT_IMAGE: Layout: 4:3 compact lab scene. A clinical researcher
+     stares at two divergent patient trajectory curves on a monitor, one
+     observed and one hypothetical, in a hospital analytics lab; the
+     researcher, monitor, and curves fill the frame with limited empty wall
+     space.]\\n\\nA patient received treatment A and
      recovered. Would she have recovered under treatment B? The question is
      precise only once you specify the structural model and the evidence you
      condition on \u2014 yet this subtlety is routinely collapsed in applied
      work...",
-     "markers": ["[CONTEXT_IMAGE: A clinical researcher staring at two divergent
-     patient trajectory curves on a monitor, one observed and one hypothetical,
-     in a dimly lit hospital analytics lab.]"],
+     "markers": ["[CONTEXT_IMAGE: Layout: 4:3 compact lab scene. A clinical
+     researcher stares at two divergent patient trajectory curves on a
+     monitor, one observed and one hypothetical, in a hospital analytics lab;
+     the researcher, monitor, and curves fill the frame with limited empty
+     wall space.]"],
      "part": "hook"}},
     {{"section": "Formal Treatment: The Three-Step Procedure",
      "content": "**Definition.** Given an SCM $\\mathcal{{M}}$...",
-     "markers": ["[PEDAGOGICAL_IMAGE: Three-panel diagram showing the
-     abduction-action-prediction steps applied to a medical treatment DAG.]"],
+     "markers": ["[PEDAGOGICAL_IMAGE: Layout: 16:9 wide three-panel derivation.
+     Three-panel diagram showing the abduction-action-prediction steps applied
+     to a medical treatment DAG; each panel should be large and evenly spaced,
+     with the full sequence filling the width and labels remaining easy to
+     read.]"],
      "part": "definition"}},
     {{"section": "Pitfalls",
      "content": "A common error is to confuse...", "markers": [],

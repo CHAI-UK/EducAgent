@@ -3,81 +3,16 @@ from __future__ import annotations
 import re
 from typing import Iterator
 
+from src.agents.prompts import load_prompt
+
 _IMAGE_MARKER_RE = re.compile(r"\[(CONTEXT_IMAGE|PEDAGOGICAL_IMAGE|IMAGE):\s*([^\]]+)\]")
-
-_VALID_TIERS = frozenset({"beginner", "intermediate", "advanced"})
-
-
-# Style presets keyed by (depth_tier, kind). Every entry shares the same
-# "never" rules via _STYLE_SHARED_BOILERPLATE so cross-tier consistency is
-# guaranteed regardless of what the per-tier block says.
-_STYLE_SHARED_BOILERPLATE = (
-    "Do NOT produce: 3D renderings, photorealism, lens/camera effects, drop "
-    "shadows, gradients, gloss, textured backgrounds, watermarks, visible "
-    "brand logos, AI-generated visual tropes (chromatic aberration, "
-    "over-saturated neon, melting edges). Always use a plain light-neutral "
-    "background. All text in the image must be in English and legible."
+_LAYOUT_DIRECTIVE_RE = re.compile(
+    r"^\s*Layout:\s*(?P<aspect>\d+:\d+)(?:\s+[^.]*)?\.\s*(?P<body>.+?)\s*$",
+    flags=re.IGNORECASE,
 )
 
-_STYLE_PRESETS: dict[tuple[str, str], str] = {
-    # ── BEGINNER ────────────────────────────────────────────────────────
-    ("beginner", "PEDAGOGICAL_IMAGE"): (
-        "Style: friendly educational diagram for an introductory textbook. "
-        "Flat-vector illustration. Warm, welcoming palette (soft blues, "
-        "greens, oranges on a white or cream background). Rounded node "
-        "shapes (circles or rounded rectangles) with medium-thick strokes "
-        "(2-3px). Sans-serif labels, medium weight, generously spaced. "
-        "Directed arrows as clean solid lines with simple triangular "
-        "arrowheads. Prioritise clarity and visual warmth; generous "
-        "whitespace; no visual clutter."
-    ),
-    ("beginner", "CONTEXT_IMAGE"): (
-        "Style: friendly flat-vector illustration suitable for an "
-        "introductory educational book — think O'Reilly head-first or a "
-        "modern explainer-style picture book. Warm palette (soft blues, "
-        "oranges, greens). Stylised characters with approachable, "
-        "engaged expressions. Clean composition focused on the scenario. "
-        "Avoid photorealism and avoid cartoon slapstick. Plain or gently "
-        "tinted background."
-    ),
-    # ── INTERMEDIATE ────────────────────────────────────────────────────
-    ("intermediate", "PEDAGOGICAL_IMAGE"): (
-        "Style: professional editorial information graphic in the visual "
-        "register of Harvard Business Review or The Economist. Restrained "
-        "palette: neutral greys and a single accent colour. White "
-        "background. Medium-weight sans-serif labels. Medium strokes "
-        "(1.5-2px). Strict grid alignment. Panels (if any) separated by "
-        "thin rules or whitespace. Directed arrows as straight solid "
-        "lines with triangular heads. No decorative elements."
-    ),
-    ("intermediate", "CONTEXT_IMAGE"): (
-        "Style: clean editorial illustration. Sophisticated but not "
-        "austere. Restrained palette (neutral greys plus one accent "
-        "colour). Characters depicted professionally in plausible "
-        "domain-appropriate working environments. Flat-illustration "
-        "style — avoid both photorealism and overly playful cartoon "
-        "aesthetics. Plain or neutral background."
-    ),
-    # ── ADVANCED ────────────────────────────────────────────────────────
-    ("advanced", "PEDAGOGICAL_IMAGE"): (
-        "Style: publication-quality technical figure suitable for a "
-        "peer-reviewed journal (IEEE, Nature, Journal of the Royal "
-        "Statistical Society). Near-monochrome: black/greyscale with at "
-        "most one or two accent colours reserved for essential "
-        "distinctions. Thin strokes (1-1.5px). Strict geometric "
-        "alignment. Sans-serif labels for identifiers; italic for "
-        "variables and mathematical symbols. Panel boundaries explicit "
-        "via thin rules. Directed arrows as solid lines with small "
-        "triangular arrowheads. No decorative elements."
-    ),
-    ("advanced", "CONTEXT_IMAGE"): (
-        "Style: restrained, near-monochrome editorial illustration. "
-        "Minimal decorative elements. Characters depicted in authentic, "
-        "domain-accurate working environments with realistic detail. "
-        "Flat-illustration style with a technical, professional tone. "
-        "Plain white or light-grey background."
-    ),
-}
+_VALID_TIERS = frozenset({"beginner", "intermediate", "advanced"})
+_IMAGE_PROMPT_CFG = load_prompt("passive_image_generation")
 
 
 def _normalize_marker_kind(kind: str) -> str:
@@ -92,21 +27,112 @@ def _normalize_tier(depth_tier: str | None) -> str:
     return "intermediate"
 
 
-def parse_image_marker(marker: str) -> tuple[str, str] | None:
-    """Parse a typed image marker into ``(kind, description)``."""
+def _default_aspect_ratio(kind: str) -> str:
+    normalized_kind = _normalize_marker_kind(kind)
+    defaults = _IMAGE_PROMPT_CFG.get("default_aspect_ratios", {})
+    return _normalize_aspect_ratio(str(defaults.get(normalized_kind, "4:3")))
+
+
+def _normalize_aspect_ratio(aspect_ratio: str) -> str:
+    """Canonicalize aspect ratios and prefer landscape when non-square.
+
+    The image APIs expect ratios in ``width:height`` form. Some content prompts
+    historically emitted portrait directives such as ``4:5``; normalize those to
+    ``5:4`` so generated assets stay wider than tall unless explicitly square.
+    """
+    match = re.fullmatch(r"\s*(\d+)\s*:\s*(\d+)\s*", aspect_ratio or "")
+    if not match:
+        return re.sub(r"\s+", "", aspect_ratio or "").strip()
+
+    width = int(match.group(1))
+    height = int(match.group(2))
+    if width <= 0 or height <= 0:
+        return f"{width}:{height}"
+    if width < height:
+        width, height = height, width
+    return f"{width}:{height}"
+
+
+def _style_block(depth_tier: str, kind: str) -> str:
+    presets = _IMAGE_PROMPT_CFG.get("style_presets", {})
+    return str(presets[depth_tier][kind])
+
+
+def _prefix_block(kind: str) -> str:
+    prefixes = _IMAGE_PROMPT_CFG.get("prefixes", {})
+    return str(prefixes[_normalize_marker_kind(kind)])
+
+
+def _layout_block(aspect_ratio: str) -> str:
+    guidance = _IMAGE_PROMPT_CFG.get("layout_guidance", {})
+    match = re.fullmatch(r"(\d+):(\d+)", aspect_ratio)
+    if match:
+        width = int(match.group(1))
+        height = int(match.group(2))
+        if height > 0 and (width / height) >= 1.6:
+            return str(guidance["wide"])
+        if width < height:
+            return str(guidance["portrait"])
+        return str(guidance["compact"])
+    if aspect_ratio == "16:9":
+        return str(guidance["wide"])
+    if aspect_ratio in {"3:4", "4:5"}:
+        return str(guidance["portrait"])
+    return str(guidance["compact"])
+
+
+def image_layout_metadata(
+    kind: str,
+    description: str,
+) -> dict[str, str]:
+    """Extract layout metadata and a cleaned description from marker text."""
+    normalized_kind = _normalize_marker_kind(kind)
+    normalized_description = re.sub(r"\s+", " ", description or "").strip()
+    match = _LAYOUT_DIRECTIVE_RE.match(normalized_description)
+    if match:
+        clean_description = match.group("body").strip()
+        aspect_ratio = _normalize_aspect_ratio(match.group("aspect"))
+    else:
+        clean_description = normalized_description
+        aspect_ratio = _default_aspect_ratio(normalized_kind)
+    return {
+        "aspect_ratio": aspect_ratio,
+        "clean_description": clean_description,
+    }
+
+
+def strip_image_layout(description: str, *, kind: str = "PEDAGOGICAL_IMAGE") -> str:
+    """Remove the leading layout directive from a marker description."""
+    return image_layout_metadata(kind, description)["clean_description"]
+
+
+def parse_image_marker(
+    marker: str, *, strip_layout_directive: bool = True
+) -> tuple[str, str] | None:
+    """Parse a typed image marker into ``(kind, description)``.
+
+    Rendering wants clean captions, while image generation needs the original
+    layout directive so aspect-ratio metadata is not lost.
+    """
     match = _IMAGE_MARKER_RE.fullmatch(marker.strip())
     if not match:
         return None
     kind = _normalize_marker_kind(match.group(1))
     description = re.sub(r"\s+", " ", match.group(2)).strip()
+    if strip_layout_directive:
+        description = strip_image_layout(description, kind=kind)
     return kind, description
 
 
-def iter_image_markers(text: str) -> Iterator[tuple[str, str]]:
+def iter_image_markers(
+    text: str, *, strip_layout_directive: bool = True
+) -> Iterator[tuple[str, str]]:
     """Yield typed image markers found inline in a text block."""
     for match in _IMAGE_MARKER_RE.finditer(text or ""):
         kind = _normalize_marker_kind(match.group(1))
         description = re.sub(r"\s+", " ", match.group(2)).strip()
+        if strip_layout_directive:
+            description = strip_image_layout(description, kind=kind)
         yield kind, description
 
 
@@ -138,26 +164,20 @@ def image_generation_brief(
     """
     normalized_kind = _normalize_marker_kind(kind)
     normalized_tier = _normalize_tier(depth_tier)
-
-    if normalized_kind == "CONTEXT_IMAGE":
-        prefix = (
-            "Generate a scene-setting illustration that supports the narrative "
-            "hook. Prioritize atmosphere, characters, setting, and emotional "
-            "engagement."
-        )
-    else:
-        prefix = (
-            "Generate a pedagogical illustration that breaks down the concept. "
-            "Prioritize structural relationships, labeled components, arrows, "
-            "panels, and clear visual metaphors."
-        )
-
-    style_block = _STYLE_PRESETS[(normalized_tier, normalized_kind)]
+    layout = image_layout_metadata(normalized_kind, description)
+    aspect_ratio = layout["aspect_ratio"]
+    clean_description = layout["clean_description"]
+    prefix = _prefix_block(normalized_kind)
+    style_block = _style_block(normalized_tier, normalized_kind)
+    layout_block = _layout_block(aspect_ratio)
+    shared_boilerplate = str(_IMAGE_PROMPT_CFG.get("shared_boilerplate", ""))
 
     return (
         f"{prefix}\n\n"
         f"Domain: visual explanation for a causal inference learning node.\n"
-        f"Illustration brief: {description}\n\n"
+        f"Requested aspect ratio: {aspect_ratio}.\n"
+        f"{layout_block}\n"
+        f"Illustration brief: {clean_description}\n\n"
         f"{style_block}\n\n"
-        f"{_STYLE_SHARED_BOILERPLATE}"
+        f"{shared_boilerplate}"
     )

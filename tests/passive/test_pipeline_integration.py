@@ -52,8 +52,16 @@ class _PipelineClient:
             return _FakeResponse(
                 {
                     "outline": [
-                        {"title": "Why DAGs matter", "summary": "Gentle setup", "rag_focus": "dag basics"},
-                        {"title": "Reading arrows carefully", "summary": "Formal reading", "rag_focus": "edge semantics"},
+                        {
+                            "title": "Why DAGs matter",
+                            "summary": "Gentle setup",
+                            "rag_focus": "dag basics",
+                        },
+                        {
+                            "title": "Reading arrows carefully",
+                            "summary": "Formal reading",
+                            "rag_focus": "edge semantics",
+                        },
                     ]
                 }
             )
@@ -155,32 +163,41 @@ def test_pipeline_roundtrip_uses_cache_and_persists_metrics(
         ],
     }
 
-    monkeypatch.setattr(graph_mod, "_config", {
-        "api_key_env": "OPENROUTER_API_KEY",
-        "base_url_env": "OPENROUTER_BASE_URL",
-        "base_url_default": "https://openrouter.ai/api/v1",
-        "request_timeout_s": 300,
-        "heartbeat_interval_s": 15,
-        "max_wait_s": 360,
-        "outline": {"model": "outline-model", "temperature": 0, "max_tokens": 1024},
-        "content": {
-            "model": "content-model",
-            "temperature": 0,
-            "max_tokens": 1024,
-            "concurrency": 2,
-            "retry_delays_s": [0, 0],
+    monkeypatch.setattr(
+        graph_mod,
+        "_config",
+        {
+            "api_key_env": "OPENROUTER_API_KEY",
+            "base_url_env": "OPENROUTER_BASE_URL",
+            "base_url_default": "https://openrouter.ai/api/v1",
+            "request_timeout_s": 300,
+            "heartbeat_interval_s": 15,
+            "max_wait_s": 360,
+            "outline": {"model": "outline-model", "temperature": 0, "max_tokens": 1024},
+            "content": {
+                "model": "content-model",
+                "temperature": 0,
+                "max_tokens": 1024,
+                "concurrency": 2,
+                "retry_delays_s": [0, 0],
+            },
+            "fact_check": {
+                "enabled": True,
+                "model": "fact-check-model",
+                "temperature": 0,
+                "max_tokens": 512,
+                "regenerate_on_critical": False,
+                "max_regeneration_attempts": 1,
+                "targeted_recheck": False,
+            },
+            "image": {
+                "enabled": False,
+                "mode": "inline",
+                "model": "image-model",
+                "fallback_model": None,
+            },
         },
-        "fact_check": {
-            "enabled": True,
-            "model": "fact-check-model",
-            "temperature": 0,
-            "max_tokens": 512,
-            "regenerate_on_critical": False,
-            "max_regeneration_attempts": 1,
-            "targeted_recheck": False,
-        },
-        "image": {"enabled": False, "mode": "inline", "model": "image-model", "fallback_model": None},
-    })
+    )
     monkeypatch.setattr(graph_mod, "OUTLINE_SYSTEM_PROMPT", "outline-system")
     monkeypatch.setattr(graph_mod, "OUTLINE_USER_TEMPLATE", "concept={concept_id}")
     monkeypatch.setattr(graph_mod, "FACT_CHECK_SYSTEM_PROMPT", "fact-check-system")

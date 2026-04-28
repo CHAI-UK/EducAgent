@@ -27,14 +27,66 @@ export function convertLatexDelimiters(content: string): string {
   // Be careful not to match escaped parentheses in other contexts
   result = result.replace(/\\\(([\s\S]*?)\\\)/g, " $$$1$$ ");
 
-  // Also handle cases where LaTeX is directly in the text without proper delimiters
-  // e.g., standalone \lim, \frac, etc. that should be wrapped
-  // This is a common issue with LLM outputs
-
   // Clean up multiple consecutive newlines
   result = result.replace(/\n{3,}/g, "\n\n");
 
   return result;
+}
+
+function transformOutsidePattern(
+  content: string,
+  pattern: RegExp,
+  transform: (segment: string) => string,
+): string {
+  let result = "";
+  let cursor = 0;
+  pattern.lastIndex = 0;
+
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(content)) !== null) {
+    result += transform(content.slice(cursor, match.index));
+    result += match[0];
+    cursor = match.index + match[0].length;
+  }
+
+  return result + transform(content.slice(cursor));
+}
+
+function unwrapInlineCodeMath(content: string): string {
+  return transformOutsidePattern(content, /```[\s\S]*?```/g, (segment) =>
+    segment.replace(/`(\${1,2}[^`\n]+?\${1,2})`/g, "$1"),
+  );
+}
+
+function normalizeGraphNotationSegment(content: string): string {
+  const withSymbolAliases = content.replace(
+    /([A-Za-z])\s+\(([A-Z])\)/g,
+    "$1 ($$$2$$)",
+  );
+  const graphToken = String.raw`(?:[A-Z][A-Za-z0-9_]*|[a-z][a-z0-9_]*_[A-Za-z0-9_]+)`;
+  const graphPath = new RegExp(
+    String.raw`(^|[^\w$])(${graphToken}(?:\s*(?:→|←|↔)\s*${graphToken})+)(?=$|[^\w$])`,
+    "g",
+  );
+
+  return withSymbolAliases.replace(
+    graphPath,
+    (_match, prefix: string, expression: string) => {
+      const latex = expression
+        .replace(/\s*→\s*/g, " \\\\rightarrow ")
+        .replace(/\s*←\s*/g, " \\\\leftarrow ")
+        .replace(/\s*↔\s*/g, " \\\\leftrightarrow ");
+      return `${prefix}$${latex}$`;
+    },
+  );
+}
+
+function normalizeGraphNotation(content: string): string {
+  return transformOutsidePattern(
+    content,
+    /```[\s\S]*?```|`[^`\n]+`|\$\$[\s\S]*?\$\$|\$(?!\$)(?:\\.|[^$\n])+\$|!\[[^\]]*\]\([^)]+\)|\[(?:CONTEXT_IMAGE|PEDAGOGICAL_IMAGE|IMAGE):\s*[^\]]+\]/gi,
+    normalizeGraphNotationSegment,
+  );
 }
 
 function normalizeStandaloneDisplayMath(content: string): string {
@@ -101,13 +153,15 @@ export function processLatexContent(content: string): string {
   const str = String(content);
 
   // Rewrite unsupported equation tags into visible text labels before parsing.
-  const normalizedTags = str.replace(
+  const normalizedTags = unwrapInlineCodeMath(str).replace(
     /\\tag\{([^}]+)\}/g,
     "\\qquad \\text{($1)}",
   );
 
   // Apply delimiter conversion
   return normalizeStandaloneDisplayMath(
-    convertLatexDelimiters(normalizeCaptionMath(normalizedTags)),
+    normalizeGraphNotation(
+      convertLatexDelimiters(normalizeCaptionMath(normalizedTags)),
+    ),
   );
 }

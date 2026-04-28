@@ -1,11 +1,5 @@
-Contributing to DeepTutor 🚀
-Thank you for your interest in contributing to DeepTutor! We are committed to building a smooth and robust intelligent learning companion, and we welcome developers of all skill levels to join us.
-Join our community for discussion, support, and collaboration:
-<p align="center">
-<a href="https://discord.gg/eRsjPgMU4t"><img src="https://img.shields.io/badge/Discord-Join_Community-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord"></a>&nbsp;
-<a href="https://github.com/HKUDS/DeepTutor/issues/78"><img src="https://img.shields.io/badge/WeChat-Join_Group-07C160?style=for-the-badge&logo=wechat&logoColor=white" alt="WeChat"></a>&nbsp;
-<a href="./Communication.md"><img src="https://img.shields.io/badge/Feishu-Join_Group-00D4AA?style=for-the-badge&logo=feishu&logoColor=white" alt="Feishu"></a>
-</p>
+Contributing to EducAgent
+Thank you for your interest in contributing to EducAgent — a research-grade pedagogical agent developed by CHAI-UK. We welcome contributions from developers, educators, and researchers.
 
 ## Table of Contents
 - [Contribution Requirements](#️-contribution-requirements)
@@ -17,18 +11,16 @@ Join our community for discussion, support, and collaboration:
 - [How to Get Started](#-how-to-get-started)
 
 ## ⚠️ Contribution Requirements
-[!IMPORTANT]
-All contributions must be based on the `dev` branch!
 1. Fork the repository and clone it locally.
-2. **Synchronize**: Always pull from the `dev` branch before starting:
+2. **Synchronize**: Always pull from `main` before starting:
    ```bash
-   git checkout dev && git pull origin dev
+   git checkout main && git pull origin main
    ```
-3. **Branch**: Create your feature branch from `dev`:
+3. **Branch**: Create your feature branch from `main`:
    ```bash
    git checkout -b feature/your-feature-name
    ```
-4. **PR Target**: Submit your Pull Request to the `dev` branch (not `main`).
+4. **PR Target**: Submit your Pull Request to `main`.
 5. **Validation**: Ensure all pre-commit checks pass before submitting.
 
 ## 🛠️ Code Quality & Security
@@ -139,9 +131,6 @@ We follow a structured commit format to maintain a clean history:
 - `chore`: Routine tasks (updating build processes, etc).
 
 ## 💡 How to Get Started
-1. Browse our [Issues](https://github.com/HKUDS/DeepTutor/issues) for tasks labeled `good first issue`.
+1. Browse our [Issues](https://github.com/CHAI-UK/EducAgent/issues) for tasks labeled `good first issue`.
 2. Comment on the issue to let others know you're working on it.
 3. Follow the process above and submit your PR!
-
-Questions? Reach out on Discord.
-Let's build the future of AI tutoring together! 🚀

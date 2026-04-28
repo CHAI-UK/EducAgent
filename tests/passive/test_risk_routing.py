@@ -8,7 +8,6 @@ import pytest
 
 from src.agents.passive import graph as graph_mod
 
-
 # ---------------------------------------------------------------------------
 # _classify_node_risk — pure function
 # ---------------------------------------------------------------------------

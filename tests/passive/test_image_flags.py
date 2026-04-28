@@ -62,3 +62,24 @@ def test_image_generator_runs_when_enabled_default(
     out = asyncio.run(graph_mod.image_generator({"image_prompts": []}))
     assert out.get("image_refs") == []
     assert out.get("image_skipped") is not True
+
+
+def test_collect_image_prompts_preserves_layout_directive_for_generation() -> None:
+    marker = (
+        "[PEDAGOGICAL_IMAGE: Layout: 16:9 wide two-panel comparison. "
+        "Show the observed path beside the counterfactual path.]"
+    )
+
+    prompts = graph_mod._collect_image_prompts(
+        "Counterfactual Paths",
+        [{"section": "Visual", "content": marker, "markers": [marker]}],
+    )
+
+    assert len(prompts) == 1
+    assert prompts[0]["description"].startswith("Layout: 16:9")
+    assert (
+        graph_mod.image_layout_metadata(prompts[0]["kind"], prompts[0]["description"])[
+            "aspect_ratio"
+        ]
+        == "16:9"
+    )

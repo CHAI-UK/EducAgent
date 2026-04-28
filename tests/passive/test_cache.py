@@ -14,9 +14,7 @@ from src.agents.passive import graph as graph_mod
 def tmp_course_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Redirect the passive_courses storage root to a tmp dir for isolation."""
     fake_root = tmp_path
-    monkeypatch.setattr(
-        "src.agents.passive.mock_data.PROJECT_ROOT", fake_root
-    )
+    monkeypatch.setattr("src.agents.passive.mock_data.PROJECT_ROOT", fake_root)
     return fake_root
 
 
@@ -48,9 +46,7 @@ def test_cache_reader_hit_populates_state(tmp_course_dir: Path) -> None:
         "nodes": [
             {
                 "node_title": "N1",
-                "sections": [
-                    {"section": "Hook", "content": "Hi.", "markers": [], "part": "hook"}
-                ],
+                "sections": [{"section": "Hook", "content": "Hi.", "markers": [], "part": "hook"}],
             }
         ],
         "image_refs": [],
@@ -99,9 +95,7 @@ def test_cache_writer_persists_full_blob(tmp_course_dir: Path) -> None:
     state["nodes"] = [
         {
             "node_title": "N1",
-            "sections": [
-                {"section": "Hook", "content": "Hi.", "markers": [], "part": "hook"}
-            ],
+            "sections": [{"section": "Hook", "content": "Hi.", "markers": [], "part": "hook"}],
         }
     ]
     state["image_refs"] = []
@@ -110,7 +104,13 @@ def test_cache_writer_persists_full_blob(tmp_course_dir: Path) -> None:
     graph_mod.cache_writer(state)
 
     cache_path = (
-        tmp_course_dir / "data" / "user" / "learner_test" / "passive_courses" / "dag" / "content.json"
+        tmp_course_dir
+        / "data"
+        / "user"
+        / "learner_test"
+        / "passive_courses"
+        / "dag"
+        / "content.json"
     )
     assert cache_path.exists()
     data = json.loads(cache_path.read_text())
@@ -120,9 +120,7 @@ def test_cache_writer_persists_full_blob(tmp_course_dir: Path) -> None:
 
 def test_cache_writer_does_not_rewrite_on_hit(tmp_course_dir: Path) -> None:
     """When cache_hit is True, cache_writer should NOT overwrite the existing file."""
-    course_dir = (
-        tmp_course_dir / "data" / "user" / "learner_test" / "passive_courses" / "dag"
-    )
+    course_dir = tmp_course_dir / "data" / "user" / "learner_test" / "passive_courses" / "dag"
     course_dir.mkdir(parents=True)
     existing = {"cache_key": "dag:CS-STATS-ADV", "nodes": [{"marker": "original"}]}
     cache_path = course_dir / "content.json"

@@ -33,9 +33,7 @@ def test_validate_sections_accepts_clean_payload() -> None:
     }
     out = _validate_sections(payload)
     # part defaults to "extra" when not provided (Story 5.3 backward compat)
-    assert out == [
-        {"section": "Intro", "content": "Hello world.", "markers": [], "part": "extra"}
-    ]
+    assert out == [{"section": "Intro", "content": "Hello world.", "markers": [], "part": "extra"}]
 
 
 def test_validate_sections_accepts_bare_list() -> None:
@@ -237,7 +235,7 @@ def test_sanitize_replaces_straight_quotes_inside_italics() -> None:
     """The exact pattern that breaks JSON: *"text"* → *\u201ctext\u201d*."""
     raw = 'the attending whispers: *"Did we even need that contrast?"*'
     out = _sanitize_italic_quotes(raw)
-    assert out == 'the attending whispers: *\u201cDid we even need that contrast?\u201d*'
+    assert out == "the attending whispers: *\u201cDid we even need that contrast?\u201d*"
 
 
 def test_sanitize_leaves_normal_json_quotes_alone() -> None:
@@ -281,7 +279,10 @@ def test_sanitize_produces_valid_json() -> None:
     # Without sanitization, json.loads would fail or parse wrong
     sanitized = _sanitize_italic_quotes(broken)
     parsed = json.loads(sanitized)
-    assert parsed["sections"][0]["content"] == "She says: *\u201cDid we need that?\u201d* and moves on."
+    assert (
+        parsed["sections"][0]["content"]
+        == "She says: *\u201cDid we need that?\u201d* and moves on."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -318,9 +319,7 @@ def test_validate_sections_accepts_valid_part_values() -> None:
 def test_validate_sections_rejects_invalid_part() -> None:
     """Unknown part values must be rejected by schema."""
     payload = {
-        "sections": [
-            {"section": "X", "content": "...", "markers": [], "part": "invalid_part_name"}
-        ]
+        "sections": [{"section": "X", "content": "...", "markers": [], "part": "invalid_part_name"}]
     }
     with pytest.raises(ValueError):
         _validate_sections(payload)
@@ -350,9 +349,7 @@ def test_salvage_sections_fills_default_part_when_missing() -> None:
 def test_salvage_sections_coerces_invalid_part_to_extra() -> None:
     """Salvage must tolerate invalid part values by coercing to 'extra' (best-effort recovery)."""
     payload = {
-        "sections": [
-            {"section": "X", "content": "...", "markers": [], "part": "not_a_real_part"}
-        ]
+        "sections": [{"section": "X", "content": "...", "markers": [], "part": "not_a_real_part"}]
     }
     out = _salvage_sections(payload)
     assert len(out) == 1

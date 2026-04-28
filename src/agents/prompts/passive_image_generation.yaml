@@ -1,0 +1,37 @@
+shared_boilerplate: |
+  Do NOT produce: 3D renderings, photorealism, lens/camera effects, drop shadows, gradients, gloss, textured backgrounds, watermarks, visible brand logos, AI-generated visual tropes (chromatic aberration, over-saturated neon, melting edges). Always use a plain light-neutral background. All text in the image must be in English and legible.
+
+default_aspect_ratios:
+  CONTEXT_IMAGE: "4:3"
+  PEDAGOGICAL_IMAGE: "4:3"
+
+prefixes:
+  CONTEXT_IMAGE: |
+    Generate a scene-setting illustration that supports the narrative hook. Prioritize atmosphere, characters, setting, and emotional engagement.
+  PEDAGOGICAL_IMAGE: |
+    Generate a pedagogical illustration that breaks down the concept. Prioritize structural relationships, labeled components, arrows, panels, and clear visual metaphors.
+
+layout_guidance:
+  wide: |
+    Layout: wide horizontal canvas. Use the full width with large subjects or panels. Keep outer margins tight and balanced. Avoid large empty side regions or oversized blank background areas.
+  portrait: |
+    Layout: portrait canvas. Stack the main elements vertically and let the key subjects fill most of the height. Keep the framing tight and avoid tall empty top or bottom regions.
+  compact: |
+    Layout: compact canvas. Let the main scene or diagram occupy most of the frame with balanced spacing. Avoid tiny centered figures surrounded by empty background.
+
+style_presets:
+  beginner:
+    PEDAGOGICAL_IMAGE: |
+      Style: friendly educational diagram for an introductory textbook. Flat-vector illustration. Warm, welcoming palette (soft blues, greens, oranges on a white or cream background). Rounded node shapes (circles or rounded rectangles) with medium-thick strokes (2-3px). Sans-serif labels, medium weight, generously spaced. Directed arrows as clean solid lines with simple triangular arrowheads. Prioritise clarity and visual warmth; balanced spacing; no visual clutter.
+    CONTEXT_IMAGE: |
+      Style: friendly flat-vector illustration suitable for an introductory educational book - think O'Reilly head-first or a modern explainer-style picture book. Warm palette (soft blues, oranges, greens). Stylised characters with approachable, engaged expressions. Clean composition focused on the scenario. Avoid photorealism and avoid cartoon slapstick. Plain or gently tinted background.
+  intermediate:
+    PEDAGOGICAL_IMAGE: |
+      Style: professional editorial information graphic in the visual register of Harvard Business Review or The Economist. Restrained palette: neutral greys and a single accent colour. White background. Medium-weight sans-serif labels. Medium strokes (1.5-2px). Strict grid alignment. Panels (if any) separated by thin rules or whitespace. Directed arrows as straight solid lines with triangular heads. No decorative elements.
+    CONTEXT_IMAGE: |
+      Style: clean editorial illustration. Sophisticated but not austere. Restrained palette (neutral greys plus one accent colour). Characters depicted professionally in plausible domain-appropriate working environments. Flat-illustration style - avoid both photorealism and overly playful cartoon aesthetics. Plain or neutral background.
+  advanced:
+    PEDAGOGICAL_IMAGE: |
+      Style: publication-quality technical figure suitable for a peer-reviewed journal (IEEE, Nature, Journal of the Royal Statistical Society). Near-monochrome: black/greyscale with at most one or two accent colours reserved for essential distinctions. Thin strokes (1-1.5px). Strict geometric alignment. Sans-serif labels for identifiers; italic for variables and mathematical symbols. Panel boundaries explicit via thin rules. Directed arrows as solid lines with small triangular arrowheads. No decorative elements.
+    CONTEXT_IMAGE: |
+      Style: restrained, near-monochrome editorial illustration. Minimal decorative elements. Characters depicted in authentic, domain-accurate working environments with realistic detail. Flat-illustration style with a technical, professional tone. Plain white or light-grey background.

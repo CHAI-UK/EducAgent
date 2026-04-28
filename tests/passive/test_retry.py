@@ -151,10 +151,14 @@ def test_retry_succeeds_after_one_rate_limit(monkeypatch: pytest.MonkeyPatch) ->
             raise _make_rate_limit_error()
         return "ok"
 
-    monkeypatch.setattr(graph_mod, "_load_config", lambda: {"content": {"retry_delays_s": [0, 0, 0]}})
+    monkeypatch.setattr(
+        graph_mod, "_load_config", lambda: {"content": {"retry_delays_s": [0, 0, 0]}}
+    )
+
     # Replace the heartbeat wrapper with a direct await so tests stay fast.
     async def _direct(awaitable, **kwargs):
         return await awaitable
+
     monkeypatch.setattr(graph_mod, "_await_with_heartbeat", _direct)
 
     result = asyncio.run(
@@ -173,8 +177,10 @@ def test_retry_raises_after_exhausting_attempts(monkeypatch: pytest.MonkeyPatch)
         raise _make_rate_limit_error()
 
     monkeypatch.setattr(graph_mod, "_load_config", lambda: {"content": {"retry_delays_s": [0, 0]}})
+
     async def _direct(awaitable, **kwargs):
         return await awaitable
+
     monkeypatch.setattr(graph_mod, "_await_with_heartbeat", _direct)
 
     with pytest.raises(RateLimitError):
@@ -193,9 +199,13 @@ def test_retry_does_not_catch_value_error(monkeypatch: pytest.MonkeyPatch) -> No
         calls["n"] += 1
         raise ValueError("not retryable")
 
-    monkeypatch.setattr(graph_mod, "_load_config", lambda: {"content": {"retry_delays_s": [0, 0, 0]}})
+    monkeypatch.setattr(
+        graph_mod, "_load_config", lambda: {"content": {"retry_delays_s": [0, 0, 0]}}
+    )
+
     async def _direct(awaitable, **kwargs):
         return await awaitable
+
     monkeypatch.setattr(graph_mod, "_await_with_heartbeat", _direct)
 
     with pytest.raises(ValueError):
@@ -207,9 +217,7 @@ def test_retry_does_not_catch_value_error(monkeypatch: pytest.MonkeyPatch) -> No
 
 def test_content_concurrency_preserves_outline_order(monkeypatch: pytest.MonkeyPatch) -> None:
     """concurrency=2 may finish out of order, but final nodes must keep outline order."""
-    client = _FakeClient(
-        delays_by_title={"Node A": 0.02, "Node B": 0.0, "Node C": 0.01}
-    )
+    client = _FakeClient(delays_by_title={"Node A": 0.02, "Node B": 0.0, "Node C": 0.01})
     monkeypatch.setattr(graph_mod, "_config", _content_config(2))
     monkeypatch.setattr(graph_mod, "_get_client", lambda: client)
 
@@ -316,4 +324,6 @@ def test_repair_prompt_requires_part_field(monkeypatch: pytest.MonkeyPatch) -> N
 
     assert parsed[0]["part"] == "hook"
     assert '"part"' in client.last_user_message
-    assert "hook, recall, definition, intuition, visual, checkpoint, extra" in client.last_user_message
+    assert (
+        "hook, recall, definition, intuition, visual, checkpoint, extra" in client.last_user_message
+    )

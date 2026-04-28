@@ -303,3 +303,5 @@ _bmad-output/
 _bmad-modified-backup-temp/
 
 .OLD/
+batch_run_passive.sh
+src/agents/prompts_bak/

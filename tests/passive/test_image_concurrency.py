@@ -10,7 +10,6 @@ import pytest
 
 from src.agents.passive import graph as graph_mod
 
-
 # A tiny valid 1x1 PNG — just used so the decode + file-write paths exercise
 # real bytes. Content doesn't matter, only that it's non-empty.
 _PNG_1X1 = base64.b64decode(
@@ -76,7 +75,11 @@ class _TrackingImageClient:
         # prompt text — we don't care about exact shape, we just key on
         # substring match over desc.
         desc = next(
-            (d for d in list(self.delays_by_desc) + list(self.primary_returns_empty_for) if d in user),
+            (
+                d
+                for d in list(self.delays_by_desc) + list(self.primary_returns_empty_for)
+                if d in user
+            ),
             user[:40],
         )
         self.calls_by_model[model] = self.calls_by_model.get(model, 0) + 1
@@ -130,9 +133,7 @@ def _base_config(*, concurrency: int, fallback_model: str | None = None) -> dict
     }
 
 
-def test_image_concurrency_respected(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
+def test_image_concurrency_respected(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """With concurrency=2 and 4 slow prompts, max_active should stay at 2."""
     monkeypatch.setattr(graph_mod, "_config", _base_config(concurrency=2))
     monkeypatch.setattr(
@@ -140,9 +141,7 @@ def test_image_concurrency_respected(
         "get_passive_images_dir",
         lambda user_id, concept_id: tmp_path / user_id / concept_id / "imgs",
     )
-    client = _TrackingImageClient(
-        delays_by_desc={"d0": 0.05, "d1": 0.05, "d2": 0.05, "d3": 0.05}
-    )
+    client = _TrackingImageClient(delays_by_desc={"d0": 0.05, "d1": 0.05, "d2": 0.05, "d3": 0.05})
     monkeypatch.setattr(graph_mod, "_get_client", lambda: client)
 
     out = asyncio.run(graph_mod.image_generator(_base_state(["d0", "d1", "d2", "d3"])))
@@ -162,9 +161,7 @@ def test_image_concurrency_one_preserves_serial(
         "get_passive_images_dir",
         lambda user_id, concept_id: tmp_path / user_id / concept_id / "imgs",
     )
-    client = _TrackingImageClient(
-        delays_by_desc={"d0": 0.02, "d1": 0.02, "d2": 0.02}
-    )
+    client = _TrackingImageClient(delays_by_desc={"d0": 0.02, "d1": 0.02, "d2": 0.02})
     monkeypatch.setattr(graph_mod, "_get_client", lambda: client)
 
     out = asyncio.run(graph_mod.image_generator(_base_state(["d0", "d1", "d2"])))

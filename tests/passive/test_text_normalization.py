@@ -22,6 +22,13 @@ def test_parse_image_marker_supports_typed_and_legacy_markers() -> None:
     )
 
 
+def test_parse_image_marker_strips_landscape_normalized_layout_directive() -> None:
+    assert parse_image_marker("[CONTEXT_IMAGE: Layout: 4:5 tall scene. A busy lab bench]") == (
+        "CONTEXT_IMAGE",
+        "A busy lab bench",
+    )
+
+
 def test_normalize_llm_payload_decodes_overescaped_markdown() -> None:
     payload = [
         {
@@ -40,6 +47,58 @@ def test_normalize_llm_payload_decodes_overescaped_markdown() -> None:
     assert "$\\mathcal{C}$" in content
 
 
+def test_normalize_llm_payload_unwraps_math_inside_inline_code() -> None:
+    payload = [
+        {
+            "section": "Core Idea",
+            "content": "The structural assignment `$X_j := f_j(PA_j, N_j)$` defines a variable.",
+            "markers": [],
+        }
+    ]
+
+    normalized = normalize_llm_payload(payload)
+    content = normalized[0]["content"]
+
+    assert "`$X_j := f_j(PA_j, N_j)$`" not in content
+    assert "$X_j := f_j(PA_j, N_j)$" in content
+
+
+def test_normalize_llm_payload_wraps_graph_paths_and_symbol_aliases() -> None:
+    payload = [
+        {
+            "section": "Core Idea",
+            "content": (
+                "1. **Resume Score (R)** — from a CV parser.\n\n"
+                "In the acyclic version: R → I → H. Add H → R and the order breaks."
+            ),
+            "markers": [],
+        }
+    ]
+
+    normalized = normalize_llm_payload(payload)
+    content = normalized[0]["content"]
+
+    assert "**Resume Score ($R$)**" in content
+    assert "$R \\rightarrow I \\rightarrow H$" in content
+    assert "$H \\rightarrow R$" in content
+
+
+def test_normalize_llm_payload_does_not_rewrite_image_marker_graph_paths() -> None:
+    marker = "[PEDAGOGICAL_IMAGE: Layout: 4:3 figure. Show R → I → H clearly.]"
+    payload = [
+        {
+            "section": "Core Idea",
+            "content": marker,
+            "markers": [marker],
+        }
+    ]
+
+    normalized = normalize_llm_payload(payload)
+
+    assert normalized[0]["content"] == marker
+    assert normalized[0]["markers"] == [marker]
+
+
 def test_render_markdown_normalizes_existing_overescaped_sections() -> None:
     result = {
         "concept_ctx": {"concept_id": "counterfactuals"},
@@ -52,7 +111,7 @@ def test_render_markdown_normalizes_existing_overescaped_sections() -> None:
                         "content": "> Line one\\n> Line two\\n\\nEquation: $\\\\alpha$",
                         "markers": [],
                     }
-                ]
+                ],
             }
         ],
         "image_refs": [],
@@ -80,7 +139,7 @@ def test_render_markdown_rewrites_user_asset_paths_to_api_outputs() -> None:
                         "content": "[CONTEXT_IMAGE: example figure]",
                         "markers": ["[CONTEXT_IMAGE: example figure]"],
                     }
-                ]
+                ],
             }
         ],
         "image_refs": [
@@ -144,8 +203,8 @@ def test_normalize_llm_payload_mermaid_labels_strip_latex_commands() -> None:
 
     assert "$" not in content
     assert "\\mathcal" not in content
-    assert "A[\"SCM C<br/>P_N^(C|X=x)\"]" in content
-    assert "B[\"do(T := 0)\"]" in content
+    assert 'A["SCM C<br/>P_N^(C|X=x)"]' in content
+    assert 'B["do(T := 0)"]' in content
 
 
 def test_render_markdown_adds_visible_captions_for_pedagogical_images() -> None:
@@ -158,7 +217,9 @@ def test_render_markdown_adds_visible_captions_for_pedagogical_images() -> None:
                     {
                         "section": "Core Idea",
                         "content": "[PEDAGOGICAL_IMAGE: Panel A shows the graph. Panel B shows the table.]",
-                        "markers": ["[PEDAGOGICAL_IMAGE: Panel A shows the graph. Panel B shows the table.]"],
+                        "markers": [
+                            "[PEDAGOGICAL_IMAGE: Panel A shows the graph. Panel B shows the table.]"
+                        ],
                     }
                 ],
             }
@@ -275,9 +336,7 @@ def test_normalize_mermaid_pipe_inside_curly_braces_does_not_break_newlines() ->
     content = normalized[0]["content"]
     # Each mermaid statement must be on its own line (real newlines, not <br/>)
     lines = [
-        ln.strip()
-        for ln in content.split("\n")
-        if ln.strip() and not ln.strip().startswith("```")
+        ln.strip() for ln in content.split("\n") if ln.strip() and not ln.strip().startswith("```")
     ]
     # The three statements D-->, E-->Yes, E-->No should be separate lines
     assert any('E{"X | S?"}' in ln for ln in lines)

@@ -52,6 +52,9 @@ class PipelineState(TypedDict, total=False):
     # ── Phase 2.5: Fact-check critique (domain expert review) ──────────
     # [{node_title, section, claim, problem, severity, suggestion}]
     fact_check_issues: list[dict[str, Any]]
+    # True when fact-checking has already run upstream (for example, pipelined
+    # directly after each content node) so the graph-level fact_checker skips.
+    fact_check_completed: bool
 
     # Per-node QA routing decisions and issue counts (Story 5.3 AC-6/7/8).
     # [{node_title, qa_path, risk, issues, critical, rewrites}]

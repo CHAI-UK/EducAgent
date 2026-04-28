@@ -49,6 +49,7 @@ except ImportError:  # pragma: no cover — SDK version mismatch
 
 from .markers import (
     image_generation_brief,
+    image_layout_metadata,
     iter_image_markers,
     parse_image_marker,
 )
@@ -137,9 +138,7 @@ _VALID_JSON_ESCAPE_CHARS = frozenset('"\\bfnrt/')
 # Regex: unescaped `"` inside markdown italics within a JSON string value.
 # Matches patterns like  *"some text"*  where the quotes are NOT escaped.
 # We replace the inner " with curly quotes so JSON parsing succeeds.
-_ITALIC_UNESCAPED_QUOTE_RE = re.compile(
-    r'(?<=\*)"([^"*]{1,200})"(?=\*)'
-)
+_ITALIC_UNESCAPED_QUOTE_RE = re.compile(r'(?<=\*)"([^"*]{1,200})"(?=\*)')
 
 
 def _sanitize_italic_quotes(raw: str) -> str:
@@ -151,9 +150,7 @@ def _sanitize_italic_quotes(raw: str) -> str:
 
     This runs BEFORE json.loads so the string never gets corrupted.
     """
-    return _ITALIC_UNESCAPED_QUOTE_RE.sub(
-        lambda m: "\u201c" + m.group(1) + "\u201d", raw
-    )
+    return _ITALIC_UNESCAPED_QUOTE_RE.sub(lambda m: "\u201c" + m.group(1) + "\u201d", raw)
 
 
 def _repair_json_escapes(chunk: str) -> str:
@@ -431,10 +428,14 @@ def _record_llm_success(
         return
     usage = _response_usage_metrics(response)
     metrics["prompt_tokens"] = int(metrics.get("prompt_tokens", 0)) + usage["prompt_tokens"]
-    metrics["completion_tokens"] = int(metrics.get("completion_tokens", 0)) + usage["completion_tokens"]
+    metrics["completion_tokens"] = (
+        int(metrics.get("completion_tokens", 0)) + usage["completion_tokens"]
+    )
     metrics["total_tokens"] = int(metrics.get("total_tokens", 0)) + usage["total_tokens"]
     metrics["llm_calls"] = int(metrics.get("llm_calls", 0)) + 1
-    metrics["attempts"] = int(metrics.get("attempts", 0)) + int((call_stats or {}).get("attempts", 1))
+    metrics["attempts"] = int(metrics.get("attempts", 0)) + int(
+        (call_stats or {}).get("attempts", 1)
+    )
 
 
 def _record_llm_failure(
@@ -448,7 +449,9 @@ def _record_llm_failure(
     if metrics is None:
         return
     metrics["failed_calls"] = int(metrics.get("failed_calls", 0)) + 1
-    metrics["attempts"] = int(metrics.get("attempts", 0)) + int((call_stats or {}).get("attempts", 1))
+    metrics["attempts"] = int(metrics.get("attempts", 0)) + int(
+        (call_stats or {}).get("attempts", 1)
+    )
     errors = list(metrics.get("errors") or [])
     errors.append({"stage": stage, "error": error})
     metrics["errors"] = errors
@@ -458,7 +461,14 @@ def _merge_llm_metrics(target: dict[str, Any] | None, source: dict[str, Any] | N
     """Fold one LLM metrics accumulator into another in place."""
     if target is None or source is None:
         return
-    for key in ("prompt_tokens", "completion_tokens", "total_tokens", "llm_calls", "attempts", "failed_calls"):
+    for key in (
+        "prompt_tokens",
+        "completion_tokens",
+        "total_tokens",
+        "llm_calls",
+        "attempts",
+        "failed_calls",
+    ):
         target[key] = int(target.get(key, 0)) + int(source.get(key, 0))
     errors = list(target.get("errors") or [])
     errors.extend(source.get("errors") or [])
@@ -470,11 +480,7 @@ def _fallback_outline(state: PipelineState) -> list[dict[str, str]]:
     concept = state.get("concept_ctx", {})
     concept_id = concept.get("concept_id") or state.get("concept_id") or "unknown"
     title = concept.get("title") or concept_id.replace("-", " ").title()
-    summary = (
-        concept.get("summary")
-        or concept.get("definition")
-        or f"Core explanation of {title}."
-    )
+    summary = concept.get("summary") or concept.get("definition") or f"Core explanation of {title}."
     return [{"title": title, "summary": summary, "rag_focus": concept_id}]
 
 
@@ -491,6 +497,46 @@ def _failed_node_sections(node_title: str, error_summary: str) -> list[dict[str,
             "part": "extra",
         }
     ]
+
+
+def _collect_image_prompts(node_title: str, sections: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    # Must be re-run after any section rewrite: if the regenerated text carries
+    # different marker descriptions, stale prompts cause image_refs to miss the
+    # final content and render_markdown falls back to ``[Illustration: ...]``.
+    prompts: list[dict[str, Any]] = []
+    for sec in sections:
+        seen: set[tuple[str, str]] = set()
+        for kind, desc in iter_image_markers(sec.get("content", ""), strip_layout_directive=False):
+            key = (kind, desc)
+            if key in seen:
+                continue
+            seen.add(key)
+            prompts.append(
+                {
+                    "node_title": node_title,
+                    "description": desc,
+                    "kind": kind,
+                    "section": sec.get("section", ""),
+                }
+            )
+        for marker in sec.get("markers", []):
+            parsed_marker = parse_image_marker(marker, strip_layout_directive=False)
+            if not parsed_marker:
+                continue
+            kind, desc = parsed_marker
+            key = (kind, desc)
+            if key in seen:
+                continue
+            seen.add(key)
+            prompts.append(
+                {
+                    "node_title": node_title,
+                    "description": desc,
+                    "kind": kind,
+                    "section": sec.get("section", ""),
+                }
+            )
+    return prompts
 
 
 # Exceptions considered "retryable" when calling an LLM provider via OpenRouter.
@@ -574,7 +620,9 @@ async def _await_with_heartbeat(
 ) -> Any:
     """Await a slow async operation while logging periodic heartbeats."""
     cfg = _load_config()
-    interval_s = float(interval_s if interval_s is not None else cfg.get("heartbeat_interval_s", 15.0))
+    interval_s = float(
+        interval_s if interval_s is not None else cfg.get("heartbeat_interval_s", 15.0)
+    )
     max_wait_s = float(max_wait_s if max_wait_s is not None else cfg.get("max_wait_s", 360.0))
     task = asyncio.create_task(awaitable)
     started_at = time.perf_counter()
@@ -593,7 +641,9 @@ async def _await_with_heartbeat(
         try:
             return await asyncio.wait_for(asyncio.shield(task), timeout=min(interval_s, remaining))
         except asyncio.TimeoutError:
-            logger.info("%s … still waiting (elapsed %.1fs)", stage, time.perf_counter() - started_at)
+            logger.info(
+                "%s … still waiting (elapsed %.1fs)", stage, time.perf_counter() - started_at
+            )
 
 
 def _validate_sections(parsed: Any) -> list[dict[str, Any]]:
@@ -682,9 +732,7 @@ def _salvage_sections(parsed: Any) -> list[dict[str, Any]]:
         part = item.get("part")
         if not isinstance(part, str) or part not in _VALID_PART_VALUES:
             part = "extra"
-        out.append(
-            {"section": section, "content": content, "markers": markers, "part": part}
-        )
+        out.append({"section": section, "content": content, "markers": markers, "part": part})
     return out
 
 
@@ -702,6 +750,7 @@ async def _repair_json_response(
         "[④b]   Node '%s': retrying once with JSON repair prompt...",
         node_title,
     )
+
     def _make_call():
         return client.chat.completions.create(
             model=model,
@@ -774,12 +823,13 @@ async def _regenerate_node_json(
         + '\nReturn ONLY a valid JSON object with one top-level key "sections".'
         + '\nEvery section object must have exactly "section", "content", "markers", and "part".'
         + '\nThe "part" field must be one of: hook, recall, definition, intuition, visual, checkpoint, extra.'
-        + '\nUse escaped newlines (\\n) inside JSON strings.'
+        + "\nUse escaped newlines (\\n) inside JSON strings."
         + '\nEscape any internal straight double quotes as \\\\".'
-        + '\nNever use straight double quotes inside italic markdown phrases; use single or curly quotes instead.'
+        + "\nNever use straight double quotes inside italic markdown phrases; use single or curly quotes instead."
     )
     stage_label = f"[④b]   Node {node_index}/{total_nodes} retry"
     started = _log_llm_call_start(stage_label, cfg["model"], extra="temperature=0 retry")
+
     def _make_call():
         return client.chat.completions.create(
             model=cfg["model"],
@@ -907,6 +957,7 @@ async def outline_generator(state: PipelineState) -> dict[str, Any]:
         cfg["model"],
         extra=f"depth={depth_tier} chunks={len(chunks)}",
     )
+
     def _make_call():
         return client.chat.completions.create(
             model=cfg["model"],
@@ -1010,12 +1061,27 @@ async def _content_gen_impl(
     client = _get_client()
     stage_started = time.perf_counter()
 
-    concurrency = max(1, int(cfg.get("concurrency", 1)))
+    # Coerce ``concurrency`` robustly: explicit ``null`` in YAML, missing key,
+    # or 0 / negative all collapse to serial (1).
+    concurrency = max(1, int(cfg.get("concurrency") or 1))
     semaphore = asyncio.Semaphore(concurrency)
     total_nodes = len(outline)
-    logger.info(
-        "[④b] drafting %d nodes with concurrency=%d", total_nodes, concurrency
+    logger.info("[④b] drafting %d nodes with concurrency=%d", total_nodes, concurrency)
+    fact_cfg = _load_config().get("fact_check", {})
+    pipeline_fact_check = bool(
+        fact_cfg.get("enabled", False) and fact_cfg.get("pipeline_with_content", False)
     )
+    fact_runtime: dict[str, Any] | None = None
+    fact_semaphore: asyncio.Semaphore | None = None
+    fact_check_started = time.perf_counter()
+    if pipeline_fact_check:
+        fact_concurrency = max(1, int(fact_cfg.get("concurrency") or 1))
+        fact_runtime = _build_fact_check_runtime(state, fact_cfg)
+        fact_semaphore = asyncio.Semaphore(fact_concurrency)
+        logger.info(
+            "[④b→④b.5] pipelined fact-check enabled with concurrency=%d",
+            fact_concurrency,
+        )
 
     async def _draft_one(
         i: int, node: dict[str, Any]
@@ -1125,20 +1191,24 @@ async def _content_gen_impl(
                                 metrics=node_metrics,
                             )
                             sections = _validate_sections(regenerated)
-                        except (json.JSONDecodeError, ValueError, RateLimitError, APITimeoutError, APIConnectionError, asyncio.TimeoutError, TimeoutError) as e3:
+                        except (
+                            json.JSONDecodeError,
+                            ValueError,
+                            RateLimitError,
+                            APITimeoutError,
+                            APIConnectionError,
+                            asyncio.TimeoutError,
+                            TimeoutError,
+                        ) as e3:
                             logger.error(
                                 "[④b]   Node %d/%d regeneration also failed: %s — using best-effort payload",
                                 i + 1,
                                 total_nodes,
                                 e3,
                             )
-                            salvage_source = (
-                                regenerated if regenerated is not None else repaired
-                            )
+                            salvage_source = regenerated if regenerated is not None else repaired
                             sections = _salvage_sections(
-                                salvage_source
-                                if salvage_source is not None
-                                else {"sections": []}
+                                salvage_source if salvage_source is not None else {"sections": []}
                             )
                 failed = False
                 error_summary = ""
@@ -1161,38 +1231,7 @@ async def _content_gen_impl(
 
             node_duration = time.perf_counter() - node_started
 
-        # Collect typed image markers (seen-set keeps duplicates out).
-        image_prompts_for_node: list[dict[str, Any]] = []
-        for sec in sections:
-            seen: set[tuple[str, str]] = set()
-            for kind, desc in iter_image_markers(sec.get("content", "")):
-                key = (kind, desc)
-                if key not in seen:
-                    seen.add(key)
-                    image_prompts_for_node.append(
-                        {
-                            "node_title": node_title,
-                            "description": desc,
-                            "kind": kind,
-                            "section": sec.get("section", ""),
-                        }
-                    )
-            for marker in sec.get("markers", []):
-                parsed_marker = parse_image_marker(marker)
-                if not parsed_marker:
-                    continue
-                kind, desc = parsed_marker
-                key = (kind, desc)
-                if key not in seen:
-                    seen.add(key)
-                    image_prompts_for_node.append(
-                        {
-                            "node_title": node_title,
-                            "description": desc,
-                            "kind": kind,
-                            "section": sec.get("section", ""),
-                        }
-                    )
+        image_prompts_for_node = _collect_image_prompts(node_title, sections)
 
         return (
             i,
@@ -1214,7 +1253,38 @@ async def _content_gen_impl(
             },
         )
 
-    tasks = [_draft_one(i, node) for i, node in enumerate(outline)]
+    async def _draft_then_maybe_review(
+        i: int, node: dict[str, Any]
+    ) -> tuple[
+        int,
+        dict[str, Any],
+        list[dict[str, Any]],
+        float,
+        dict[str, Any],
+        dict[str, Any] | None,
+    ]:
+        drafted = await _draft_one(i, node)
+        review: dict[str, Any] | None = None
+        if pipeline_fact_check:
+            assert fact_runtime is not None
+            assert fact_semaphore is not None
+            review = await _review_fact_check_node(
+                node_idx=drafted[0],
+                node=drafted[1],
+                total_nodes=total_nodes,
+                runtime=fact_runtime,
+                semaphore=fact_semaphore,
+            )
+            # Rewritten sections may rephrase image-marker descriptions;
+            # re-scan the final node so ImageGenerator targets match the
+            # markers that render_markdown will actually look up.
+            refreshed_prompts = _collect_image_prompts(
+                drafted[1].get("node_title", ""), drafted[1].get("sections", [])
+            )
+            drafted = (drafted[0], drafted[1], refreshed_prompts, drafted[3], drafted[4])
+        return (*drafted, review)
+
+    tasks = [_draft_then_maybe_review(i, node) for i, node in enumerate(outline)]
     gathered = await asyncio.gather(*tasks)
     # Preserve outline order even if drafting completed out-of-order (AC-14).
     gathered.sort(key=lambda r: r[0])
@@ -1222,6 +1292,7 @@ async def _content_gen_impl(
     all_image_prompts: list[dict[str, Any]] = [p for r in gathered for p in r[2]]
     per_node_durations: list[float] = [r[3] for r in gathered]
     per_node_metrics: list[dict[str, Any]] = [r[4] for r in gathered]
+    fact_review_results: list[dict[str, Any]] = [r[5] for r in gathered if r[5] is not None]
     failed_nodes = [m for m in per_node_metrics if m.get("failed")]
     content_metrics = _new_llm_metrics()
     for metrics in per_node_metrics:
@@ -1234,7 +1305,7 @@ async def _content_gen_impl(
         len(all_image_prompts),
         total_duration,
     )
-    return {
+    content_update = {
         "nodes": all_nodes,
         "image_prompts": all_image_prompts,
         "run_metrics": _merge_run_metrics(
@@ -1260,6 +1331,23 @@ async def _content_gen_impl(
             },
         ),
     }
+    if pipeline_fact_check:
+        fact_state = {**state, "run_metrics": content_update["run_metrics"]}
+        fact_update = _fact_check_result_from_reviews(
+            fact_state,
+            fact_review_results,
+            started_at=fact_check_started,
+            pipelined_with_content=True,
+        )
+        content_update.update(
+            {
+                "fact_check_issues": fact_update["fact_check_issues"],
+                "qa_log": fact_update["qa_log"],
+                "fact_check_completed": True,
+                "run_metrics": fact_update["run_metrics"],
+            }
+        )
+    return content_update
 
 
 def _make_content_gen_node(tier: str):
@@ -1308,6 +1396,7 @@ async def _critique_node(
     )
     stage_label = f"[④b.5] FactCheck '{node.get('node_title', '')[:40]}'"
     started = _log_llm_call_start(stage_label, cfg["model"])
+
     def _make_call():
         return client.chat.completions.create(
             model=cfg["model"],
@@ -1400,9 +1489,14 @@ async def _regenerate_section_with_critique(
         + critique_text
         + "\n\nReturn the SAME JSON object as before, but with the flagged section "
         + "rewritten to address every critique. Keep all other sections intact."
+        + "\n\nIMPORTANT: Preserve every `[PEDAGOGICAL_IMAGE: ...]` and "
+        + "`[CONTEXT_IMAGE: ...]` marker verbatim — do not reword, shorten, "
+        + "or otherwise alter their descriptions. Their text is a lookup key "
+        + "used to attach generated images later."
     )
     stage_label = f"[④b.5]   Regen '{section.get('section', '')[:40]}'"
     started = _log_llm_call_start(stage_label, cfg["model"])
+
     def _make_call():
         return client.chat.completions.create(
             model=cfg["model"],
@@ -1520,30 +1614,11 @@ def _classify_node_risk(node: dict[str, Any]) -> str:
     return "low"
 
 
-async def fact_checker(state: PipelineState) -> dict[str, Any]:
-    """Node ④b.5 — domain critic LLM reviews each generated node.
-
-    Selective QA (Story 5.3 AC-6/7): each node is first classified as low- or
-    high-risk by ``_classify_node_risk``. Low-risk nodes skip the critic entirely
-    and are recorded in ``qa_log`` with ``qa_path="rule-only"``. High-risk nodes
-    route to the critic; on critical severity the offending section is
-    regenerated (``regenerate_on_critical``), and if ``targeted_recheck`` is
-    enabled a single re-critique runs on the rewrite (AC-8) without looping.
-
-    The node is a no-op when ``fact_check.enabled`` is false.
-    """
-    cfg = _load_config().get("fact_check", {})
-    if not cfg.get("enabled", False):
-        logger.info("[④b.5] FactChecker: disabled, skipping")
-        return {"fact_check_issues": []}
-
-    nodes = state.get("nodes", [])
-    if not nodes:
-        return {"fact_check_issues": []}
-
-    stage_started = time.perf_counter()
-    logger.info("[④b.5] FactChecker: critiquing %d nodes...", len(nodes))
-
+def _build_fact_check_runtime(
+    state: PipelineState,
+    cfg: dict[str, Any],
+) -> dict[str, Any]:
+    """Collect shared context for per-node fact-check work."""
     ctx = state.get("adaptation_ctx", {})
     concept = state.get("concept_ctx", {})
     progress = state.get("progress_ctx", {})
@@ -1560,142 +1635,160 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
         f"[{c['source']}] (relevance: {c['score']})\n{c['text']}" for c in chunks
     )
 
-    client = _get_client()
-    content_cfg = _load_config()["content"]
-    tier_prompts = TIER_CONTENT_PROMPTS.get(depth_tier, TIER_CONTENT_PROMPTS["intermediate"])
-    regen_critical = bool(cfg.get("regenerate_on_critical", False))
-    max_attempts = int(cfg.get("max_regeneration_attempts", 1))
+    return {
+        "cfg": cfg,
+        "ctx": ctx,
+        "depth_tier": depth_tier,
+        "concept_id": concept_id,
+        "client": _get_client(),
+        "content_cfg": _load_config()["content"],
+        "tier_prompts": TIER_CONTENT_PROMPTS.get(depth_tier, TIER_CONTENT_PROMPTS["intermediate"]),
+        "regen_critical": bool(cfg.get("regenerate_on_critical", False)),
+        "max_attempts": int(cfg.get("max_regeneration_attempts", 1)),
+        "targeted_recheck": bool(cfg.get("targeted_recheck", False)),
+        "chunks_text": chunks_text,
+        "gaps": gaps,
+        "confusion": confusion,
+        "outline": outline,
+    }
 
-    targeted_recheck = bool(cfg.get("targeted_recheck", False))
 
-    all_issues: list[dict[str, Any]] = []
-    qa_log: list[dict[str, Any]] = []
-    fact_check_metrics = _new_llm_metrics()
-    fc_concurrency = max(1, int(cfg.get("concurrency", 1)))
-    semaphore = asyncio.Semaphore(fc_concurrency)
-    logger.info(
-        "[④b.5] FactChecker: reviewing %d nodes with concurrency=%d",
-        len(nodes),
-        fc_concurrency,
-    )
+async def _review_fact_check_node(
+    *,
+    node_idx: int,
+    node: dict[str, Any],
+    total_nodes: int,
+    runtime: dict[str, Any],
+    semaphore: asyncio.Semaphore,
+) -> dict[str, Any]:
+    """Critic + rewrite cycle for one node.
 
-    async def _review_one(
-        node_idx: int, node: dict[str, Any]
-    ) -> dict[str, Any]:
-        """Critic + rewrite cycle for ONE node. Runs under the semaphore.
+    This is shared by the standalone ``fact_checker`` graph node and by the
+    pipelined content path. Each invocation mutates only its own node's
+    ``sections`` list, so parallel review is safe under the shared semaphore.
+    """
+    cfg = runtime["cfg"]
+    ctx = runtime["ctx"]
+    depth_tier = runtime["depth_tier"]
+    concept_id = runtime["concept_id"]
+    client = runtime["client"]
+    content_cfg = runtime["content_cfg"]
+    tier_prompts = runtime["tier_prompts"]
+    regen_critical = runtime["regen_critical"]
+    max_attempts = runtime["max_attempts"]
+    targeted_recheck = runtime["targeted_recheck"]
+    chunks_text = runtime["chunks_text"]
+    gaps = runtime["gaps"]
+    confusion = runtime["confusion"]
+    outline = runtime["outline"]
 
-        Each node mutates only its own ``sections`` in-place; the outer loop
-        never reads/writes another node's state from inside this coroutine,
-        so parallelism is race-free without additional locks.
-        """
-        node_title = node.get("node_title", f"Node {node_idx + 1}")
-        node_metrics = _new_llm_metrics()
-        tag = f"[④b.5]   Node {node_idx + 1}/{len(nodes)}"
+    node_title = node.get("node_title", f"Node {node_idx + 1}")
+    node_metrics = _new_llm_metrics()
+    tag = f"[④b.5]   Node {node_idx + 1}/{total_nodes}"
 
-        # Rule-based risk classification runs first — low-risk nodes skip the
-        # expensive critic call entirely (Story 5.3 AC-6).
-        risk = _classify_node_risk(node)
-        if risk == "low":
-            logger.info("%s: LOW risk — skipping critic (rule-only)", tag)
+    risk = _classify_node_risk(node)
+    if risk == "low":
+        logger.info("%s: LOW risk — skipping critic (rule-only)", tag)
+        return {
+            "node_idx": node_idx,
+            "node": node,
+            "issues": [],
+            "qa_log_entry": {
+                "node_title": node_title,
+                "qa_path": "rule-only",
+                "risk": "low",
+                "issues": 0,
+                "critical": 0,
+                "rewrites": 0,
+                "attempts": 0,
+                "llm_calls": 0,
+                "failed_calls": 0,
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "total_tokens": 0,
+            },
+            "metrics": node_metrics,
+        }
+
+    async with semaphore:
+        logger.info("%s: HIGH risk — critiquing '%s'", tag, node_title)
+        try:
+            issues = await _critique_node(
+                client=client,
+                cfg=cfg,
+                ctx=ctx,
+                depth_tier=depth_tier,
+                concept_id=concept_id,
+                node=node,
+                metrics=node_metrics,
+            )
+        except Exception as e:
+            logger.warning(
+                "%s: critique failed for '%s': %s",
+                tag,
+                node_title,
+                str(e)[:200],
+            )
             return {
                 "node_idx": node_idx,
+                "node": node,
                 "issues": [],
                 "qa_log_entry": {
                     "node_title": node_title,
-                    "qa_path": "rule-only",
-                    "risk": "low",
+                    "qa_path": "critic-failed",
+                    "risk": "high",
                     "issues": 0,
                     "critical": 0,
                     "rewrites": 0,
-                    "attempts": 0,
-                    "llm_calls": 0,
-                    "failed_calls": 0,
-                    "prompt_tokens": 0,
-                    "completion_tokens": 0,
-                    "total_tokens": 0,
+                    "attempts": int(node_metrics["attempts"]),
+                    "llm_calls": int(node_metrics["llm_calls"]),
+                    "failed_calls": int(node_metrics["failed_calls"]),
+                    "prompt_tokens": int(node_metrics["prompt_tokens"]),
+                    "completion_tokens": int(node_metrics["completion_tokens"]),
+                    "total_tokens": int(node_metrics["total_tokens"]),
+                    "errors": list(node_metrics["errors"]),
                 },
                 "metrics": node_metrics,
             }
 
-        async with semaphore:
-            logger.info("%s: HIGH risk — critiquing '%s'", tag, node_title)
-            try:
-                issues = await _critique_node(
-                    client=client,
-                    cfg=cfg,
-                    ctx=ctx,
-                    depth_tier=depth_tier,
-                    concept_id=concept_id,
-                    node=node,
-                    metrics=node_metrics,
-                )
-            except Exception as e:
-                logger.warning(
-                    "%s: critique failed for '%s': %s",
+        collected_issues: list[dict[str, Any]] = []
+        rewrite_count = 0
+        if issues:
+            for issue in issues:
+                issue["node_title"] = node_title
+            collected_issues.extend(issues)
+            crit = sum(1 for i in issues if i.get("severity") == "critical")
+            minor = len(issues) - crit
+            logger.info("%s: %d critical, %d minor", tag, crit, minor)
+            for issue in issues:
+                logger.info(
+                    "%s   [%s] %s — %s",
                     tag,
-                    node_title,
-                    str(e)[:200],
+                    issue.get("severity", "?"),
+                    issue.get("section", "?")[:40],
+                    issue.get("problem", "")[:120],
                 )
-                return {
-                    "node_idx": node_idx,
-                    "issues": [],
-                    "qa_log_entry": {
-                        "node_title": node_title,
-                        "qa_path": "critic-failed",
-                        "risk": "high",
-                        "issues": 0,
-                        "critical": 0,
-                        "rewrites": 0,
-                        "attempts": int(node_metrics["attempts"]),
-                        "llm_calls": int(node_metrics["llm_calls"]),
-                        "failed_calls": int(node_metrics["failed_calls"]),
-                        "prompt_tokens": int(node_metrics["prompt_tokens"]),
-                        "completion_tokens": int(node_metrics["completion_tokens"]),
-                        "total_tokens": int(node_metrics["total_tokens"]),
-                        "errors": list(node_metrics["errors"]),
-                    },
-                    "metrics": node_metrics,
-                }
 
-            collected_issues: list[dict[str, Any]] = []
-            rewrite_count = 0
-            if issues:
+            if regen_critical:
+                critical_by_section: dict[str, list[dict[str, Any]]] = {}
                 for issue in issues:
-                    issue["node_title"] = node_title
-                collected_issues.extend(issues)
-                crit = sum(1 for i in issues if i.get("severity") == "critical")
-                minor = len(issues) - crit
-                logger.info("%s: %d critical, %d minor", tag, crit, minor)
-                for issue in issues:
-                    logger.info(
-                        "%s   [%s] %s — %s",
-                        tag,
-                        issue.get("severity", "?"),
-                        issue.get("section", "?")[:40],
-                        issue.get("problem", "")[:120],
-                    )
+                    if issue.get("severity") == "critical":
+                        critical_by_section.setdefault(issue.get("section", ""), []).append(issue)
 
-                if regen_critical:
-                    critical_by_section: dict[str, list[dict[str, Any]]] = {}
-                    for issue in issues:
-                        if issue.get("severity") == "critical":
-                            critical_by_section.setdefault(
-                                issue.get("section", ""), []
-                            ).append(issue)
-
-                    for section_idx, section in enumerate(node.get("sections", [])):
-                        sec_title = section.get("section", "")
-                        critiques = critical_by_section.get(sec_title)
-                        if not critiques:
-                            continue
-                        for attempt in range(max_attempts):
-                            logger.info(
-                                "%s: Regenerating '%s' / '%s' (attempt %d)",
-                                tag,
-                                node_title,
-                                sec_title,
-                                attempt + 1,
-                            )
+                for section_idx, section in enumerate(node.get("sections", [])):
+                    sec_title = section.get("section", "")
+                    critiques = critical_by_section.get(sec_title)
+                    if not critiques:
+                        continue
+                    for attempt in range(max_attempts):
+                        logger.info(
+                            "%s: Regenerating '%s' / '%s' (attempt %d)",
+                            tag,
+                            node_title,
+                            sec_title,
+                            attempt + 1,
+                        )
+                        try:
                             rewritten = await _regenerate_section_with_critique(
                                 client=client,
                                 cfg=content_cfg,
@@ -1715,88 +1808,99 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
                                 content_user_template=tier_prompts["user"],
                                 metrics=node_metrics,
                             )
-                            if rewritten:
-                                node["sections"][section_idx] = rewritten
-                                rewrite_count += 1
-                                break
-            else:
-                logger.info("%s: no issues", tag)
+                        except Exception as exc:
+                            logger.warning(
+                                "%s: rewrite raised for '%s' / '%s' "
+                                "(attempt %d): %s — keeping original section",
+                                tag,
+                                node_title,
+                                sec_title,
+                                attempt + 1,
+                                str(exc)[:200],
+                            )
+                            break
+                        if rewritten:
+                            node["sections"][section_idx] = rewritten
+                            rewrite_count += 1
+                            break
+        else:
+            logger.info("%s: no issues", tag)
 
-            # Targeted re-critique (Story 5.3 AC-8): if we rewrote at least one
-            # section AND the operator opted in, run the critic ONCE more on the
-            # updated node. Any residual issues are logged but do not trigger
-            # another rewrite — this caps per-node cost at 3 critic calls.
-            recheck_ran = False
-            if targeted_recheck and rewrite_count > 0:
-                logger.info(
-                    "%s: targeted re-check after %d rewrite(s)", tag, rewrite_count
+        recheck_ran = False
+        if targeted_recheck and rewrite_count > 0:
+            logger.info("%s: targeted re-check after %d rewrite(s)", tag, rewrite_count)
+            try:
+                recheck_issues = await _critique_node(
+                    client=client,
+                    cfg=cfg,
+                    ctx=ctx,
+                    depth_tier=depth_tier,
+                    concept_id=concept_id,
+                    node=node,
+                    metrics=node_metrics,
                 )
-                try:
-                    recheck_issues = await _critique_node(
-                        client=client,
-                        cfg=cfg,
-                        ctx=ctx,
-                        depth_tier=depth_tier,
-                        concept_id=concept_id,
-                        node=node,
-                        metrics=node_metrics,
-                    )
-                    recheck_ran = True
-                    if recheck_issues:
-                        for issue in recheck_issues:
-                            issue["node_title"] = node_title
-                            issue["phase"] = "recheck"
-                        collected_issues.extend(recheck_issues)
-                except Exception as e:
-                    logger.warning(
-                        "%s: recheck failed for '%s': %s",
-                        tag,
-                        node_title,
-                        str(e)[:200],
-                    )
+                recheck_ran = True
+                if recheck_issues:
+                    for issue in recheck_issues:
+                        issue["node_title"] = node_title
+                        issue["phase"] = "recheck"
+                    collected_issues.extend(recheck_issues)
+            except Exception as e:
+                logger.warning(
+                    "%s: recheck failed for '%s': %s",
+                    tag,
+                    node_title,
+                    str(e)[:200],
+                )
 
-            if rewrite_count > 0 and recheck_ran:
-                qa_path = "critic-ran+rewrite+recheck"
-            elif rewrite_count > 0:
-                qa_path = "critic-ran+rewrite"
-            else:
-                qa_path = "critic-ran"
+        if rewrite_count > 0 and recheck_ran:
+            qa_path = "critic-ran+rewrite+recheck"
+        elif rewrite_count > 0:
+            qa_path = "critic-ran+rewrite"
+        else:
+            qa_path = "critic-ran"
 
-            return {
-                "node_idx": node_idx,
-                "issues": collected_issues,
-                "qa_log_entry": {
-                    "node_title": node_title,
-                    "qa_path": qa_path,
-                    "risk": "high",
-                    "issues": len(issues),
-                    "critical": sum(
-                        1 for i in issues if i.get("severity") == "critical"
-                    ),
-                    "rewrites": rewrite_count,
-                    "attempts": int(node_metrics["attempts"]),
-                    "llm_calls": int(node_metrics["llm_calls"]),
-                    "failed_calls": int(node_metrics["failed_calls"]),
-                    "prompt_tokens": int(node_metrics["prompt_tokens"]),
-                    "completion_tokens": int(node_metrics["completion_tokens"]),
-                    "total_tokens": int(node_metrics["total_tokens"]),
-                    "errors": list(node_metrics["errors"]),
-                },
-                "metrics": node_metrics,
-            }
+        return {
+            "node_idx": node_idx,
+            "node": node,
+            "issues": collected_issues,
+            "qa_log_entry": {
+                "node_title": node_title,
+                "qa_path": qa_path,
+                "risk": "high",
+                "issues": len(issues),
+                "critical": sum(1 for i in issues if i.get("severity") == "critical"),
+                "rewrites": rewrite_count,
+                "attempts": int(node_metrics["attempts"]),
+                "llm_calls": int(node_metrics["llm_calls"]),
+                "failed_calls": int(node_metrics["failed_calls"]),
+                "prompt_tokens": int(node_metrics["prompt_tokens"]),
+                "completion_tokens": int(node_metrics["completion_tokens"]),
+                "total_tokens": int(node_metrics["total_tokens"]),
+                "errors": list(node_metrics["errors"]),
+            },
+            "metrics": node_metrics,
+        }
 
-    tasks = [asyncio.create_task(_review_one(i, n)) for i, n in enumerate(nodes)]
-    gathered = await asyncio.gather(*tasks)
-    # Preserve outline order for qa_log + issue emission regardless of
-    # completion order — tasks finish out-of-order but downstream consumers
-    # (UI, metrics) expect node 1, 2, 3, ... ordering.
+
+def _fact_check_result_from_reviews(
+    state: PipelineState | dict[str, Any],
+    gathered: list[dict[str, Any]],
+    *,
+    started_at: float,
+    pipelined_with_content: bool,
+) -> dict[str, Any]:
+    """Build the fact-check state update from per-node review results."""
     gathered.sort(key=lambda r: r["node_idx"])
+    all_issues: list[dict[str, Any]] = []
+    qa_log: list[dict[str, Any]] = []
+    fact_check_metrics = _new_llm_metrics()
     for result in gathered:
         all_issues.extend(result["issues"])
         qa_log.append(result["qa_log_entry"])
         _merge_llm_metrics(fact_check_metrics, result["metrics"])
 
-    fact_check_duration = time.perf_counter() - stage_started
+    fact_check_duration = time.perf_counter() - started_at
     logger.info(
         "[④b.5] FactChecker: %d issues across all nodes (total %.1fs)",
         len(all_issues),
@@ -1804,20 +1908,16 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
     )
     return {
         "fact_check_issues": all_issues,
-        "nodes": nodes,
         "qa_log": qa_log,
+        "fact_check_completed": True,
         "run_metrics": _merge_run_metrics(
             state,
             "fact_check",
             {
                 "duration_s": round(fact_check_duration, 3),
                 "total_issues": len(all_issues),
-                "critical_issues": sum(
-                    1 for i in all_issues if i.get("severity") == "critical"
-                ),
-                "minor_issues": sum(
-                    1 for i in all_issues if i.get("severity") != "critical"
-                ),
+                "critical_issues": sum(1 for i in all_issues if i.get("severity") == "critical"),
+                "minor_issues": sum(1 for i in all_issues if i.get("severity") != "critical"),
                 "prompt_tokens": int(fact_check_metrics["prompt_tokens"]),
                 "completion_tokens": int(fact_check_metrics["completion_tokens"]),
                 "total_tokens": int(fact_check_metrics["total_tokens"]),
@@ -1831,9 +1931,75 @@ async def fact_checker(state: PipelineState) -> dict[str, Any]:
                     for path in {e["qa_path"] for e in qa_log}
                 },
                 "nodes_reviewed": len(qa_log),
+                "pipelined_with_content": pipelined_with_content,
             },
         ),
     }
+
+
+async def fact_checker(state: PipelineState) -> dict[str, Any]:
+    """Node ④b.5 — domain critic LLM reviews each generated node.
+
+    Selective QA (Story 5.3 AC-6/7): each node is first classified as low- or
+    high-risk by ``_classify_node_risk``. Low-risk nodes skip the critic entirely
+    and are recorded in ``qa_log`` with ``qa_path="rule-only"``. High-risk nodes
+    route to the critic; on critical severity the offending section is
+    regenerated (``regenerate_on_critical``), and if ``targeted_recheck`` is
+    enabled a single re-critique runs on the rewrite (AC-8) without looping.
+
+    The node is a no-op when ``fact_check.enabled`` is false.
+    """
+    cfg = _load_config().get("fact_check", {})
+    if state.get("fact_check_completed"):
+        logger.info("[④b.5] FactChecker: already completed upstream, skipping")
+        return {
+            "fact_check_issues": state.get("fact_check_issues", []),
+            "qa_log": state.get("qa_log", []),
+        }
+
+    if not cfg.get("enabled", False):
+        logger.info("[④b.5] FactChecker: disabled, skipping")
+        return {"fact_check_issues": []}
+
+    nodes = state.get("nodes", [])
+    if not nodes:
+        return {"fact_check_issues": []}
+
+    stage_started = time.perf_counter()
+    logger.info("[④b.5] FactChecker: critiquing %d nodes...", len(nodes))
+
+    # Coerce ``concurrency`` robustly: explicit ``null`` in YAML, missing key,
+    # or 0 / negative all collapse to serial (1).
+    fc_concurrency = max(1, int(cfg.get("concurrency") or 1))
+    semaphore = asyncio.Semaphore(fc_concurrency)
+    runtime = _build_fact_check_runtime(state, cfg)
+    logger.info(
+        "[④b.5] FactChecker: reviewing %d nodes with concurrency=%d",
+        len(nodes),
+        fc_concurrency,
+    )
+
+    tasks = [
+        asyncio.create_task(
+            _review_fact_check_node(
+                node_idx=i,
+                node=n,
+                total_nodes=len(nodes),
+                runtime=runtime,
+                semaphore=semaphore,
+            )
+        )
+        for i, n in enumerate(nodes)
+    ]
+    gathered = await asyncio.gather(*tasks)
+    result = _fact_check_result_from_reviews(
+        state,
+        gathered,
+        started_at=stage_started,
+        pipelined_with_content=False,
+    )
+    result["nodes"] = nodes
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -1880,7 +2046,9 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
             ),
         }
 
-    concurrency = max(1, int(cfg.get("concurrency", 1)))
+    # Coerce ``concurrency`` robustly: explicit ``null`` in YAML, missing key,
+    # or 0 / negative all collapse to serial (1).
+    concurrency = max(1, int(cfg.get("concurrency") or 1))
     logger.info(
         "[④c] ImageGenerator: generating %d images with concurrency=%d...",
         len(prompts),
@@ -1899,9 +2067,7 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
     img_dir.mkdir(parents=True, exist_ok=True)
 
     semaphore = asyncio.Semaphore(concurrency)
-    depth_tier = state.get("depth_tier") or state.get("adaptation_ctx", {}).get(
-        "depth_tier"
-    )
+    depth_tier = state.get("depth_tier") or state.get("adaptation_ctx", {}).get("depth_tier")
 
     async def _generate_one(input_idx: int, ip: dict[str, Any]) -> dict[str, Any]:
         """Run primary + fallback models for one prompt, returning bytes or errors.
@@ -1919,6 +2085,7 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
         async with semaphore:
             logger.info("%s [%s]: %s", stage_tag, kind, desc[:80])
             started = time.perf_counter()
+            layout = image_layout_metadata(kind, desc)
 
             for model in [cfg["model"], cfg.get("fallback_model")]:
                 if not model:
@@ -1928,6 +2095,14 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                     _log_llm_call_start(stage_tag, model)
 
                     def _make_call(m: str = model) -> Any:
+                        extra_body: dict[str, Any] = {"modalities": ["image", "text"]}
+                        image_config: dict[str, Any] = {}
+                        if layout.get("aspect_ratio"):
+                            image_config["aspect_ratio"] = layout["aspect_ratio"]
+                        if cfg.get("image_size"):
+                            image_config["image_size"] = cfg["image_size"]
+                        if image_config:
+                            extra_body["image_config"] = image_config
                         return client.chat.completions.create(
                             model=m,
                             messages=[
@@ -1938,7 +2113,7 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                                     ),
                                 }
                             ],
-                            extra_body={"modalities": ["image", "text"]},
+                            extra_body=extra_body,
                             max_tokens=1024,
                         )
 
@@ -1959,9 +2134,7 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                     # against both before subscripting.
                     choices = getattr(response, "choices", None) or []
                     if not choices:
-                        logger.warning(
-                            "[④c]   %s: response has no choices", model
-                        )
+                        logger.warning("[④c]   %s: response has no choices", model)
                         prompt_errors.append(f"{model}: empty choices")
                         continue
                     msg = choices[0].message
@@ -1980,26 +2153,20 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                                 if isinstance(image_url_obj, dict):
                                     data_url = image_url_obj.get("url", "") or ""
                             if data_url and data_url.startswith("data:image"):
-                                b64_part = (
-                                    data_url.split(",", 1)[1] if "," in data_url else ""
-                                )
+                                b64_part = data_url.split(",", 1)[1] if "," in data_url else ""
                                 if b64_part:
                                     b64_bytes = base64.b64decode(b64_part)
                                     model_used = model
                                     break
                         if b64_bytes is not None:
                             break
-                        logger.warning(
-                            "[④c]   %s: images field present but no data URL", model
-                        )
+                        logger.warning("[④c]   %s: images field present but no data URL", model)
                         prompt_errors.append(f"{model}: no data URL in images field")
                         continue
 
                     # Fallback: a data URL embedded in the text content.
                     content = msg.content or ""
-                    b64_match = re.search(
-                        r"data:image/[^;]+;base64,([A-Za-z0-9+/=]+)", content
-                    )
+                    b64_match = re.search(r"data:image/[^;]+;base64,([A-Za-z0-9+/=]+)", content)
                     if b64_match:
                         b64_bytes = base64.b64decode(b64_match.group(1))
                         model_used = model
@@ -2015,12 +2182,8 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                         error=f"{type(e).__name__}: {str(e)[:200]}",
                         stage=f"image:{model}",
                     )
-                    logger.warning(
-                        "[④c]   %s failed: %s", model, str(e)[:200]
-                    )
-                    prompt_errors.append(
-                        f"{model}: {type(e).__name__}: {str(e)[:120]}"
-                    )
+                    logger.warning("[④c]   %s failed: %s", model, str(e)[:200])
+                    prompt_errors.append(f"{model}: {type(e).__name__}: {str(e)[:120]}")
                     continue
 
             duration = time.perf_counter() - started
@@ -2063,6 +2226,7 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
                     "node_title": ip["node_title"],
                     "description": desc,
                     "kind": kind,
+                    "aspect_ratio": image_layout_metadata(kind, desc)["aspect_ratio"],
                     "section": ip.get("section", ""),
                     "url": str(img_path),
                     "model": r["model_used"] or "",
@@ -2131,22 +2295,17 @@ async def image_generator(state: PipelineState) -> dict[str, Any]:
 def _cache_path_for(state: PipelineState) -> "Path":  # noqa: F821 — forward ref for mypy
     """Resolve the content.json cache path for this learner + concept."""
     from pathlib import Path  # local import keeps module-level cheap
+
     user_id = state.get("user_id") or "unknown"
     concept_id = (
-        state.get("concept_ctx", {}).get("concept_id")
-        or state.get("concept_id")
-        or "unknown"
+        state.get("concept_ctx", {}).get("concept_id") or state.get("concept_id") or "unknown"
     )
     course_dir: Path = get_passive_course_dir(user_id, concept_id)
     return course_dir / "content.json"
 
 
 def _resolve_concept_id(state: PipelineState) -> str:
-    return (
-        state.get("concept_ctx", {}).get("concept_id")
-        or state.get("concept_id")
-        or "unknown"
-    )
+    return state.get("concept_ctx", {}).get("concept_id") or state.get("concept_id") or "unknown"
 
 
 def cache_reader(state: PipelineState) -> dict[str, Any]:
@@ -2177,9 +2336,7 @@ def cache_reader(state: PipelineState) -> dict[str, Any]:
 
     cached_key = data.get("cache_key")
     if cached_key != cache_key:
-        logger.info(
-            "[cache] miss: stale signature %r vs %r", cached_key, cache_key
-        )
+        logger.info("[cache] miss: stale signature %r vs %r", cached_key, cache_key)
         return {"cache_hit": False, "cache_key": cache_key}
 
     logger.info("[cache] hit: %s", cache_key)
@@ -2301,6 +2458,7 @@ _TIERS = ("beginner", "intermediate", "advanced")
 
 def _syncify_async_node(async_fn):
     """Adapt an async LangGraph node to a sync callable for invoke()-based runtimes."""
+
     def _wrapped(state: PipelineState) -> dict[str, Any]:
         return asyncio.run(async_fn(state))
 

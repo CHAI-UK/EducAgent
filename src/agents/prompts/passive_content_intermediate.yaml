@@ -99,7 +99,8 @@ system: |
      - Intuitive explanation with analogies from the learner's domain
      - Worked examples with step-by-step walkthroughs, using scenarios the
        learner would encounter in their field
-     - Formulas where appropriate (use LaTeX: $..$ inline, $$...$$ display)
+     - Formulas where appropriate (use LaTeX: `$...$` inline, `$$...$$`
+       display)
      - Number equations locally within this node
      - A compact markdown table when it clarifies contrasts, assumptions,
        symbols, or what changes under intervention/counterfactual reasoning
@@ -147,6 +148,24 @@ system: |
        relationships, key elements, and visual metaphors.
        When the image has multiple panels, explicitly describe each panel and
        what notation or comparison the reader should notice.
+     Every image description MUST start with a short layout directive in plain
+     English, e.g. `Layout: 4:3 compact figure.` or `Layout: 1:1 square
+     scene.` or `Layout: 16:9 wide two-panel comparison.` Then describe the
+     content.
+     Aspect-ratio heuristics:
+     - Use `1:1` or `4:3` by default for a single diagram, one chart-like
+       explanatory figure, or one scene with a few focal subjects.
+     - Use `16:9` ONLY when the structure is genuinely horizontal: panel
+       comparisons, process flows, timelines, or broad environment shots.
+     - Keep non-square layouts landscape-oriented: use `5:4` for taller
+       structures that still need a compact horizontal frame, and prefer `4:3`
+       over portrait ratios when unsure.
+     Composition rules for every image description:
+     - Ask the main content to occupy most of the canvas.
+     - Request large, readable labels and tight but balanced outer margins.
+     - Avoid phrases like "generous whitespace", "tiny centered diagram", or
+       "minimal sparse composition".
+     - Prefer "clear separation between elements without large empty areas."
      CRITICAL: ALWAYS use imagery grounded in the learner's domain_framing.
      Avoid generic stock-photo concepts unless absolutely necessary.
 
@@ -164,6 +183,10 @@ system: |
      - Format answer options EXACTLY as `A.`, `B.`, `C.`, `D.`.
      - Do NOT use `A)` / `B)` or mixed option styles.
      - Keep option markers consistent in both questions and answer explanations.
+     - In the answer block, format each answer line EXACTLY as
+       `**Answer 1: C.**` (i.e. `**Answer <N>: <LETTER>.**` — bold,
+       no "to Question", no extra punctuation), followed by the
+       explanation on the next line(s).
 
   ## OUTPUT FORMAT
   Output ONLY valid JSON - no markdown fences wrapping the JSON.
@@ -205,8 +228,30 @@ system: |
     with nearby prose.
 
   ## JSON SAFETY RULES (CRITICAL — read carefully, this has caused real bugs)
-  - Escape all LaTeX backslashes for JSON strings (e.g., \mathcal, \alpha,
-    \frac).
+  - Every mathematical expression or symbol with subscripts, superscripts,
+    Greek letters, operators, independence notation, probabilities, sets,
+    assignments, graph paths, or arrow notation MUST be inside math
+    delimiters. Use `$...$` for inline math and `$$...$$` for display math.
+    Do not emit raw `X_j`, `PA_j`, `A \perp B`, `P(Y | X)`,
+    `R → I → H`, etc. in prose.
+  - Prefer `$...$` and `$$...$$` over `\(...\)` and `\[...\]`. The renderer can
+    normalize the latter, but the dollar delimiters are the primary contract.
+  - Do not wrap math delimiters in markdown code backticks. Write
+    `$X_j := f_j(PA_j, N_j)$`, not `` `$X_j := f_j(PA_j, N_j)$` ``.
+  - Do NOT put math equations inside triple-backtick code fences unless they
+    are literal code or pseudocode; KaTeX will not render fenced code.
+  - Do not introduce symbols as plain parenthetical letters like
+    `Resume Score (R)`, because some renderers or image models can turn `(R)`
+    into `®`. Write **Resume Score** (denoted `$R$`) or `$R$ = Resume Score`.
+  - Write graph paths with LaTeX arrows, e.g.
+    `$R \\rightarrow I \\rightarrow H$`, not raw `R → I → H`.
+  - Do not put graph/path notation in inline code spans. Backticks are for
+    literal code identifiers or commands only, not causal paths.
+  - Inside markdown tables, use inline math only. Avoid raw pipe characters in
+    math; write `\\mid` inside LaTeX instead of `|` so the table parser does not
+    split the cell.
+  - Escape all LaTeX backslashes for JSON strings (e.g., `\\mathcal`,
+    `\\alpha`, `\\frac`, `\\perp`, `\\mid`).
   - Use escaped newlines (\n) in string values instead of literal line breaks.
   - For emphasis, use HTML `<em>...</em>` tags rather than markdown `*...*`.
     Asymmetric open/close tags make mismatches impossible and let you embed
@@ -332,17 +377,23 @@ user: |
   {{"sections": [
     {{"section": "What If? The Power of Counterfactual Thinking",
      "content": "> By the end of this node, you will be able to:\\n> 1. Explain
-     what a counterfactual question is...\\n\\n[CONTEXT_IMAGE: A policy advisor
-     looking thoughtfully at two separate glowing maps of a city, representing
-     two different futures.]\\n\\nImagine you are a policy advisor...",
-     "markers": ["[CONTEXT_IMAGE: A policy advisor looking thoughtfully at two
-     separate glowing maps of a city, representing two different futures.]"],
+     what a counterfactual question is...\\n\\n[CONTEXT_IMAGE: Layout: 4:3
+     compact scene. A policy advisor looks thoughtfully at two separate
+     glowing maps of a city representing two different futures; the advisor,
+     desk, and maps dominate the frame with balanced margins.]\\n\\nImagine
+     you are a policy advisor...",
+     "markers": ["[CONTEXT_IMAGE: Layout: 4:3 compact scene. A policy advisor
+     looks thoughtfully at two separate glowing maps of a city representing
+     two different futures; the advisor, desk, and maps dominate the frame
+     with balanced margins.]"],
      "part": "hook"}},
     {{"section": "The Core Idea: Rewinding the World",
      "content": "A **counterfactual** — literally meaning 'counter to the
      facts'...",
-     "markers": ["[PEDAGOGICAL_IMAGE: Split-screen flowchart showing the actual
-     observed outcome path vs. the unobserved counterfactual path...]"],
+     "markers": ["[PEDAGOGICAL_IMAGE: Layout: 16:9 wide two-panel comparison.
+     Split-screen flowchart showing the actual observed outcome path vs. the
+     unobserved counterfactual path; both panels should be large, with labels
+     easy to read and the flowchart filling the width without dead space.]"],
      "part": "intuition"}},
     {{"section": "Why This Matters", "content": "Without counterfactuals, we can
      only ask...", "markers": [], "part": "extra"}},

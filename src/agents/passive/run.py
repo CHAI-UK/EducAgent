@@ -30,7 +30,7 @@ from dotenv import load_dotenv
 load_dotenv(PROJECT_ROOT / "EducAgent.env", override=False)
 load_dotenv(PROJECT_ROOT / ".env", override=False)
 
-from src.agents.passive.markers import parse_image_marker
+from src.agents.passive.markers import parse_image_marker, strip_image_layout
 from src.agents.passive.mock_data import (
     get_mock_input,
     get_passive_course_dir,
@@ -136,9 +136,10 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
         return url.replace("\\", "/")
 
     def render_image(kind: str, desc: str, url: str) -> str:
-        image = f"![{to_markdown_alt_text(desc)}]({url})"
+        display_desc = strip_image_layout(desc, kind=kind)
+        image = f"![{to_markdown_alt_text(display_desc)}]({url})"
         if kind == "PEDAGOGICAL_IMAGE":
-            return f"{image}\n*Figure. {desc}*"
+            return f"{image}\n*Figure. {display_desc}*"
         return image
 
     # Build image lookups
@@ -149,9 +150,12 @@ def render_markdown(result: dict, output_dir: Path, *, expand_answers: bool = Fa
     for r in image_refs:
         kind = r.get("kind", "PEDAGOGICAL_IMAGE")
         desc = r["description"]
+        clean_desc = strip_image_layout(desc, kind=kind)
         path = to_relative_asset_path(r["url"])
         img_by_marker[(kind, desc)] = path
+        img_by_marker[(kind, clean_desc)] = path
         img_by_desc.setdefault(desc, path)
+        img_by_desc.setdefault(clean_desc, path)
 
     lines: list[str] = []
     if concept_id:
@@ -257,7 +261,10 @@ async def main():
     }
 
     logger.info("Invoking pipeline with: %s", json.dumps(initial_state, indent=2))
-    logger.info("Input file: %s", get_passive_input_path(initial_state["user_id"], initial_state["concept_id"]))
+    logger.info(
+        "Input file: %s",
+        get_passive_input_path(initial_state["user_id"], initial_state["concept_id"]),
+    )
     logger.info(
         "Output dir: %s",
         get_passive_course_dir(initial_state["user_id"], initial_state["concept_id"]),

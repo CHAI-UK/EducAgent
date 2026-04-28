@@ -4,9 +4,24 @@ import re
 from typing import Any
 
 _ESCAPED_MARKDOWN_TOKENS = ("\\n", "\\r", "\\t", '\\"', "\\\\")
+_FENCED_CODE_RE = re.compile(r"```[\s\S]*?```")
+_INLINE_CODE_MATH_RE = re.compile(r"`(\${1,2}[^`\n]+?\${1,2})`")
+_PROTECTED_MARKDOWN_RE = re.compile(
+    r"```[\s\S]*?```"
+    r"|`[^`\n]+`"
+    r"|\$\$[\s\S]*?\$\$"
+    r"|\$(?!\$)(?:\\.|[^$\n])+\$"
+    r"|\[(?:CONTEXT_IMAGE|PEDAGOGICAL_IMAGE|IMAGE):\s*[^\]]+\]",
+    re.IGNORECASE,
+)
 _MERMAID_BLOCK_RE = re.compile(r"```mermaid\s*\n(.*?)\n```", re.IGNORECASE | re.DOTALL)
 _MCQ_OPTION_RE = re.compile(r"(?m)^(\s*)([A-D])[\)\.]\s+(.*)$")
 _DISPLAY_MATH_LINE_RE = re.compile(r"(?m)^[ \t]*(\$\$.*?\$\$)[ \t]*$")
+_PARENTHESIZED_SYMBOL_RE = re.compile(r"(?<=[A-Za-z])\s+\(([A-Z])\)")
+_GRAPH_TOKEN = r"(?:[A-Z][A-Za-z0-9_]*|[a-z][a-z0-9_]*_[A-Za-z0-9_]+)"
+_GRAPH_PATH_RE = re.compile(
+    rf"(?<![\w$])({_GRAPH_TOKEN}(?:\s*(?:→|←|↔)\s*{_GRAPH_TOKEN})+)(?![\w$])"
+)
 
 _MERMAID_INLINE_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\$"), ""),
@@ -186,6 +201,46 @@ def _normalize_display_math_blocks(value: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", normalized)
 
 
+def _unwrap_inline_code_math(value: str) -> str:
+    """Render model-emitted `$...$` inside backticks as math, not code."""
+
+    parts: list[str] = []
+    cursor = 0
+    for match in _FENCED_CODE_RE.finditer(value):
+        parts.append(_INLINE_CODE_MATH_RE.sub(r"\1", value[cursor : match.start()]))
+        parts.append(match.group(0))
+        cursor = match.end()
+    parts.append(_INLINE_CODE_MATH_RE.sub(r"\1", value[cursor:]))
+    return "".join(parts)
+
+
+def _latexize_graph_path(match: re.Match[str]) -> str:
+    expression = match.group(1)
+    expression = re.sub(r"\s*→\s*", r" \\rightarrow ", expression)
+    expression = re.sub(r"\s*←\s*", r" \\leftarrow ", expression)
+    expression = re.sub(r"\s*↔\s*", r" \\leftrightarrow ", expression)
+    return f"${expression}$"
+
+
+def _normalize_math_notation_segment(value: str) -> str:
+    """Normalize lightweight graph notation without touching protected markup."""
+    normalized = _PARENTHESIZED_SYMBOL_RE.sub(lambda m: f" (${m.group(1)}$)", value)
+    return _GRAPH_PATH_RE.sub(_latexize_graph_path, normalized)
+
+
+def _normalize_math_notation(value: str) -> str:
+    """Wrap graph-path notation outside code, math, and image markers."""
+    parts = _PROTECTED_MARKDOWN_RE.split(value)
+    protected = _PROTECTED_MARKDOWN_RE.findall(value)
+
+    output: list[str] = []
+    for index, part in enumerate(parts):
+        output.append(_normalize_math_notation_segment(part))
+        if index < len(protected):
+            output.append(protected[index])
+    return "".join(output)
+
+
 def _standardize_mcq_option_markers(value: str) -> str:
     """Normalize multiple-choice option prefixes to A./B./C./D. style."""
     return _MCQ_OPTION_RE.sub(lambda m: f"{m.group(1)}{m.group(2)}. {m.group(3)}", value)
@@ -193,8 +248,10 @@ def _standardize_mcq_option_markers(value: str) -> str:
 
 def normalize_section_markdown(section: str, content: str) -> str:
     """Normalize section markdown for renderer-safe output."""
-    normalized = _normalize_display_math_blocks(content)
+    normalized = _unwrap_inline_code_math(content)
+    normalized = _normalize_display_math_blocks(normalized)
     normalized = _normalize_mermaid_blocks(normalized)
+    normalized = _normalize_math_notation(normalized)
     if "check your understanding" in section.strip().lower():
         normalized = _standardize_mcq_option_markers(normalized)
     return normalized

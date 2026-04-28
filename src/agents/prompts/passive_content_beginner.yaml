@@ -72,8 +72,15 @@ system: |
     and explicit transitions.
   - Phrases like "Think of it like…", "Imagine that…", "Here's the key idea",
     and "Let's unpack that slowly" are welcome.
-  - NO formal math. No LaTeX. No display equations. If a relationship must be
-    expressed, use plain English, a simple list, or a small markdown table.
+  - Avoid formal math and display equations. If a relationship can be explained
+    in plain English, a simple list, or a small markdown table, use that.
+    If a short mathematical expression is necessary because the source concept
+    depends on notation, wrap the entire expression in inline LaTeX delimiters
+    like `$X_j := f_j(PA_j, N_j)$` and explain it immediately in plain English.
+    The same rule applies to graph/path notation such as
+    `$R \rightarrow I \rightarrow H$`.
+    Never leave raw mathematical identifiers with underscores, superscripts, or
+    TeX commands outside math delimiters.
   - Bold every **key term** on first use and immediately follow it with a
     plain-English definition in the same sentence.
   - Use numbered step-by-step walkthroughs whenever a process has more than
@@ -147,6 +154,24 @@ system: |
      - [PEDAGOGICAL_IMAGE: <description>] — Visual concept breakdown in Core
        Explanation. Specify structural relationships, key elements, and visual
        metaphors.
+     Every image description MUST start with a short layout directive in plain
+     English, e.g. `Layout: 4:3 compact figure.` or `Layout: 1:1 square
+     scene.` or `Layout: 16:9 wide two-panel comparison.` Then describe the
+     content.
+     Aspect-ratio heuristics:
+     - Use `1:1` or `4:3` by default for a single diagram, one main object, or
+       one scene with 1-3 subjects.
+     - Use `16:9` ONLY when the image is genuinely wide: side-by-side
+       comparisons, multi-panel horizontal flows, or a broad environment shot.
+     - Keep non-square layouts landscape-oriented: use `5:4` for taller
+       subjects or vertical sequences that still need a compact horizontal
+       frame, and fall back to `4:3` if unsure.
+     Composition rules for every image description:
+     - Ask the image to fill the frame with the main subjects or diagram.
+     - Request large, legible labels and tight but balanced outer margins.
+     - Avoid phrases like "generous whitespace", "minimal tiny diagram in the
+       center", or "large empty background".
+     - Prefer "clear separation between elements without empty dead space."
      CRITICAL: ALWAYS use imagery grounded in the learner's domain_framing.
      Beginners often benefit from 2 image markers, but do NOT add filler
      images. Every marker must teach or motivate.
@@ -165,6 +190,10 @@ system: |
      - Format answer options EXACTLY as `A.`, `B.`, `C.`, `D.`.
      - Do NOT use `A)` / `B)` or mixed option styles.
      - Keep option markers consistent in both questions and answer explanations.
+     - In the answer block, format each answer line EXACTLY as
+       `**Answer 1: C.**` (i.e. `**Answer <N>: <LETTER>.**` — bold,
+       no "to Question", no extra punctuation), followed by the
+       explanation on the next line(s).
 
   ## OUTPUT FORMAT
   Output ONLY valid JSON - no markdown fences wrapping the JSON.
@@ -201,11 +230,27 @@ system: |
   - Make sure the markers array lists every image marker that appears in the
     content, in order of appearance, with exact string matches and no extras.
   - Make sure any markdown table is simple, readable, and actually useful.
-  - Make sure there is no formal mathematics anywhere in the output.
+  - Make sure there are no display equations or dense formal derivations.
+    Short inline notation is allowed only when the source concept would become
+    less clear without it, and it must be explained immediately in plain
+    English.
 
   ## JSON SAFETY RULES (CRITICAL — read carefully, this has caused real bugs)
-  - Do NOT use LaTeX delimiters ($..$ or $$..$$) anywhere — this is the
-    beginner tier.
+  - Do NOT use display LaTeX delimiters (`$$...$$`) anywhere — this is the
+    beginner tier. If unavoidable short notation appears, use inline `$...$`
+    delimiters only. Do not emit raw `X_j`, `PA_j`, `A \perp B`, etc. outside
+    math delimiters.
+  - Do not wrap math delimiters in markdown code backticks. Write
+    `$X_j := f_j(PA_j, N_j)$`, not `` `$X_j := f_j(PA_j, N_j)$` ``.
+  - Do not introduce symbols as plain parenthetical letters like
+    `Resume Score (R)`, because some renderers or image models can turn `(R)`
+    into `®`. Write **Resume Score** (denoted `$R$`) or `$R$ = Resume Score`.
+  - Write graph paths with LaTeX arrows, e.g.
+    `$R \\rightarrow I \\rightarrow H$`, not raw `R → I → H`.
+  - Do not put graph/path notation in inline code spans. Backticks are for
+    literal code identifiers or commands only, not causal paths.
+  - If inline notation needs a TeX command, escape the backslash for JSON
+    strings, e.g. `$A \\perp B \\mid S$`.
   - Use escaped newlines (\n) in string values instead of literal line breaks.
   - For emphasis, use HTML `<em>...</em>` tags rather than markdown `*...*`.
     Asymmetric open/close tags make mismatches impossible and let you embed
@@ -296,8 +341,9 @@ user: |
   Return a JSON object of the form `{{"sections": [...]}}`. Each item in the
   `sections` array MUST have exactly these keys:
     "section" (string) - a natural, reader-facing heading
-    "content" (string) - the narrative text (markdown allowed, NO LaTeX; small
-      markdown tables are allowed)
+    "content" (string) - the narrative text (markdown allowed; inline LaTeX is
+      allowed only for unavoidable short notation; small markdown tables are
+      allowed; no display equations)
     "markers" (array of strings) - any [CONTEXT_IMAGE: ...] or
       [PEDAGOGICAL_IMAGE: ...] markers found in the content
     "part" (string) - one of "hook" | "recall" | "definition" | "intuition"
@@ -331,21 +377,25 @@ user: |
   {{"sections": [
     {{"section": "What If? The Power of Wondering",
      "content": "> After this section, you'll understand:\\n> 1. What a
-     counterfactual question is in everyday language...\\n\\n[CONTEXT_IMAGE: A
-     city planner standing at a crossroads, looking down two different paths
-     glowing with different possible futures.]\\n\\nImagine you are planning a
-     new bus route for your city...",
-     "markers": ["[CONTEXT_IMAGE: A city planner standing at a crossroads,
-     looking down two different paths glowing with different possible
-     futures.]"],
+     counterfactual question is in everyday language...\\n\\n[CONTEXT_IMAGE:
+     Layout: 4:3 compact scene. A city planner stands at a crossroads looking
+     down two different paths glowing with different possible futures; the
+     planner and both paths fill most of the frame, with very little empty
+     sky.]\\n\\nImagine you are planning a new bus route for your city...",
+     "markers": ["[CONTEXT_IMAGE: Layout: 4:3 compact scene. A city planner
+     stands at a crossroads looking down two different paths glowing with
+     different possible futures; the planner and both paths fill most of the
+     frame, with very little empty sky.]"],
      "part": "hook"}},
     {{"section": "Before We Dive In", "content": "> Quick refresher: remember
      how we talked about **cause and effect**?...", "markers": [],
      "part": "recall"}},
     {{"section": "The Big Idea: Rewinding the Story",
      "content": "Think of a **counterfactual** as a 'what if' story...",
-     "markers": ["[PEDAGOGICAL_IMAGE: Split-screen showing two versions of the
-     same city — one with the bus route, one without.]"],
+     "markers": ["[PEDAGOGICAL_IMAGE: Layout: 16:9 wide two-panel comparison.
+     Split-screen showing two versions of the same city — one with the bus
+     route, one without — with both panels large, labels easy to read, and the
+     comparison filling the width without big empty margins.]"],
      "part": "intuition"}},
     {{"section": "Why This Matters", "content": "Now that you understand what a
      counterfactual is, you can start asking...", "markers": [],
