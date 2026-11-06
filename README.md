@@ -40,7 +40,7 @@ ELM_API_KEY=CHANGE_ME
 Use your assigned ELM model identifier and API key. Both apps share these
 settings; environment variables override the file. The current adapter requires
 the ELM URL above rather than an arbitrary OpenAI-compatible endpoint. Keep keys
-on the server, out of browser configuration and Git. Offline tests need no key.
+on the server, out of browser configuration and Git.
 
 ## Run locally on Windows
 
@@ -113,27 +113,21 @@ rate limiting or public-service abuse controls.
 The [operations guide](EducAgent-Nirvana/deploy/README.md) also covers native
 Linux/systemd, backups and rollback.
 
-## Validate without live model calls
+## Build checks
 
 From PowerShell, with the `educagent-sdk` environment activated:
 
 ```powershell
 cd EducAgent-SDK
-$env:PYTHONPATH = "src"
-python -m unittest discover -s tests -v
 npm run web:check
 npm run web:build
-node --test tests/*.cjs
 cd ../EducAgent-Nirvana
-python -m unittest discover -s tests -v
 node --check demo/app.js
-node --test tests/test_*.cjs
-python -m unittest discover -s deploy -p test_deployment.py -v
 cd ..
 git diff --check
 ```
 
-## Contributing and licenses
+## License
 
 Edit canonical sources, keep documentation and code in English, and exclude
 credentials, learner traces, backups, textbook PDFs and internal drafts from Git.

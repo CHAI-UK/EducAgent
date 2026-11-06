@@ -3,13 +3,7 @@
   "version": "0.7.0",
   "description": "EducAgent SDK is an early-stage, agent-first Python SDK for evidence-driven teaching. A Pydantic AI tutor drives bounded Socratic decisions, while reviewed subject content, evaluators, replay-derived state, and runtime gates keep the learning path grounded. Causality is the first domain.",
   "private": true,
-  "directories": {
-    "doc": "docs",
-    "example": "examples",
-    "test": "tests"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "web:dev": "vite --host 127.0.0.1",
     "web:build": "vite build",
     "web:check": "tsc --noEmit"
