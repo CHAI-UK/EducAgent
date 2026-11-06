@@ -1,0 +1,189 @@
+{
+  "version": "1.0.0",
+  "concept_id": "association-is-not-causation",
+  "objective": "State that an observed pattern alone does not establish a causal direction.",
+  "source_refs": [
+    {
+      "source_id": "peters-janzing-scholkopf-2017",
+      "locator": "Section 1.3, paragraph beginning 'To learn causal structures'; Figure 1.2 and Principle 1.1 (Reichenbach's common cause principle)"
+    }
+  ],
+  "profiles": {
+    "general": {
+      "title": "A shared pattern is not yet a cause",
+      "hook": "In a fictional seaside town, days with more ice-cream sales also have more sunburn cases. Would closing the ice-cream stalls prevent sunburn?",
+      "example_label": "Synthetic teaching example; not a finding about a real town.",
+      "scenario_image": {
+        "path": "media/foundation-samples/general-association.png",
+        "alt_text": "A sunny fictional seaside setting with an ice-cream stall and people outdoors, illustrating two recorded patterns without showing a causal conclusion."
+      },
+      "worked_steps": [
+        {
+          "title": "Describe what was observed",
+          "text": "Ice-cream sales and sunburn cases rise together. The records show an association. They do not tell us what would happen if ice-cream availability were changed."
+        },
+        {
+          "title": "Consider another explanation",
+          "text": "Sunny weather could increase ice-cream purchases and encourage people to spend more time in the sun. One shared cause could produce both patterns. This is a possible explanation, not a conclusion from the records."
+        },
+        {
+          "title": "Separate observation from action",
+          "text": "Closing the stalls changes ice-cream availability. The observed pattern alone does not tell us whether that action would change sunburn cases. A causal claim needs further support."
+        }
+      ],
+      "worked_graph": {
+        "label": "Possible explanation, not established by these records",
+        "nodes": [
+          {"node_id": "weather", "label": "Sunny weather"},
+          {"node_id": "sales", "label": "Ice-cream sales"},
+          {"node_id": "sunburn", "label": "Sunburn cases"}
+        ],
+        "edges": [
+          {"from": "weather", "to": "sales"},
+          {"from": "weather", "to": "sunburn"}
+        ],
+        "note": "Only the proposed common-cause paths are shown. This is a partial hypothesis, not a complete causal graph; the effect of changing ice-cream availability remains unresolved."
+      },
+      "definition": "Association means variables vary together in the records. Causation concerns what would change if the system were changed. Association alone does not establish a causal direction.",
+      "pitfall": "Do not replace 'occur together' with 'one causes the other'. Finding a possible common cause also does not prove that it is the true explanation.",
+      "takeaway": "State the observed pattern first. Keep the causal explanation separate until it has further support.",
+      "practice": {
+        "activity_id": "association-is-not-causation.general.practice",
+        "question": "Which statement is supported by the fictional town's records alone?",
+        "choices": [
+          {
+            "option_id": "association-only",
+            "text": "Ice-cream sales and sunburn cases are associated; the records alone do not establish the effect of closing the stalls.",
+            "correct": true,
+            "feedback": "Yes. This reports the association without claiming an intervention effect."
+          },
+          {
+            "option_id": "association-proves-cause",
+            "text": "Ice-cream sales cause sunburn, so closing the stalls would prevent it.",
+            "correct": false,
+            "feedback": "The records do not establish this causal direction. Sunny weather is one possible shared explanation."
+          },
+          {
+            "option_id": "association-proves-no-effect",
+            "text": "Sunny weather must explain everything, so ice-cream availability cannot affect sunburn.",
+            "correct": false,
+            "feedback": "A plausible explanation is not a demonstrated explanation. These records prove neither an effect nor the absence of one."
+          }
+        ]
+      },
+      "transfer": {
+        "activity_id": "association-is-not-causation.general.transfer",
+        "title": "Fresh challenge: tutoring and test scores",
+        "question": "A fictional school's records show that pupils receiving extra tutoring have lower average test scores than other pupils. The school did not assign tutoring randomly. Which conclusion is justified by these records alone?",
+        "choices": [
+          {
+            "option_id": "association-only",
+            "text": "The records show an association, but do not establish whether tutoring raises or lowers scores.",
+            "correct": true,
+            "feedback": "Correct. Pupils who already find the subject difficult may be more likely to receive tutoring. That is a possible explanation, not something these records prove."
+          },
+          {
+            "option_id": "harmful",
+            "text": "Extra tutoring lowers test scores.",
+            "correct": false,
+            "feedback": "This turns an observed group difference into a causal claim. The groups may differ before tutoring begins."
+          },
+          {
+            "option_id": "beneficial",
+            "text": "Extra tutoring raises test scores.",
+            "correct": false,
+            "feedback": "That may be possible, but these records alone do not establish it. The effect could differ from the observed group comparison."
+          }
+        ]
+      }
+    },
+    "medical": {
+      "title": "A group difference is not yet a treatment effect",
+      "hook": "In a fictional clinic, patients receiving Treatment A recover less often than patients who do not receive it. Does this show that Treatment A harms recovery?",
+      "example_label": "Synthetic teaching example; Treatment A is fictional.",
+      "scenario_image": {
+        "path": "media/foundation-samples/medical-association.png",
+        "alt_text": "A fictional clinic with patients and clinicians, illustrating treatment receipt and recovery as recorded variables without showing a treatment-effect conclusion."
+      },
+      "worked_steps": [
+        {
+          "title": "Describe what was observed",
+          "text": "Treatment receipt and recovery differ across the recorded groups. This is an association. It does not tell us what would happen if otherwise comparable patients received different treatments."
+        },
+        {
+          "title": "Consider another explanation",
+          "text": "Patients with more severe illness may be more likely to receive Treatment A and less likely to recover. Severity could influence both treatment receipt and recovery. This is a possible explanation, not a conclusion from the records."
+        },
+        {
+          "title": "Separate observation from action",
+          "text": "Choosing to give Treatment A is a different question from comparing the existing groups. Their recovery difference alone does not establish the treatment's effect. A causal claim needs further support."
+        }
+      ],
+      "worked_graph": {
+        "label": "Possible explanation, not established by these records",
+        "nodes": [
+          {"node_id": "severity", "label": "Illness severity before treatment"},
+          {"node_id": "treatment", "label": "Treatment A receipt"},
+          {"node_id": "recovery", "label": "Recovery"}
+        ],
+        "edges": [
+          {"from": "severity", "to": "treatment"},
+          {"from": "severity", "to": "recovery"}
+        ],
+        "note": "Only the proposed common-cause paths are shown. This is a partial hypothesis, not a complete causal graph; Treatment A's effect on recovery remains unresolved."
+      },
+      "definition": "Association means variables vary together in the records. Causation concerns what would change if the system were changed. Association alone does not establish a causal direction.",
+      "pitfall": "Do not interpret poorer outcomes among treated patients as proof of harm. A possible severity difference also does not prove that the treatment helps or has no effect.",
+      "takeaway": "Report the group difference, then identify what further support a treatment-effect claim would need.",
+      "practice": {
+        "activity_id": "association-is-not-causation.medical.practice",
+        "question": "Which statement is supported by the fictional clinic's records alone?",
+        "choices": [
+          {
+            "option_id": "association-only",
+            "text": "Treatment receipt is associated with recovery; the records alone do not establish the effect of giving Treatment A.",
+            "correct": true,
+            "feedback": "Yes. The observed group difference does not by itself reveal what would happen if treatment were assigned differently."
+          },
+          {
+            "option_id": "association-proves-cause",
+            "text": "Treatment A harms recovery because treated patients recovered less often.",
+            "correct": false,
+            "feedback": "The groups may differ in illness severity before treatment. Poorer outcomes in the treated group do not establish treatment harm."
+          },
+          {
+            "option_id": "association-proves-no-effect",
+            "text": "Severity must explain the difference, so Treatment A has no effect.",
+            "correct": false,
+            "feedback": "Severity is a possible explanation. These records alone prove neither that explanation nor the absence of a treatment effect."
+          }
+        ]
+      },
+      "transfer": {
+        "activity_id": "association-is-not-causation.medical.transfer",
+        "title": "Fresh challenge: monitoring and hospital stay",
+        "question": "A fictional hospital's records show that patients receiving intensive monitoring have longer stays than other patients. Monitoring was chosen by clinicians rather than assigned randomly. Which conclusion is justified by these records alone?",
+        "choices": [
+          {
+            "option_id": "association-only",
+            "text": "Monitoring and length of stay are associated, but the records alone do not establish whether monitoring lengthens or shortens a stay.",
+            "correct": true,
+            "feedback": "Correct. Patients with greater clinical needs may receive more monitoring and stay longer. That possibility prevents the recorded group difference from establishing monitoring's effect."
+          },
+          {
+            "option_id": "harmful",
+            "text": "Intensive monitoring lengthens hospital stays.",
+            "correct": false,
+            "feedback": "This assumes the recorded groups are comparable. Their clinical needs may already differ when monitoring is chosen."
+          },
+          {
+            "option_id": "beneficial",
+            "text": "Intensive monitoring shortens hospital stays.",
+            "correct": false,
+            "feedback": "That could be possible, but these records alone do not establish it. An association does not settle the direction of an intervention effect."
+          }
+        ]
+      }
+    }
+  }
+}

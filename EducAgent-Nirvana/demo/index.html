@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Causal Research Framing - Nirvana demo</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">EducAgent</a><span class="divider"></span>
+    <span class="product">Causal Research Framing</span>
+  </header>
+
+  <main class="workspace">
+    <section class="workpane" aria-labelledby="page-title">
+      <h1 id="page-title">Causal Research Framing</h1>
+      <p class="lede">Clarify your research question and where causality may help. Use Nirvana to prepare a brief for further analysis with an expert or an AI tool.</p>
+
+      <nav class="steps" aria-label="Workflow steps">
+        <button type="button" class="step active" data-step="1" aria-current="step"><span>1</span> Problem</button>
+        <i></i><button type="button" class="step" data-step="2"><span>2</span> Task</button>
+        <i></i><button type="button" class="step" data-step="2.5"><span>3</span> Framing</button>
+        <i></i><button type="button" class="step" data-step="3"><span>4</span> Brief</button>
+        <i></i><button type="button" class="step" data-step="4"><span>5</span> Route</button>
+      </nav>
+
+      <p id="draft-status" class="muted" role="status" aria-live="polite"></p>
+      <button type="button" id="retry-draft" class="quiet hidden">Retry Brief generation</button>
+      <div class="panel step-panel" data-panel="1">
+        <label for="problem"><strong>What decision or scientific question are you working on?</strong></label>
+        <div class="problem-editor-tools" role="group" aria-label="Problem editor mode">
+          <button type="button" class="quiet" id="problem-edit" aria-pressed="true">Edit</button>
+          <button type="button" class="quiet" id="problem-preview-toggle" aria-pressed="false">Preview</button>
+          <small id="problem-markdown-hint" class="muted">Markdown supported</small>
+        </div>
+        <textarea id="problem" maxlength="2000">We are considering adopting a new emergency department triage protocol (RapidTrack) designed to fast-track low-acuity patients to appropriate care pathways.
+We want to know whether implementing RapidTrack reduces 30-day all-cause hospital readmissions compared with our current standard triage.
+The decision is whether to adopt RapidTrack system-wide.</textarea>
+        <div id="problem-preview" class="problem-preview chat-markdown hidden" role="region" aria-label="Problem Markdown preview" tabindex="0"></div>
+        <div class="counter"><span id="count">0</span> / 2000</div>
+        <div class="example-picker">
+          <strong id="example-label">Load an example (replaces this worksheet and chat)</strong>
+          <div class="example-buttons" role="group" aria-labelledby="example-label">
+            <button type="button" class="example-button" data-example="effect" aria-pressed="false"><b>Example 1</b><span>Oregon Medicaid experiment</span></button>
+            <button type="button" class="example-button" data-example="shift" aria-pressed="false"><b>Example 2</b><span>Prostate MRI across centres</span></button>
+            <button type="button" class="example-button" data-example="mediation" aria-pressed="false"><b>Example 3</b><span>How pain education and exercise help</span></button>
+            <button type="button" class="example-button" data-example="descriptive" aria-pressed="false"><b>Example 4</b><span>Population obesity trends</span></button>
+            <button type="button" class="example-button" data-example="adni_discovery" aria-pressed="false"><b>Example 5</b><span>Alzheimer's biomarker relationships</span></button>
+            <button type="button" class="example-button" data-example="depression_policy" aria-pressed="false"><b>Example 6</b><span>Sequential depression treatment</span></button>
+            <button type="button" class="example-button" data-example="brain_cf" aria-pressed="false"><b>Example 7</b><span>The same brain, different ventricle volume</span></button>
+            <button type="button" class="example-button" data-example="ehr_predict" aria-pressed="false"><b>Example 8</b><span>Predicting readmission from EHRs</span></button>
+            <button type="button" class="example-button" data-example="ctpa" aria-pressed="false"><b>Example 9</b><span>CTPA synthesis &amp; scanner shifts (custom)</span></button>
+          </div>
+        </div>
+        <p class="tip" id="example-source"></p>
+        <div class="actions"><button type="button" class="quiet" data-action="reset">Start again</button><button type="button" class="primary" id="generate-brief">Next</button></div>
+        <p id="generation-status" class="tip" role="status"></p>
+      </div>
+
+      <div class="panel step-panel hidden" data-panel="2">
+        <h2>What kind of problem is this?</h2>
+        <p id="task-status" class="callout" role="status" aria-live="polite"></p>
+        <button type="button" class="quiet hidden" id="retry-categorise">Retry categorisation</button>
+        <div class="choice-grid" role="group" aria-label="Task type">
+          <div class="choice-item">
+            <button type="button" class="choice selected" data-task="effect" aria-pressed="true"><b>Effect of an intervention</b><span>Would changing X alter Y, compared with an alternative?</span></button>
+            <a class="choice-learn" href="/portal/?module=m1_effect">New to this? Learn it in the Portal</a>
+          </div>
+          <div class="choice-item">
+            <button type="button" class="choice" data-task="shift" aria-pressed="false"><b>Robust prediction or generation</b><span>Will prediction or synthesis remain reliable across hospitals, devices, populations or time?</span></button>
+            <a class="choice-learn" href="/portal/?module=m1_shift">New to this? Learn it in the Portal</a>
+          </div>
+          <button type="button" class="choice" data-task="mediation" aria-pressed="false"><b>Mechanism or mediation</b><span>Does X affect Y partly through an intermediate process?</span></button>
+          <button type="button" class="choice" data-task="descriptive" aria-pressed="false"><b>Description or measurement</b><span>What happened, how often, or how is it distributed?</span></button>
+          <button type="button" class="choice" data-task="discovery" aria-pressed="false"><b>Causal structure discovery</b><span>Which variables cause which others?</span></button>
+          <button type="button" class="choice" data-task="policy" aria-pressed="false"><b>Action or policy choice</b><span>Which action should be assigned to whom, under constraints?</span></button>
+          <button type="button" class="choice" data-task="counterfactual" aria-pressed="false"><b>Individual counterfactual</b><span>For this same observed case, what if something had been different?</span></button>
+          <button type="button" class="choice" data-task="prediction" aria-pressed="false"><b>Prediction without a shift question</b><span>What outcome can we predict using information available now?</span></button>
+          <button type="button" class="choice choice-wide" data-task="other" aria-pressed="false"><b>Another or unclear research task</b><span>Clarify the goal, or find a suitable workflow for literature, coding or advice.</span></button>
+        </div>
+        <div class="actions"><button type="button" class="quiet" data-prev="1">Back</button><button type="button" class="primary" id="task-next">Next</button></div>
+      </div>
+
+      <div class="panel step-panel hidden" data-panel="2.5">
+        <h2>Frame your research question</h2>
+        <div id="framing-lesson"></div>
+        <label for="reasoning-note">Your current reasoning or uncertainty</label>
+        <textarea id="reasoning-note" maxlength="2000" placeholder="What do you think is happening, and what are you unsure about? You may leave this unknown."></textarea>
+        <div class="actions framing-actions"><button type="button" class="quiet" data-prev="2">Change task</button><button type="button" class="quiet" id="discuss-reasoning">Discuss with Nirvana</button><button type="button" class="primary" id="framing-next">Continue to Brief</button></div>
+      </div>
+      <div class="panel step-panel hidden" data-panel="3">
+        <h2 id="clarify-title">Clarify the causal contrast</h2>
+        <p id="brief-field-limit" class="muted">Each Brief field can contain up to 2,000 characters. Longer drafts stay intact; shorten them before asking Nirvana for edits.</p>
+        <div id="effect-fields" class="field-grid task-fields">
+          <label class="wide">Intended decision or purpose<input id="decision" value="Whether to adopt RapidTrack system-wide"></label>
+          <label>Exposure or intervention<input id="exposure" value="Implementation of RapidTrack triage protocol"></label>
+          <label>Comparator<input id="comparator" value="Current standard triage (status quo)"></label>
+          <label>Outcome<input id="outcome" value="30-day all-cause hospital readmission"></label>
+          <label>Population<input id="population" value="Patients presenting to the emergency department"></label>
+          <label>Time horizon<input id="time" value="30 days after ED visit"></label>
+          <label class="wide">Assumptions &amp; uncertainty<textarea id="assumptions">No unmeasured confounding affecting triage assignment and readmission; consistency; accurate outcome ascertainment. Potential uncertainty about changes in concurrent ED initiatives.</textarea></label>
+        </div>
+        <div id="shift-fields" class="field-grid task-fields hidden">
+          <label class="wide">Prediction or generation target and intended use<input id="prediction-target" value="Tumour presence used to flag ultrasound scans for specialist review"></label>
+          <label class="wide">Candidate predictors and when they are measured<textarea id="candidate-predictors">Ultrasound image intensity and derived image features, captured at scan time before specialist review.</textarea></label>
+          <label>Training environment<input id="training-environment" value="Scanner A with its current gain settings and acquisition workflow"></label>
+          <label>Expected deployment environment<input id="deployment-environment" value="Scanner B with different gain settings or acquisition practice"></label>
+          <label class="wide">Suspected shifted variable or mechanism<textarea id="shift-sources">Scanner gain and image intensity may differ between ultrasound devices and scanning setups.</textarea></label>
+          <label class="wide">How the predictors may relate to the target<textarea id="predictor-roles">Tumour presence may affect image features. Scanner gain also affects the captured image. These relationships are a researcher hypothesis, not a confirmed graph.</textarea></label>
+          <label class="wide">Deployment data and adaptation constraints<textarea id="deployment-constraints">Deployment images and device metadata may be available before use, but outcome labels may not be. Any adaptation must fit the local privacy and compute constraints.</textarea></label>
+          <label class="wide">Assumptions &amp; uncertainty<textarea id="shift-uncertainty">A multiplicative scanner-gain mechanism is plausible but not established. It is unknown whether device metadata and within-setup calibration statistics are sufficient.</textarea></label>
+        </div>
+        <div id="mediation-fields" class="field-grid task-fields hidden">
+          <label class="wide">Intended decision or scientific purpose<input id="mediation-decision" value="Understand whether improved medication adherence may explain part of the intervention effect"></label>
+          <label>Exposure or intervention<input id="mediation-exposure" value="Pharmacist-led medication review"></label>
+          <label>Proposed mediator<input id="mediator" value="Improved medication adherence"></label>
+          <label>Outcome<input id="mediation-outcome" value="90-day hospital readmission"></label>
+          <label>Population<input id="mediation-population" value="Adults receiving the medication review"></label>
+          <label>Target effect<input id="mediation-effect" value="Indirect effect through adherence; direct effect remains of interest"></label>
+          <label>Time ordering<input id="mediation-time" value="Review, then adherence measurement, then readmission within 90 days"></label>
+          <label class="wide">Assumptions &amp; uncertainty<textarea id="mediation-uncertainty">Medication adherence may be affected by post-intervention factors that also affect readmission. The mediator definition, measurement timing, and required causal assumptions need specialist review.</textarea></label>
+        </div>
+        <div id="descriptive-fields" class="field-grid task-fields hidden">
+          <label class="wide">Purpose<input id="descriptive-purpose" value="Describe 30-day readmission rates for service monitoring"></label>
+          <label>Population or cohort<input id="descriptive-population" value="Patients discharged from participating emergency departments in 2025"></label>
+          <label>Measure<input id="descriptive-measure" value="Proportion readmitted within 30 days"></label>
+          <label>Denominator<input id="descriptive-denominator" value="Eligible emergency department discharges"></label>
+          <label>Breakdowns or strata<input id="descriptive-strata" value="Hospital and age group"></label>
+          <label>Time window<input id="descriptive-time" value="Discharges during 2025; 30-day follow-up"></label>
+          <label class="wide">Data source &amp; limitations<textarea id="descriptive-limitations">Readmission capture across hospitals and incomplete follow-up may affect the reported proportions. This brief does not seek a causal effect.</textarea></label>
+        </div>
+        <div id="discovery-fields" class="field-grid task-fields hidden">
+          <label class="wide">Scientific purpose<textarea id="discovery-purpose"></textarea></label>
+          <label class="wide">Candidate variables and measurement timing<textarea id="discovery-variables"></textarea></label>
+          <label class="wide">Observations, interventions and sampling<textarea id="discovery-data"></textarea></label>
+          <label class="wide">Known ordering and structural constraints<textarea id="discovery-knowledge"></textarea></label>
+          <label class="wide">Latent variables, measurement and uncertainty<textarea id="discovery-uncertainty"></textarea></label>
+        </div>
+        <div id="policy-fields" class="field-grid task-fields hidden">
+          <label class="wide">Decision and target population<textarea id="policy-purpose"></textarea></label>
+          <label class="wide">Available actions and current policy<textarea id="policy-actions"></textarea></label>
+          <label class="wide">Outcome, utility and time horizon<textarea id="policy-objective"></textarea></label>
+          <label class="wide">Information available when choosing<textarea id="policy-information"></textarea></label>
+          <label class="wide">Budget, capacity and other constraints<textarea id="policy-constraints"></textarea></label>
+          <label class="wide">Data and evidence about action effects<textarea id="policy-evidence"></textarea></label>
+          <label class="wide">Assumptions and uncertainty<textarea id="policy-uncertainty"></textarea></label>
+        </div>
+        <div id="counterfactual-fields" class="field-grid task-fields hidden">
+          <label class="wide">Purpose and factual case<textarea id="cf-purpose"></textarea></label>
+          <label class="wide">Observed state and outcome<textarea id="cf-observed"></textarea></label>
+          <label class="wide">Hypothetical intervention and contrast<textarea id="cf-intervention"></textarea></label>
+          <label class="wide">Counterfactual outcome of interest<textarea id="cf-target"></textarea></label>
+          <label class="wide">Structural knowledge and case-preserving assumptions<textarea id="cf-model"></textarea></label>
+          <label class="wide">Evidence, identifiability and uncertainty<textarea id="cf-uncertainty"></textarea></label>
+        </div>
+        <div id="prediction-fields" class="field-grid task-fields hidden">
+          <label class="wide">Intended use and population<textarea id="prediction-purpose"></textarea></label>
+          <label class="wide">Target and prediction horizon<textarea id="prediction-outcome"></textarea></label>
+          <label class="wide">Inputs available at prediction time<textarea id="prediction-inputs"></textarea></label>
+          <label class="wide">Training and evaluation data<textarea id="prediction-data"></textarea></label>
+          <label class="wide">Success criteria and validation plan<textarea id="prediction-evaluation"></textarea></label>
+          <label class="wide">Leakage, missingness and uncertainty<textarea id="prediction-uncertainty"></textarea></label>
+        </div>
+        <div class="actions"><button type="button" class="quiet" data-prev="2.5">Back to framing</button><button type="button" class="primary" data-next="4">Review route</button></div>
+      </div>
+
+      <div class="panel step-panel hidden" data-panel="4">
+        <div class="callout"><h2 id="route-summary-title">Where causality can be applied</h2><p id="route-summary"></p></div>
+        <h2 id="route-next-title">Choose one next step</h2>
+        <div id="route-tools"></div>
+        <p id="route-guidance" hidden></p>
+        <div id="route-content"></div>
+        <div class="actions"><button type="button" class="quiet" data-prev="3">Edit brief</button><button type="button" class="primary" id="copy-handoff" disabled>Copy handoff prompt</button></div>
+        <p class="copy-status" id="copy-status" role="status"></p>
+      </div>
+    </section>
+
+    <aside class="brief" aria-labelledby="brief-title">
+      <div class="brief-head"><div><h2 id="brief-title">Causal Research Brief</h2></div><span class="status" id="brief-status">DRAFT</span></div>
+      <dl id="brief-fields" class="brief-fields"></dl>
+      <button type="button" class="quiet" id="confirm-brief" disabled>Confirm this Brief</button>
+
+    </aside>
+  </main>
+
+      <button type="button" class="primary chat-launcher" id="chat-toggle" aria-expanded="false" aria-controls="framing-chat"><img src="assets/nirvana-mascot.png" alt="" class="tutor-avatar">Chat with Nirvana</button>
+      <section class="agent-panel floating-chat hidden" id="framing-chat" role="dialog" aria-modal="false" aria-labelledby="agent-title">
+        <button type="button" id="chat-resize" class="chat-resize" aria-label="Resize chat: drag or use arrow keys" title="Drag to resize · Arrow keys also work">⤢</button>
+        <button type="button" class="quiet chat-close" id="chat-close" aria-label="Close chat">×</button>
+        <img src="assets/nirvana-mascot.png" alt="Nirvana framing guide" class="tutor-avatar chat-avatar">
+        <h2 id="agent-title">Talk through the framing</h2>
+        <div id="chat-scroll" class="chat-scroll">
+        <div id="agent-messages" class="agent-messages" aria-live="polite">
+        </div>
+        <div id="brief-proposals" class="brief-proposals hidden" aria-label="Suggested Brief changes" aria-live="polite"></div>
+        <section id="brief-check" aria-label="Step-by-step Brief review">
+          <p id="check-question" aria-live="polite"></p>
+          <details><summary>What should I consider?</summary><p id="check-help"></p></details>
+          <button type="button" class="quiet" id="check-confirm">This is clear · Next</button>
+          <button type="button" class="quiet" id="check-skip">Leave for later</button>
+          <button type="button" class="quiet" id="check-pause">Pause review</button>
+          <button type="button" class="quiet" id="check-start">Start review</button>
+        </section>
+        </div>
+        <form id="agent-form">
+          <label for="agent-message">Message</label>
+          <div class="chat-composer">
+            <textarea id="agent-message" maxlength="4000" aria-describedby="chat-shortcut" placeholder="For example: What assumptions am I overlooking?"></textarea>
+            <button type="submit" class="primary">Send</button>
+          </div>
+          <small id="chat-shortcut" class="muted">Ctrl+Enter to send · Enter or Shift+Enter for a new line</small>
+          <div class="agent-actions">
+            <span id="agent-status" role="status"></span>
+          </div>
+        </form>
+      </section>
+  <script src="markdown.js"></script>
+  <script src="guidance.js"></script>
+  <script src="destinations.js"></script>
+<script src="worked-examples.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

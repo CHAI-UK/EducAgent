@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Content Pack Editor</title>
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --panel: #ffffff;
+    --border: #d7dbe0;
+    --text: #202225;
+    --muted: #6b7280;
+    --accent: #2563eb;
+    --accent-dark: #1d4ed8;
+    --danger: #dc2626;
+    --danger-dark: #b91c1c;
+    --ok: #15803d;
+    --row-bg: #fafbfc;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding-bottom: 80px;
+  }
+  header.toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  header.toolbar h1 {
+    font-size: 16px;
+    margin: 0 16px 0 0;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .spacer { flex: 1; }
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    padding: 7px 12px;
+    color: var(--text);
+  }
+  button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent-dark);
+  }
+  button.primary:hover { background: var(--accent-dark); }
+  button.danger {
+    background: #fff;
+    color: var(--danger);
+    border-color: var(--danger);
+  }
+  button.danger:hover { background: #fef2f2; }
+  button.add {
+    background: #ecfdf5;
+    color: var(--ok);
+    border-color: #86efac;
+    margin-top: 6px;
+  }
+  main {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  section.block {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 22px;
+  }
+  section.block > h2 {
+    margin: 0 0 4px 0;
+    font-size: 17px;
+  }
+  section.block > p.desc {
+    margin: 0 0 14px 0;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .entry {
+    background: var(--row-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .entry-nested {
+    background: #fff;
+    border: 1px dashed var(--border);
+  }
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .entry-header .tag {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .field-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .field {
+    flex: 1 1 220px;
+    min-width: 180px;
+  }
+  .field.wide { flex: 1 1 100%; }
+  .field label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .field .hint {
+    display: block;
+    color: var(--muted);
+    font-size: 11.5px;
+    margin-top: 3px;
+    font-weight: 400;
+  }
+  input[type=text], textarea, select {
+    width: 100%;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: #fff;
+    color: var(--text);
+  }
+  textarea { resize: vertical; min-height: 44px; }
+  label.checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-right: 16px;
+  }
+  .nested-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .nested-section > .nested-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 6px 0 10px 0;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    padding: 6px 10px;
+    border-radius: 5px;
+  }
+  #errors {
+    max-width: 980px;
+    margin: 16px auto 0 auto;
+    padding: 0 20px;
+  }
+  .error-box {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: #7f1d1d;
+  }
+  .error-box h3 { margin: 0 0 8px 0; font-size: 14px; }
+  .error-box ul { margin: 0; padding-left: 18px; }
+  .error-box li { margin-bottom: 4px; font-size: 13px; }
+  .success-box {
+    background: #ecfdf5;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    padding: 10px 18px;
+    color: var(--ok);
+    font-size: 13px;
+  }
+  .remove-btn {
+    font-size: 12px;
+    padding: 4px 9px;
+  }
+  #import-file { display: none; }
+  .empty-msg {
+    color: var(--muted);
+    font-size: 13px;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<header class="toolbar">
+  <h1>Content Pack Editor</h1>
+  <button id="btn-load-example">Load example</button>
+  <button id="btn-import">Import JSON&hellip;</button>
+  <input type="file" id="import-file" accept="application/json,.json">
+  <div class="spacer"></div>
+  <button id="btn-validate">Validate with SDK</button>
+  <button class="primary" id="btn-export">Export JSON</button>
+</header>
+
+<div id="errors"></div>
+
+<main>
+
+  <section class="block" id="section-meta">
+    <h2>Pack metadata</h2>
+    <p class="desc">Basic identifying information for this content pack.</p>
+    <div class="field-row">
+      <div class="field">
+        <label for="meta-pack-id">Pack ID</label>
+        <input type="text" id="meta-pack-id" data-meta="pack_id" placeholder="causality.m0.seed">
+        <span class="hint">Auto-filled from the title until you edit it directly. Lowercase letters, digits, and single "." "_" "-" separators only, e.g. "causality.m0.seed".</span>
+      </div>
+      <div class="field">
+        <label for="meta-version">Version</label>
+        <input type="text" id="meta-version" data-meta="version" placeholder="0.1.0">
+        <span class="hint">Semantic version, e.g. "0.1.0".</span>
+      </div>
+      <div class="field wide">
+        <label for="meta-title">Title</label>
+        <input type="text" id="meta-title" data-meta="title" placeholder="Causality M0 Seed">
+        <span class="hint">Human-readable name for this pack, shown to reviewers.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="section-sources">
+    <h2>Sources</h2>
+    <p class="desc">Books, papers, or other citable references this pack's claims are drawn from.</p>
+    <div id="list-sources"></div>
+    <button class="add" data-action="add-source">+ Add source</button>
+  </section>
+
+  <section class="block" id="section-concepts">
+    <h2>Concepts</h2>
+    <p class="desc">The learning objectives this pack teaches, and which activities count as evidence of mastering them.</p>
+    <div id="list-concepts"></div>
+    <button class="add" data-action="add-concept">+ Add concept</button>
+  </section>
+
+  <section class="block" id="section-claims">
+    <h2>Claims</h2>
+    <p class="desc">Precise factual propositions, each traceable to a source. Teaching resources below must cite these claims.</p>
+    <div id="list-claims"></div>
+    <button class="add" data-action="add-claim">+ Add claim</button>
+  </section>
+
+  <section class="block" id="section-resources">
+    <h2>Resources</h2>
+    <p class="desc">The actual learner-facing wording: questions, hints, explanations, and consequence messages. Each must cite at least one claim it is licensed by.</p>
+    <div id="list-resources"></div>
+    <button class="add" data-action="add-resource">+ Add resource</button>
+  </section>
+
+  <section class="block" id="section-activities">
+    <h2>Activities</h2>
+    <p class="desc">Edit questions, choices, feedback and learner revision requirements.</p>
+    <div class="note">Choice and classification activities can be edited here. Imported images, causal scenes, deterministic derivations and other non-form fields are preserved on export. Scene structure must still be edited in JSON. Export checks authoring structure; the SDK remains the final release validator.</div>
+    <div id="list-activities"></div>
+    <button class="add" data-action="add-activity">+ Add activity</button>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------------
+  var state = {
+    pack_id: "",
+    version: "",
+    title: "",
+    sources: [],
+    concepts: [],
+    claims: [],
+    resources: [],
+    activities: []
+  };
+
+  function blankSource() {
+    return { source_id: "", citation: "", rights: "", review_status: "draft" };
+  }
+  function blankConcept() {
+    return { concept_id: "", objective: "", completion_activity_ids: "", m1_ready_activity_ids: "" };
+  }
+  function blankSourceRef() {
+    return { source_id: "", locator: "" };
+  }
+  function blankClaim() {
+    return { claim_id: "", proposition: "", release_status: "draft", source_refs: [] };
+  }
+  function blankResource() {
+    return { resource_id: "", kind: "question", text: "", claim_ids: "", release_status: "draft" };
+  }
+  function blankChoice() {
+    return { option_id: "", text: "", correct: false, consequence_resource_id: "", hint_resource_ids: "", misconception_id: "" };
+  }
+  function blankActivity() {
+    return {
+      activity_id: "",
+      activity_type: "choice",
+      concept_id: "",
+      question_resource_id: "",
+      explanation_resource_id: "",
+      covered_concept_ids: "",
+      is_transfer: false,
+      requires_revision: false,
+      choices: []
+    };
+  }
+
+  // ---------------------------------------------------------------------
+  // Small helpers
+  // ---------------------------------------------------------------------
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function splitIds(str) {
+    if (!str) return [];
+    return String(str)
+      .split(/[\s,]+/)
+      .map(function (s) { return s.trim(); })
+      .filter(function (s) { return s.length > 0; });
+  }
+
+  function joinIds(arr) {
+    return (arr || []).join(", ");
+  }
+
+  function copyJson(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  function rememberImport(original, fields) {
+    fields._initial = copyJson(fields);
+    fields._original = copyJson(original);
+    return fields;
+  }
+
+  // Keep absent defaults and all non-form fields intact. Only edited fields
+  // replace the imported record, including nested choice/reference edits.
+  function mergeEdits(item, fields) {
+    if (!item._original) return fields;
+    var result = copyJson(item._original);
+    Object.keys(fields).forEach(function (field) {
+      if (JSON.stringify(item[field]) !== JSON.stringify(item._initial[field])) {
+        result[field] = fields[field];
+      }
+    });
+    return result;
+  }
+
+  var ID_PATTERN = /^[a-z0-9]+(?:[._-][a-z0-9]+)*$/;
+  var VERSION_PATTERN = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+
+  function el(html) {
+    var d = document.createElement("div");
+    d.innerHTML = html.trim();
+    return d.firstElementChild;
+  }
+
+  // ---------------------------------------------------------------------
+  // Rendering
+  // ---------------------------------------------------------------------
+
+  function renderMeta() {
+    document.getElementById("meta-pack-id").value = state.pack_id;
+    document.getElementById("meta-version").value = state.version;
+    document.getElementById("meta-title").value = state.title;
+  }
+
+  function renderSources() {
+    var container = document.getElementById("list-sources");
+    container.innerHTML = "";
+    if (state.sources.length === 0) {
+      container.appendChild(el('<p class="empty-msg">No sources yet.</p>'));
+    }
+    state.sources.forEach(function (src, idx) {
+      var row = el(
+        '<div class="entry" data-list="sources" data-idx="' + idx + '">' +
+          '<div class="entry-header"><span class="tag">Source ' + (idx + 1) + '</span>' +
+            '<button class="danger remove-btn" data-action="remove-source" data-idx="' + idx + '">Remove</button></div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Source ID</label>' +
+              '<input type="text" data-field="source_id" placeholder="peters-janzing-scholkopf-2017">' +
+              '<span class="hint">Short unique id for this source, lowercase-with-dashes.</span>' +
+            '</div>' +
+            '<div class="field">' +
+              '<label>Review status</label>' +
+              '<select data-field="review_status">' +
+                '<option value="draft">draft</option>' +
+                '<option value="reviewed">reviewed</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Citation</label>' +
+              '<textarea data-field="citation" placeholder="Author, Title, Publisher, Year."></textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Rights</label>' +
+              '<textarea data-field="rights" placeholder="License / usage rights note for this source."></textarea>' +
+              '<span class="hint">Any licensing or usage restrictions a reviewer should know about.</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+      row.querySelector('[data-field="source_id"]').value = src.source_id;
+      row.querySelector('[data-field="citation"]').value = src.citation;
+      row.querySelector('[data-field="rights"]').value = src.rights;
+      row.querySelector('[data-field="review_status"]').value = src.review_status;
+      container.appendChild(row);
+    });
+  }
+
+  function renderConcepts() {
+    var container = document.getElementById("list-concepts");
+    container.innerHTML = "";
+    if (state.concepts.length === 0) {
+      container.appendChild(el('<p class="empty-msg">No concepts yet.</p>'));
+    }
+    state.concepts.forEach(function (c, idx) {
+      var row = el(
+        '<div class="entry" data-list="concepts" data-idx="' + idx + '">' +
+          '<div class="entry-header"><span class="tag">Concept ' + (idx + 1) + '</span>' +
+            '<button class="danger remove-btn" data-action="remove-concept" data-idx="' + idx + '">Remove</button></div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Concept ID</label>' +
+              '<input type="text" data-field="concept_id" placeholder="observation-vs-intervention">' +
+              '<span class="hint">Unique id for this learning objective.</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Objective</label>' +
+              '<textarea data-field="objective" placeholder="Distinguish an observed association from the effect of deliberately changing a variable."></textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Completion activity IDs</label>' +
+              '<input type="text" data-field="completion_activity_ids" placeholder="activity-one, activity-two">' +
+              '<span class="hint">Comma or space separated activity ids that, once completed, count as evidence this concept is learned. At least one required.</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>M1-ready activity IDs (optional)</label>' +
+              '<input type="text" data-field="m1_ready_activity_ids" placeholder="">' +
+              '<span class="hint">Optional: activity ids whose success marks this concept ready for the next module (M1). Leave blank if not applicable.</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+      row.querySelector('[data-field="concept_id"]').value = c.concept_id;
+      row.querySelector('[data-field="objective"]').value = c.objective;
+      row.querySelector('[data-field="completion_activity_ids"]').value = c.completion_activity_ids;
+      row.querySelector('[data-field="m1_ready_activity_ids"]').value = c.m1_ready_activity_ids;
+      container.appendChild(row);
+    });
+  }
+
+  function renderClaims() {
+    var container = document.getElementById("list-claims");
+    container.innerHTML = "";
+    if (state.claims.length === 0) {
+      container.appendChild(el('<p class="empty-msg">No claims yet.</p>'));
+    }
+    state.claims.forEach(function (claim, cIdx) {
+      var row = el(
+        '<div class="entry" data-list="claims" data-idx="' + cIdx + '">' +
+          '<div class="entry-header"><span class="tag">Claim ' + (cIdx + 1) + '</span>' +
+            '<button class="danger remove-btn" data-action="remove-claim" data-idx="' + cIdx + '">Remove</button></div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Claim ID</label>' +
+              '<input type="text" data-field="claim_id" placeholder="association-is-observational">' +
+            '</div>' +
+            '<div class="field">' +
+              '<label>Release status</label>' +
+              '<select data-field="release_status">' +
+                '<option value="draft">draft</option>' +
+                '<option value="released">released</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Proposition</label>' +
+              '<textarea data-field="proposition" placeholder="The precise factual statement this claim asserts."></textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="nested-section">' +
+            '<div class="nested-title">Source references</div>' +
+            '<div class="nested-list" data-sublist-container="source_refs" data-parent-idx="' + cIdx + '"></div>' +
+            '<button class="add" data-action="add-sourceref" data-idx="' + cIdx + '">+ Add source reference</button>' +
+          '</div>' +
+        '</div>'
+      );
+      row.querySelector('[data-field="claim_id"]').value = claim.claim_id;
+      row.querySelector('[data-field="proposition"]').value = claim.proposition;
+      row.querySelector('[data-field="release_status"]').value = claim.release_status;
+
+      var refsContainer = row.querySelector('[data-sublist-container="source_refs"]');
+      if (claim.source_refs.length === 0) {
+        refsContainer.appendChild(el('<p class="empty-msg">No source references yet.</p>'));
+      }
+      claim.source_refs.forEach(function (ref, rIdx) {
+        var refRow = el(
+          '<div class="entry entry-nested" data-list="claims" data-idx="' + cIdx + '" data-sublist="source_refs" data-subidx="' + rIdx + '">' +
+            '<div class="entry-header"><span class="tag">Reference ' + (rIdx + 1) + '</span>' +
+              '<button class="danger remove-btn" data-action="remove-sourceref" data-idx="' + cIdx + '" data-subidx="' + rIdx + '">Remove</button></div>' +
+            '<div class="field-row">' +
+              '<div class="field">' +
+                '<label>Source ID</label>' +
+                '<input type="text" data-field="source_id" placeholder="must match a Source ID above">' +
+              '</div>' +
+              '<div class="field">' +
+                '<label>Locator</label>' +
+                '<input type="text" data-field="locator" placeholder="Section 1.4.1, paragraph 2">' +
+                '<span class="hint">Where exactly in the source this claim comes from.</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+        refRow.querySelector('[data-field="source_id"]').value = ref.source_id;
+        refRow.querySelector('[data-field="locator"]').value = ref.locator;
+        refsContainer.appendChild(refRow);
+      });
+
+      container.appendChild(row);
+    });
+  }
+
+  function renderResources() {
+    var container = document.getElementById("list-resources");
+    container.innerHTML = "";
+    if (state.resources.length === 0) {
+      container.appendChild(el('<p class="empty-msg">No resources yet.</p>'));
+    }
+    state.resources.forEach(function (r, idx) {
+      var row = el(
+        '<div class="entry" data-list="resources" data-idx="' + idx + '">' +
+          '<div class="entry-header"><span class="tag">Resource ' + (idx + 1) + '</span>' +
+            '<button class="danger remove-btn" data-action="remove-resource" data-idx="' + idx + '">Remove</button></div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Resource ID</label>' +
+              '<input type="text" data-field="resource_id" placeholder="observation-vs-intervention.question.01">' +
+            '</div>' +
+            '<div class="field">' +
+              '<label>Kind</label>' +
+              '<select data-field="kind">' +
+                '<option value="question">question</option>' +
+                '<option value="hint">hint</option>' +
+                '<option value="explanation">explanation</option>' +
+                '<option value="consequence">consequence</option>' +
+              '</select>' +
+              '<span class="hint">What role this piece of text plays: the question asked, a hint shown after a wrong choice, the explanation revealed afterward, or a consequence message for a choice.</span>' +
+            '</div>' +
+            '<div class="field">' +
+              '<label>Release status</label>' +
+              '<select data-field="release_status">' +
+                '<option value="draft">draft</option>' +
+                '<option value="released">released</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Text</label>' +
+              '<textarea data-field="text" placeholder="The learner-facing wording."></textarea>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Claim IDs this resource is licensed by</label>' +
+              '<input type="text" data-field="claim_ids" placeholder="association-is-observational, observation-does-not-identify-intervention">' +
+              '<span class="hint">Comma or space separated. At least one claim id required &mdash; the factual basis for this wording.</span>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+      row.querySelector('[data-field="resource_id"]').value = r.resource_id;
+      row.querySelector('[data-field="kind"]').value = r.kind;
+      row.querySelector('[data-field="release_status"]').value = r.release_status;
+      row.querySelector('[data-field="text"]').value = r.text;
+      row.querySelector('[data-field="claim_ids"]').value = r.claim_ids;
+      container.appendChild(row);
+    });
+  }
+
+  function renderActivities() {
+    var container = document.getElementById("list-activities");
+    container.innerHTML = "";
+    if (state.activities.length === 0) {
+      container.appendChild(el('<p class="empty-msg">No activities yet.</p>'));
+    }
+    state.activities.forEach(function (a, aIdx) {
+      var row = el(
+        '<div class="entry" data-list="activities" data-idx="' + aIdx + '">' +
+          '<div class="entry-header"><span class="tag">Activity ' + (aIdx + 1) + ' (' + escapeHtml(a.activity_type) + ')</span>' +
+            '<button class="danger remove-btn" data-action="remove-activity" data-idx="' + aIdx + '">Remove</button></div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Activity ID</label>' +
+              '<input type="text" data-field="activity_id" placeholder="observation-vs-intervention.01">' +
+            '</div>' +
+            '<div class="field">' +
+              '<label>Concept ID</label>' +
+              '<input type="text" data-field="concept_id" placeholder="must match a Concept ID above">' +
+              '<span class="hint">The main concept this activity tests.</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Activity type</label>' +
+              '<select data-field="activity_type">' +
+                '<option value="choice">choice</option>' +
+                '<option value="classification">classification</option>' +
+                '<option value="causal_scene" disabled>causal_scene (preserved from JSON)</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label>Question resource ID</label>' +
+              '<input type="text" data-field="question_resource_id" placeholder="must match a Resource ID above">' +
+            '</div>' +
+            '<div class="field">' +
+              '<label>Explanation resource ID</label>' +
+              '<input type="text" data-field="explanation_resource_id" placeholder="must match a Resource ID above">' +
+              '<span class="hint">Shown to the learner after they answer, regardless of which choice they picked.</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field wide">' +
+              '<label>Other covered concept IDs (optional)</label>' +
+              '<input type="text" data-field="covered_concept_ids" placeholder="">' +
+              '<span class="hint">Comma or space separated. Any additional concept ids this activity also touches on, besides the main Concept ID above.</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="field-row">' +
+            '<div class="field">' +
+              '<label class="checkbox"><input type="checkbox" data-field="is_transfer"> Is transfer activity</label>' +
+              '<span class="hint">Check if this activity asks the learner to apply the concept in a new context, rather than the original one it was taught in.</span>' +
+            '</div>' +
+            '<div class="field">' +
+              '<label class="checkbox"><input type="checkbox" data-field="requires_revision"> Requires revision</label>' +
+              '<span class="hint">For classification activities: require a fresh learner judgment after an incorrect answer. This is not an authoring review flag.</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="nested-section">' +
+            '<div class="nested-title">Choices</div>' +
+            '<div class="nested-list" data-sublist-container="choices" data-parent-idx="' + aIdx + '"></div>' +
+            '<button class="add" data-action="add-choice" data-idx="' + aIdx + '">+ Add choice</button>' +
+          '</div>' +
+        '</div>'
+      );
+      row.querySelector('[data-field="activity_id"]').value = a.activity_id;
+      row.querySelector('[data-field="activity_type"]').value = a.activity_type;
+      row.querySelector('[data-field="activity_type"]').disabled = a.activity_type === "causal_scene";
+      row.querySelector('[data-field="concept_id"]').value = a.concept_id;
+      row.querySelector('[data-field="question_resource_id"]').value = a.question_resource_id;
+      row.querySelector('[data-field="explanation_resource_id"]').value = a.explanation_resource_id;
+      row.querySelector('[data-field="covered_concept_ids"]').value = a.covered_concept_ids;
+      row.querySelector('[data-field="is_transfer"]').checked = !!a.is_transfer;
+      row.querySelector('[data-field="requires_revision"]').checked = !!a.requires_revision;
+
+      var choicesContainer = row.querySelector('[data-sublist-container="choices"]');
+      if (a.activity_type === "causal_scene") {
+        choicesContainer.appendChild(el('<p class="note">The imported scene, graph, intervention and assessment are preserved. Edit scene structure in JSON; this activity does not use answer choices.</p>'));
+        row.querySelector('[data-action="add-choice"]').disabled = true;
+      }
+      if (a.choices.length === 0) {
+        if (a.activity_type !== "causal_scene") choicesContainer.appendChild(el('<p class="empty-msg">No choices yet.</p>'));
+      }
+      a.choices.forEach(function (choice, chIdx) {
+        var chRow = el(
+          '<div class="entry entry-nested" data-list="activities" data-idx="' + aIdx + '" data-sublist="choices" data-subidx="' + chIdx + '">' +
+            '<div class="entry-header"><span class="tag">Choice ' + (chIdx + 1) + '</span>' +
+              '<button class="danger remove-btn" data-action="remove-choice" data-idx="' + aIdx + '" data-subidx="' + chIdx + '">Remove</button></div>' +
+            '<div class="field-row">' +
+              '<div class="field">' +
+                '<label>Option ID</label>' +
+                '<input type="text" data-field="option_id" placeholder="association-only">' +
+              '</div>' +
+              '<div class="field">' +
+                '<label class="checkbox"><input type="checkbox" data-field="correct"> This is the correct choice</label>' +
+              '</div>' +
+            '</div>' +
+            '<div class="field-row">' +
+              '<div class="field wide">' +
+                '<label>Choice text</label>' +
+                '<textarea data-field="text" placeholder="The wording of this answer option."></textarea>' +
+              '</div>' +
+            '</div>' +
+            '<div class="field-row">' +
+              '<div class="field">' +
+                '<label>Consequence resource ID</label>' +
+                '<input type="text" data-field="consequence_resource_id" placeholder="must match a Resource ID above">' +
+                '<span class="hint">Shown immediately after picking this choice, explaining why it is right or wrong.</span>' +
+              '</div>' +
+              '<div class="field">' +
+                '<label>Misconception ID (required for wrong choices)</label>' +
+                '<input type="text" data-field="misconception_id" placeholder="">' +
+                '<span class="hint">Name the wrong belief, e.g. "association-implies-intervention". Leave blank for the correct choice.</span>' +
+              '</div>' +
+            '</div>' +
+            '<div class="field-row">' +
+              '<div class="field wide">' +
+                '<label>Hint resource IDs (required for wrong choices)</label>' +
+                '<input type="text" data-field="hint_resource_ids" placeholder="">' +
+                '<span class="hint">Comma or space separated. Wrong choices require at least one hint; correct choices must have none.</span>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+        chRow.querySelector('[data-field="option_id"]').value = choice.option_id;
+        chRow.querySelector('[data-field="text"]').value = choice.text;
+        chRow.querySelector('[data-field="correct"]').checked = !!choice.correct;
+        chRow.querySelector('[data-field="consequence_resource_id"]').value = choice.consequence_resource_id;
+        chRow.querySelector('[data-field="misconception_id"]').value = choice.misconception_id;
+        chRow.querySelector('[data-field="hint_resource_ids"]').value = choice.hint_resource_ids;
+        choicesContainer.appendChild(chRow);
+      });
+
+      container.appendChild(row);
+    });
+  }
+
+  function renderAll() {
+    renderMeta();
+    renderSources();
+    renderConcepts();
+    renderClaims();
+    renderResources();
+    renderActivities();
+    clearErrors();
+  }
+
+  // ---------------------------------------------------------------------
+  // Event delegation: field edits
+  // ---------------------------------------------------------------------
+
+  function findRowState(target) {
+    var rowEl = target.closest("[data-list]");
+    if (!rowEl) return null;
+    var listName = rowEl.getAttribute("data-list");
+    var idx = parseInt(rowEl.getAttribute("data-idx"), 10);
+    var item = state[listName][idx];
+    if (!item) return null;
+    var sublist = rowEl.getAttribute("data-sublist");
+    if (sublist) {
+      var subidx = parseInt(rowEl.getAttribute("data-subidx"), 10);
+      item = item[sublist][subidx];
+    }
+    return item;
+  }
+
+  // Auto-fills Pack ID from Title (slugified) until the learner edits Pack ID
+  // directly, or a real pack is loaded/imported (see populateFromPack).
+  var packIdManuallyEdited = false;
+
+  function slugifyToPackId(text) {
+    return String(text)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ".")
+      .replace(/^\.+|\.+$/g, "");
+  }
+
+  document.addEventListener("input", function (e) {
+    var target = e.target;
+    if (target.matches("[data-meta]")) {
+      var metaField = target.getAttribute("data-meta");
+      state[metaField] = target.value;
+      if (metaField === "pack_id") {
+        packIdManuallyEdited = target.value.trim() !== "";
+        return;
+      }
+      if (metaField === "title" && !packIdManuallyEdited) {
+        state.pack_id = slugifyToPackId(target.value);
+        document.getElementById("meta-pack-id").value = state.pack_id;
+      }
+      return;
+    }
+    if (!target.matches("[data-field]")) return;
+    var item = findRowState(target);
+    if (!item) return;
+    var field = target.getAttribute("data-field");
+    if (target.type === "checkbox") {
+      item[field] = target.checked;
+    } else {
+      item[field] = target.value;
+    }
+  });
+
+  document.addEventListener("change", function (e) {
+    var target = e.target;
+    if (target.tagName === "SELECT" && target.matches("[data-field]")) {
+      var item = findRowState(target);
+      if (item) {
+        item[target.getAttribute("data-field")] = target.value;
+        if (target.getAttribute("data-field") === "activity_type") renderActivities();
+      }
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // Event delegation: add / remove / toolbar actions
+  // ---------------------------------------------------------------------
+
+  document.addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-action]");
+    if (!btn) return;
+    var action = btn.getAttribute("data-action");
+    var idx = btn.hasAttribute("data-idx") ? parseInt(btn.getAttribute("data-idx"), 10) : null;
+    var subidx = btn.hasAttribute("data-subidx") ? parseInt(btn.getAttribute("data-subidx"), 10) : null;
+
+    switch (action) {
+      case "add-source":
+        state.sources.push(blankSource());
+        renderSources();
+        break;
+      case "remove-source":
+        state.sources.splice(idx, 1);
+        renderSources();
+        break;
+      case "add-concept":
+        state.concepts.push(blankConcept());
+        renderConcepts();
+        break;
+      case "remove-concept":
+        state.concepts.splice(idx, 1);
+        renderConcepts();
+        break;
+      case "add-claim":
+        state.claims.push(blankClaim());
+        renderClaims();
+        break;
+      case "remove-claim":
+        state.claims.splice(idx, 1);
+        renderClaims();
+        break;
+      case "add-sourceref":
+        state.claims[idx].source_refs.push(blankSourceRef());
+        renderClaims();
+        break;
+      case "remove-sourceref":
+        state.claims[idx].source_refs.splice(subidx, 1);
+        renderClaims();
+        break;
+      case "add-resource":
+        state.resources.push(blankResource());
+        renderResources();
+        break;
+      case "remove-resource":
+        state.resources.splice(idx, 1);
+        renderResources();
+        break;
+      case "add-activity":
+        state.activities.push(blankActivity());
+        renderActivities();
+        break;
+      case "remove-activity":
+        state.activities.splice(idx, 1);
+        renderActivities();
+        break;
+      case "add-choice":
+        state.activities[idx].choices.push(blankChoice());
+        renderActivities();
+        break;
+      case "remove-choice":
+        state.activities[idx].choices.splice(subidx, 1);
+        renderActivities();
+        break;
+      default:
+        break;
+    }
+  });
+
+  // ---------------------------------------------------------------------
+  // Import (also used by "Load example")
+  // ---------------------------------------------------------------------
+
+  function checkImportFields(record, label, strings, arrays, booleans) {
+    if (!record || typeof record !== "object" || Array.isArray(record)) throw new Error(label + " must be an object.");
+    strings.forEach(function (field) {
+      if (field in record && typeof record[field] !== "string") throw new Error(label + "." + field + " must be text.");
+    });
+    arrays.forEach(function (field) {
+      if (field in record && !Array.isArray(record[field])) throw new Error(label + "." + field + " must be an array.");
+      if (Array.isArray(record[field]) && ["source_refs", "choices", "causal_scenes"].indexOf(field) === -1 && record[field].some(function (value) { return typeof value !== "string"; })) {
+        throw new Error(label + "." + field + " must contain text IDs.");
+      }
+    });
+    (booleans || []).forEach(function (field) {
+      if (field in record && typeof record[field] !== "boolean") throw new Error(label + "." + field + " must be true or false.");
+    });
+  }
+
+  function populateFromPack(pack) {
+    if (!pack || Array.isArray(pack) || pack.schema_version !== "3.0") {
+      throw new Error("Import requires a content pack with schema_version 3.0.");
+    }
+    ["sources", "concepts", "claims", "resources", "activities"].forEach(function (name) {
+      if (!Array.isArray(pack[name])) throw new Error(name + " must be an array.");
+    });
+    checkImportFields(pack, "Pack", ["pack_id", "version", "title"], ["causal_scenes"]);
+    pack.sources.forEach(function (record, i) {
+      checkImportFields(record, "Source " + (i + 1), ["source_id", "citation", "rights", "review_status"], []);
+    });
+    pack.concepts.forEach(function (record, i) {
+      checkImportFields(record, "Concept " + (i + 1), ["concept_id", "objective"], ["completion_activity_ids", "m1_ready_activity_ids"]);
+    });
+    pack.claims.forEach(function (record, i) {
+      var label = "Claim " + (i + 1);
+      checkImportFields(record, label, ["claim_id", "proposition", "release_status"], ["source_refs"]);
+      (record.source_refs || []).forEach(function (ref) { checkImportFields(ref, label + " source reference", ["source_id", "locator"], []); });
+      if (record.deterministic_derivation != null) checkImportFields(record.deterministic_derivation, label + " derivation", ["method_id", "method_version"], []);
+    });
+    pack.resources.forEach(function (record, i) {
+      checkImportFields(record, "Resource " + (i + 1), ["resource_id", "kind", "text", "release_status"], ["claim_ids"]);
+    });
+    pack.activities.forEach(function (record, i) {
+      var label = "Activity " + (i + 1);
+      checkImportFields(record, label, ["activity_id", "activity_type", "concept_id", "question_resource_id", "explanation_resource_id"], ["choices", "covered_concept_ids"], ["is_transfer", "requires_revision"]);
+      (record.choices || []).forEach(function (choice) {
+        checkImportFields(choice, label + " choice", ["option_id", "text", "consequence_resource_id"], ["hint_resource_ids"], ["correct"]);
+        if (choice.misconception_id != null && typeof choice.misconception_id !== "string") throw new Error(label + " choice misconception_id must be text or null.");
+      });
+    });
+    var previousState = state;
+    var previousManualEdit = packIdManuallyEdited;
+    try {
+    state = {};
+    // A loaded/imported pack already carries a deliberate Pack ID; stop
+    // auto-slugifying it from Title until the learner clears Pack ID again.
+    packIdManuallyEdited = true;
+    state.pack_id = pack.pack_id || "";
+    state.version = pack.version || "";
+    state.title = pack.title || "";
+
+    state.sources = (pack.sources || []).map(function (s) {
+      return rememberImport(s, {
+        source_id: s.source_id || "",
+        citation: s.citation || "",
+        rights: s.rights || "",
+        review_status: s.review_status || "draft"
+      });
+    });
+
+    state.concepts = (pack.concepts || []).map(function (c) {
+      return rememberImport(c, {
+        concept_id: c.concept_id || "",
+        objective: c.objective || "",
+        completion_activity_ids: joinIds(c.completion_activity_ids),
+        m1_ready_activity_ids: joinIds(c.m1_ready_activity_ids)
+      });
+    });
+
+    state.claims = (pack.claims || []).map(function (c) {
+      return rememberImport(c, {
+        claim_id: c.claim_id || "",
+        proposition: c.proposition || "",
+        release_status: c.release_status || "draft",
+        source_refs: (c.source_refs || []).map(function (r) {
+          return rememberImport(r, { source_id: r.source_id || "", locator: r.locator || "" });
+        })
+      });
+    });
+
+    state.resources = (pack.resources || []).map(function (r) {
+      return rememberImport(r, {
+        resource_id: r.resource_id || "",
+        kind: r.kind || "question",
+        text: r.text || "",
+        claim_ids: joinIds(r.claim_ids),
+        release_status: r.release_status || "draft"
+      });
+    });
+
+    state.activities = (pack.activities || []).map(function (a) {
+      return rememberImport(a, {
+        activity_id: a.activity_id || "",
+        activity_type: a.activity_type || "choice",
+        concept_id: a.concept_id || "",
+        question_resource_id: a.question_resource_id || "",
+        explanation_resource_id: a.explanation_resource_id || "",
+        covered_concept_ids: joinIds(a.covered_concept_ids),
+        is_transfer: !!a.is_transfer,
+        requires_revision: !!a.requires_revision,
+        choices: (a.choices || []).map(function (ch) {
+          return rememberImport(ch, {
+            option_id: ch.option_id || "",
+            text: ch.text || "",
+            correct: !!ch.correct,
+            consequence_resource_id: ch.consequence_resource_id || "",
+            hint_resource_ids: joinIds(ch.hint_resource_ids),
+            misconception_id: ch.misconception_id || ""
+          });
+        })
+      });
+    });
+
+    state._initial = copyJson({
+      pack_id: state.pack_id, version: state.version, title: state.title,
+      sources: state.sources, concepts: state.concepts, claims: state.claims,
+      resources: state.resources, activities: state.activities
+    });
+    state._original = copyJson(pack);
+
+    renderAll();
+    } catch (err) {
+      state = previousState;
+      packIdManuallyEdited = previousManualEdit;
+      throw err;
+    }
+  }
+
+  document.getElementById("btn-import").addEventListener("click", function () {
+    document.getElementById("import-file").click();
+  });
+
+  document.getElementById("import-file").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var parsed = JSON.parse(reader.result);
+        populateFromPack(parsed);
+        showSuccess("Imported \"" + file.name + "\" successfully.");
+      } catch (err) {
+        showErrors(["Could not import \"" + file.name + "\": " + err.message]);
+      }
+    };
+    reader.onerror = function () {
+      showErrors(["Could not read file \"" + file.name + "\"."]);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  });
+
+  // A real lesson from the shipped "Causality M0" pack (content/causality_m0_full.json,
+  // concept "association-is-not-causation"), not a fabricated placeholder. Its original
+  // authored activity is activity_type "classification" with a scenario_image; both are
+  // adapted to "choice" with no image here since that's all this editor supports today.
+  // The question/choice/explanation wording and the claim/source citation are unchanged.
+  var EXAMPLE_PACK = {
+    schema_version: "3.0",
+    pack_id: "causality.m0.association-is-not-causation.example",
+    version: "0.1.0",
+    title: "Association Is Not Causation (worked example)",
+    causal_scenes: [],
+    concepts: [
+      {
+        concept_id: "association-is-not-causation",
+        objective: "State that an observed pattern alone does not establish a causal direction.",
+        completion_activity_ids: ["association-is-not-causation.practice"],
+        m1_ready_activity_ids: []
+      }
+    ],
+    sources: [
+      {
+        source_id: "peters-janzing-scholkopf-2017",
+        citation: "Peters, Jonas; Janzing, Dominik; Schölkopf, Bernhard. Elements of Causal Inference: Foundations and Learning Algorithms. MIT Press, 2017.",
+        rights: "Source license: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/). This pack contains citation metadata and independently authored factual summaries, not source excerpts. External distribution still requires a separate rights review.",
+        review_status: "reviewed"
+      }
+    ],
+    claims: [
+      {
+        claim_id: "association-does-not-establish-cause",
+        proposition: "An observed association by itself does not determine which variable causes the other.",
+        release_status: "released",
+        source_refs: [
+          { source_id: "peters-janzing-scholkopf-2017", locator: "Section 1.3, page 6, correlation and causal structure" }
+        ]
+      }
+    ],
+    resources: [
+      {
+        resource_id: "not-causation.question.practice",
+        kind: "question",
+        text: "A city records that ice-cream sales and sunglasses sales rise together. Do these records alone establish that ice-cream sales cause sunglasses sales?",
+        claim_ids: ["association-does-not-establish-cause"],
+        release_status: "released"
+      },
+      {
+        resource_id: "not-causation.hint",
+        kind: "hint",
+        text: "Ask whether another cause or another causal direction could fit the same observed pattern.",
+        claim_ids: ["association-does-not-establish-cause"],
+        release_status: "released"
+      },
+      {
+        resource_id: "not-causation.explanation",
+        kind: "explanation",
+        text: "A pattern in records can be associated without telling us the causal direction or mechanism.",
+        claim_ids: ["association-does-not-establish-cause"],
+        release_status: "released"
+      },
+      {
+        resource_id: "not-causation.consequence.accepted",
+        kind: "consequence",
+        text: "Correct choice: the observed pattern alone does not establish a causal direction. This records one classification, not mastery of causal reasoning.",
+        claim_ids: ["association-does-not-establish-cause"],
+        release_status: "released"
+      },
+      {
+        resource_id: "not-causation.consequence.rejected",
+        kind: "consequence",
+        text: "Treating co-occurrence as a causal direction skips the assumptions needed to distinguish causal explanations.",
+        claim_ids: ["association-does-not-establish-cause"],
+        release_status: "released"
+      }
+    ],
+    activities: [
+      {
+        activity_id: "association-is-not-causation.practice",
+        activity_type: "choice",
+        causal_scene_id: null,
+        concept_id: "association-is-not-causation",
+        covered_concept_ids: [],
+        is_transfer: false,
+        requires_revision: false,
+        scenario_image: null,
+        question_resource_id: "not-causation.question.practice",
+        explanation_resource_id: "not-causation.explanation",
+        choices: [
+          {
+            option_id: "not-causation.practice.no",
+            text: "Association only",
+            correct: true,
+            consequence_resource_id: "not-causation.consequence.accepted",
+            hint_resource_ids: [],
+            misconception_id: null
+          },
+          {
+            option_id: "not-causation.practice.yes",
+            text: "Established causal direction",
+            correct: false,
+            consequence_resource_id: "not-causation.consequence.rejected",
+            hint_resource_ids: ["not-causation.hint"],
+            misconception_id: "association-proves-cause"
+          }
+        ]
+      }
+    ]
+  };
+
+  document.getElementById("btn-load-example").addEventListener("click", function () {
+    populateFromPack(EXAMPLE_PACK);
+    showSuccess("Loaded a real worked example from the shipped Causality M0 pack (“Association is not causation”). Edit it, or clear fields and start your own.");
+  });
+
+  // ---------------------------------------------------------------------
+  // Export + validation
+  // ---------------------------------------------------------------------
+
+  function buildExportObject() {
+    var pack = mergeEdits(state, {
+      schema_version: "3.0",
+      pack_id: state.pack_id.trim(),
+      version: state.version.trim(),
+      title: state.title.trim(),
+      concepts: state.concepts.map(function (c) {
+        return mergeEdits(c, {
+          concept_id: c.concept_id.trim(),
+          objective: c.objective.trim(),
+          completion_activity_ids: splitIds(c.completion_activity_ids),
+          m1_ready_activity_ids: splitIds(c.m1_ready_activity_ids)
+        });
+      }),
+      sources: state.sources.map(function (s) {
+        return mergeEdits(s, {
+          source_id: s.source_id.trim(),
+          citation: s.citation.trim(),
+          rights: s.rights.trim(),
+          review_status: s.review_status
+        });
+      }),
+      claims: state.claims.map(function (c) {
+        return mergeEdits(c, {
+          claim_id: c.claim_id.trim(),
+          proposition: c.proposition.trim(),
+          release_status: c.release_status,
+          source_refs: c.source_refs.map(function (r) {
+            return mergeEdits(r, { source_id: r.source_id.trim(), locator: r.locator.trim() });
+          })
+        });
+      }),
+      resources: state.resources.map(function (r) {
+        return mergeEdits(r, {
+          resource_id: r.resource_id.trim(),
+          kind: r.kind,
+          text: r.text.trim(),
+          claim_ids: splitIds(r.claim_ids),
+          release_status: r.release_status
+        });
+      }),
+      activities: state.activities.map(function (a) {
+        return mergeEdits(a, {
+          activity_id: a.activity_id.trim(),
+          activity_type: a.activity_type,
+          concept_id: a.concept_id.trim(),
+          covered_concept_ids: splitIds(a.covered_concept_ids),
+          is_transfer: !!a.is_transfer,
+          requires_revision: !!a.requires_revision,
+          question_resource_id: a.question_resource_id.trim(),
+          explanation_resource_id: a.explanation_resource_id.trim(),
+          choices: a.choices.map(function (ch) {
+            return mergeEdits(ch, {
+              option_id: ch.option_id.trim(),
+              text: ch.text.trim(),
+              correct: !!ch.correct,
+              consequence_resource_id: ch.consequence_resource_id.trim(),
+              hint_resource_ids: splitIds(ch.hint_resource_ids),
+              misconception_id: ch.misconception_id.trim() === "" ? null : ch.misconception_id.trim()
+            });
+          })
+        });
+      }),
+      causal_scenes: []
+    });
+    return pack;
+  }
+
+  function idErr(label, value, errors) {
+    if (typeof value !== "string" || !ID_PATTERN.test(value)) {
+      errors.push(label + ' has an invalid id "' + value + '" (only lowercase letters, digits, and single ".", "_", "-" separators are allowed).');
+    }
+  }
+
+  function nonEmptyErr(label, value, errors) {
+    if (typeof value !== "string" || value.trim() === "") {
+      errors.push(label + " is required and cannot be empty.");
+    }
+  }
+
+  function validatePack(pack, errors) {
+    // Top-level required fields
+    if (pack.schema_version !== "3.0") errors.push("Only schema_version 3.0 is supported.");
+    nonEmptyErr("Pack ID", pack.pack_id, errors);
+    if (pack.pack_id) idErr("Pack ID", pack.pack_id, errors);
+    nonEmptyErr("Version", pack.version, errors);
+    if (pack.version && !VERSION_PATTERN.test(pack.version)) {
+      errors.push('Version "' + pack.version + '" must look like "0.1.0" (three numbers separated by dots).');
+    }
+    nonEmptyErr("Title", pack.title, errors);
+
+    if (pack.concepts.length === 0) errors.push("At least one concept is required.");
+    if (pack.claims.length === 0) errors.push("At least one claim is required.");
+    if (pack.resources.length === 0) errors.push("At least one resource is required.");
+    if (pack.activities.length === 0) errors.push("At least one activity is required.");
+
+    var sourceIds = Object.create(null), conceptIds = Object.create(null);
+    var claimIds = Object.create(null), resourceIds = Object.create(null);
+    var activityIds = Object.create(null), optionIds = Object.create(null);
+    var resourceKinds = Object.create(null), sceneIds = Object.create(null), sceneOwners = Object.create(null);
+
+    (pack.causal_scenes || []).forEach(function (scene) {
+      if (sceneIds[scene.scene_id]) errors.push('Duplicate causal scene id "' + scene.scene_id + '".');
+      sceneIds[scene.scene_id] = true;
+    });
+
+    function resourceKind(resourceId, kind, label) {
+      if (resourceIds[resourceId] && resourceKinds[resourceId] !== kind) {
+        errors.push(label + ' must reference a ' + kind + ' resource, not ' + resourceKinds[resourceId] + '.');
+      }
+    }
+
+    function uniqueRefs(label, ids) {
+      var seen = Object.create(null);
+      ids.forEach(function (id) {
+        if (seen[id]) errors.push(label + ' repeats "' + id + '".');
+        seen[id] = true;
+      });
+    }
+
+    pack.sources.forEach(function (s, i) {
+      var label = "Source #" + (i + 1);
+      nonEmptyErr(label + " ID", s.source_id, errors);
+      if (s.source_id) {
+        idErr(label + " ID", s.source_id, errors);
+        if (sourceIds[s.source_id]) errors.push(label + ' has a duplicate source id "' + s.source_id + '".');
+        sourceIds[s.source_id] = true;
+      }
+      nonEmptyErr(label + " (" + (s.source_id || "?") + ") citation", s.citation, errors);
+      nonEmptyErr(label + " (" + (s.source_id || "?") + ") rights", s.rights, errors);
+      if (["draft", "reviewed"].indexOf(s.review_status) === -1) errors.push(label + " review status must be draft or reviewed.");
+    });
+
+    pack.concepts.forEach(function (c, i) {
+      var label = "Concept #" + (i + 1);
+      nonEmptyErr(label + " ID", c.concept_id, errors);
+      if (c.concept_id) {
+        idErr(label + " ID", c.concept_id, errors);
+        if (conceptIds[c.concept_id]) errors.push(label + ' has a duplicate concept id "' + c.concept_id + '".');
+        conceptIds[c.concept_id] = true;
+      }
+      nonEmptyErr(label + " (" + (c.concept_id || "?") + ") objective", c.objective, errors);
+      if (c.completion_activity_ids.length === 0) {
+        errors.push(label + ' ("' + (c.concept_id || "?") + '") needs at least one completion activity id.');
+      }
+      c.completion_activity_ids.forEach(function (id) { idErr(label + " completion activity id", id, errors); });
+      (c.m1_ready_activity_ids || []).forEach(function (id) { idErr(label + " m1-ready activity id", id, errors); });
+      uniqueRefs(label + " completion activity IDs", c.completion_activity_ids);
+      uniqueRefs(label + " M1-ready activity IDs", c.m1_ready_activity_ids || []);
+    });
+
+    pack.claims.forEach(function (c, i) {
+      var label = "Claim #" + (i + 1);
+      nonEmptyErr(label + " ID", c.claim_id, errors);
+      if (c.claim_id) {
+        idErr(label + " ID", c.claim_id, errors);
+        if (claimIds[c.claim_id]) errors.push(label + ' has a duplicate claim id "' + c.claim_id + '".');
+        claimIds[c.claim_id] = true;
+      }
+      nonEmptyErr(label + " (" + (c.claim_id || "?") + ") proposition", c.proposition, errors);
+      if (["draft", "released"].indexOf(c.release_status) === -1) errors.push(label + " release status must be draft or released.");
+      var refs = c.source_refs || [];
+      if (!!refs.length === !!c.deterministic_derivation) {
+        errors.push(label + " needs exactly one provenance route: source references or a deterministic derivation.");
+      }
+      if (c.deterministic_derivation) {
+        idErr(label + " derivation method ID", c.deterministic_derivation.method_id, errors);
+        if (!VERSION_PATTERN.test(c.deterministic_derivation.method_version)) errors.push(label + " derivation method version must be a semantic version.");
+      }
+      uniqueRefs(label + " source references", refs.map(function (r) { return r.source_id + "@" + r.locator; }));
+      refs.forEach(function (r, j) {
+        var rlabel = label + " source reference #" + (j + 1);
+        nonEmptyErr(rlabel + " source id", r.source_id, errors);
+        nonEmptyErr(rlabel + " locator", r.locator, errors);
+        if (r.source_id) {
+          idErr(rlabel + " source id", r.source_id, errors);
+          if (!sourceIds[r.source_id]) {
+            errors.push(rlabel + ' refers to source id "' + r.source_id + '", which does not exist among the Sources listed above.');
+          }
+        }
+      });
+    });
+
+    pack.resources.forEach(function (r, i) {
+      var label = "Resource #" + (i + 1);
+      nonEmptyErr(label + " ID", r.resource_id, errors);
+      if (r.resource_id) {
+        idErr(label + " ID", r.resource_id, errors);
+        if (resourceIds[r.resource_id]) errors.push(label + ' has a duplicate resource id "' + r.resource_id + '".');
+        resourceIds[r.resource_id] = true;
+        resourceKinds[r.resource_id] = r.kind;
+      }
+      nonEmptyErr(label + " (" + (r.resource_id || "?") + ") text", r.text, errors);
+      if (["question", "hint", "explanation", "consequence"].indexOf(r.kind) === -1) errors.push(label + " has an unsupported resource kind.");
+      if (["draft", "released"].indexOf(r.release_status) === -1) errors.push(label + " release status must be draft or released.");
+      uniqueRefs(label + " claim IDs", r.claim_ids);
+      if (r.claim_ids.length === 0) {
+        errors.push(label + ' ("' + (r.resource_id || "?") + '") needs at least one claim id.');
+      }
+      r.claim_ids.forEach(function (id) {
+        idErr(label + " claim id", id, errors);
+        if (!claimIds[id]) {
+          errors.push(label + ' ("' + (r.resource_id || "?") + '") refers to claim id "' + id + '", which does not exist among the Claims listed above.');
+        }
+      });
+    });
+
+    pack.activities.forEach(function (a, i) {
+      var label = "Activity #" + (i + 1);
+      nonEmptyErr(label + " ID", a.activity_id, errors);
+      if (a.activity_id) {
+        idErr(label + " ID", a.activity_id, errors);
+        if (activityIds[a.activity_id]) errors.push(label + ' has a duplicate activity id "' + a.activity_id + '".');
+        activityIds[a.activity_id] = a;
+      }
+      var tag = '("' + (a.activity_id || "?") + '")';
+      nonEmptyErr(label + " " + tag + " concept id", a.concept_id, errors);
+      if (a.concept_id) {
+        idErr(label + " concept id", a.concept_id, errors);
+        if (!conceptIds[a.concept_id]) {
+          errors.push(label + " " + tag + ' refers to concept id "' + a.concept_id + '", which does not exist among the Concepts listed above.');
+        }
+      }
+      nonEmptyErr(label + " " + tag + " question resource id", a.question_resource_id, errors);
+      if (a.question_resource_id) {
+        idErr(label + " question resource id", a.question_resource_id, errors);
+        if (!resourceIds[a.question_resource_id]) {
+          errors.push(label + " " + tag + ' refers to question resource id "' + a.question_resource_id + '", which does not exist among the Resources listed above.');
+        }
+        resourceKind(a.question_resource_id, "question", label + " question resource");
+      }
+      nonEmptyErr(label + " " + tag + " explanation resource id", a.explanation_resource_id, errors);
+      if (a.explanation_resource_id) {
+        idErr(label + " explanation resource id", a.explanation_resource_id, errors);
+        if (!resourceIds[a.explanation_resource_id]) {
+          errors.push(label + " " + tag + ' refers to explanation resource id "' + a.explanation_resource_id + '", which does not exist among the Resources listed above.');
+        }
+        resourceKind(a.explanation_resource_id, "explanation", label + " explanation resource");
+      }
+      (a.covered_concept_ids || []).forEach(function (id) {
+        idErr(label + " covered concept id", id, errors);
+        if (!conceptIds[id]) {
+          errors.push(label + " " + tag + ' refers to covered concept id "' + id + '", which does not exist among the Concepts listed above.');
+        }
+      });
+      uniqueRefs(label + " covered concept IDs", a.covered_concept_ids || []);
+      if ((a.covered_concept_ids || []).indexOf(a.concept_id) !== -1) errors.push(label + " covered concept IDs must not repeat its primary concept.");
+
+      var activityType = a.activity_type || "choice";
+      var choices = a.choices || [];
+      if (["choice", "classification", "causal_scene"].indexOf(activityType) === -1) errors.push(label + " has an unsupported activity type.");
+      if (a.requires_revision && activityType !== "classification") errors.push(label + " only classification activities may require learner revision.");
+      if (activityType === "causal_scene") {
+        if (!a.causal_scene_id || !sceneIds[a.causal_scene_id]) errors.push(label + " must reference an existing causal scene.");
+        if (choices.length) errors.push(label + " causal-scene activities must not contain choices.");
+      } else if (choices.length < 2) {
+        errors.push(label + " " + tag + " needs at least two choices.");
+      }
+      if (a.causal_scene_id) {
+        if (!sceneIds[a.causal_scene_id]) errors.push(label + " references an unknown causal scene.");
+        if (sceneOwners[a.causal_scene_id]) errors.push(label + " causal scene must belong to exactly one activity.");
+        sceneOwners[a.causal_scene_id] = a.activity_id;
+      }
+      choices.forEach(function (ch, j) {
+        var clabel = label + " choice #" + (j + 1);
+        if (typeof ch.correct !== "boolean") errors.push(clabel + " correctness must be true or false.");
+        nonEmptyErr(clabel + " option id", ch.option_id, errors);
+        if (ch.option_id) {
+          idErr(clabel + " option id", ch.option_id, errors);
+          if (optionIds[ch.option_id]) errors.push(clabel + ' has a duplicate option id "' + ch.option_id + '" in this pack.');
+          optionIds[ch.option_id] = true;
+        }
+        nonEmptyErr(clabel + " text", ch.text, errors);
+        nonEmptyErr(clabel + " consequence resource id", ch.consequence_resource_id, errors);
+        if (ch.consequence_resource_id) {
+          idErr(clabel + " consequence resource id", ch.consequence_resource_id, errors);
+          if (!resourceIds[ch.consequence_resource_id]) {
+            errors.push(clabel + ' refers to consequence resource id "' + ch.consequence_resource_id + '", which does not exist among the Resources listed above.');
+          }
+          resourceKind(ch.consequence_resource_id, "consequence", clabel + " consequence resource");
+        }
+        var hints = ch.hint_resource_ids || [];
+        uniqueRefs(clabel + " hint IDs", hints);
+        hints.forEach(function (id) {
+          idErr(clabel + " hint resource id", id, errors);
+          if (!resourceIds[id]) {
+            errors.push(clabel + ' refers to hint resource id "' + id + '", which does not exist among the Resources listed above.');
+          }
+          resourceKind(id, "hint", clabel + " hint resource");
+        });
+        if (ch.misconception_id) {
+          idErr(clabel + " misconception id", ch.misconception_id, errors);
+        }
+        if (ch.correct && (ch.misconception_id || hints.length)) errors.push(clabel + " correct choices must have no misconception or hint references.");
+        if (!ch.correct && (!ch.misconception_id || !hints.length)) errors.push(clabel + " incorrect choices require a misconception ID and at least one hint resource ID.");
+      });
+      if (activityType !== "causal_scene" && choices.filter(function (ch) { return ch.correct; }).length !== 1) {
+        errors.push(label + " " + tag + " must have exactly one correct choice.");
+      }
+    });
+
+    Object.keys(sceneIds).forEach(function (sceneId) {
+      if (!sceneOwners[sceneId]) errors.push('Causal scene "' + sceneId + '" must be owned by one activity.');
+    });
+    pack.concepts.forEach(function (concept) {
+      var required = concept.completion_activity_ids;
+      required.forEach(function (activityId) {
+        var activity = activityIds[activityId];
+        if (!activity) errors.push('Concept "' + concept.concept_id + '" references unknown completion activity "' + activityId + '".');
+        else if ([activity.concept_id].concat(activity.covered_concept_ids || []).indexOf(concept.concept_id) === -1) errors.push('Completion activity "' + activityId + '" does not teach concept "' + concept.concept_id + '".');
+      });
+      (concept.m1_ready_activity_ids || []).forEach(function (activityId) {
+        if (required.indexOf(activityId) === -1) errors.push('M1-ready activity "' + activityId + '" must also be a completion activity.');
+        if (!activityIds[activityId] || !activityIds[activityId].is_transfer) errors.push('M1-ready activity "' + activityId + '" must be declared as a transfer activity.');
+      });
+      pack.activities.forEach(function (activity) {
+        if ([activity.concept_id].concat(activity.covered_concept_ids || []).indexOf(concept.concept_id) !== -1 && required.indexOf(activity.activity_id) === -1) errors.push('Concept "' + concept.concept_id + '" completion requirements must include activity "' + activity.activity_id + '".');
+      });
+    });
+  }
+
+  function clearErrors() {
+    document.getElementById("errors").innerHTML = "";
+  }
+
+  function showErrors(messages) {
+    var box = document.createElement("div");
+    box.className = "error-box";
+    var html = "<h3>Content needs attention &mdash; " + messages.length + " problem" + (messages.length === 1 ? "" : "s") + " found:</h3><ul>";
+    messages.forEach(function (m) { html += "<li>" + escapeHtml(m) + "</li>"; });
+    html += "</ul>";
+    box.innerHTML = html;
+    var container = document.getElementById("errors");
+    container.innerHTML = "";
+    container.appendChild(box);
+    box.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function showSuccess(message) {
+    var box = document.createElement("div");
+    box.className = "success-box";
+    box.textContent = message;
+    var container = document.getElementById("errors");
+    container.innerHTML = "";
+    container.appendChild(box);
+  }
+
+  function downloadJson(obj, filename) {
+    var blob = new Blob([JSON.stringify(obj, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // Same-origin local API: valid means structural validity; releasable is the
+  // separate release check. Draft exports are allowed after structural checks.
+  async function validateWithSdk(pack) {
+    if (location.protocol !== "http:" && location.protocol !== "https:") {
+      throw new Error("Open this editor through the local Portal server to validate with the SDK.");
+    }
+    var response = await fetch("/api/validate-content-pack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pack: pack })
+    });
+    if (!response.ok) throw new Error("SDK validation could not be reached (HTTP " + response.status + "). No server-side content was changed.");
+    var result = await response.json();
+    if (typeof result.valid !== "boolean" || typeof result.releasable !== "boolean" || !Array.isArray(result.issues)) {
+      throw new Error("The SDK validator returned an unexpected response.");
+    }
+    return result;
+  }
+
+  function issueMessages(result) {
+    return result.issues.map(function (issue) { return (issue.path || "/") + ": " + issue.message; });
+  }
+
+  document.getElementById("btn-validate").addEventListener("click", async function () {
+    try {
+      var pack = buildExportObject();
+      var errors = [];
+      validatePack(pack, errors);
+      if (errors.length) { showErrors(errors); return; }
+      var result = await validateWithSdk(pack);
+      if (!result.valid || !result.releasable) {
+        showErrors(issueMessages(result).concat(result.issues.length ? [] : ["This pack is not yet releasable."]));
+      } else {
+        showSuccess("SDK structure and release checks passed. Source and subject-matter review remain author responsibilities.");
+      }
+    } catch (err) { showErrors([err.message]); }
+  });
+
+  document.getElementById("btn-export").addEventListener("click", async function () {
+    try {
+    var pack = buildExportObject();
+    var errors = [];
+    validatePack(pack, errors);
+    if (errors.length > 0) {
+      showErrors(errors);
+      return;
+    }
+    var result = null;
+    if (location.protocol === "http:" || location.protocol === "https:") {
+      result = await validateWithSdk(pack);
+      if (!result.valid) { showErrors(issueMessages(result)); return; }
+    }
+    var filename = (pack.pack_id || "content-pack") + ".json";
+    downloadJson(pack, filename);
+    showSuccess("Exported \"" + filename + "\". " + (result
+      ? (result.releasable ? "SDK structure and release checks passed." : "SDK structure passed; this draft still needs release review. Use Validate with SDK to see the remaining issues.")
+      : "Local authoring checks passed; SDK validation was not run. Validate through the local Portal server before integrating this file."));
+    } catch (err) { showErrors([err.message]); }
+  });
+
+  // ---------------------------------------------------------------------
+  // Initial render
+  // ---------------------------------------------------------------------
+  renderAll();
+})();
+</script>
+
+</body>
+</html>

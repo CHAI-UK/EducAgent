@@ -1,0 +1,50 @@
+# Credentials and private runtime state
+.env
+.env.*
+!.env.example
+elm.env
+*.pem
+*.key
+.educagent-demo/
+.logfire/
+*.jsonl
+*.log
+# Dependencies and generated output
+node_modules/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+/.demo-site/
+/portal/
+/nirvana/
+/media/
+# Private working material and acceptance artifacts
+output/
+outputs/
+tmp/
+work/
+backups/
+.codex-logs/
+.claude/
+*.zip
+*.tar.gz
+*.sha256
+*.docx
+*.pptx
+*.pdf
+~$*
+/EducAgent-Nirvana/EPSRC IAA/
+/EducAgent-SDK/docs/evidence/
+# Legacy hard-linked copies; Learning is maintained at the repository root.
+/EducAgent-Nirvana/index.html
+/EducAgent-Nirvana/styles.css
+# Machine-specific helpers
+/enable-lan-firewall.ps1
+/restart-demo.cmd
+/restart-demo.ps1

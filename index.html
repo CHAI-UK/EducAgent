@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Books, courses, and practical resources for learning causal inference."
+    />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Learning Resources | EducAgent</title>
+    <script>
+      (() => {
+        let saved;
+        try { saved = localStorage.getItem("educagent-theme"); } catch {}
+        const theme = ["light", "dark"].includes(saved)
+          ? saved : (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Learning Resources home">
+        EducAgent
+      </a>
+
+      <div class="header-actions">
+        <nav aria-label="Page navigation">
+          <a href="/portal/">EducAgent Portal</a>
+          <a href="/nirvana/">Causal Research Framing</a>
+          <a href="#books">Books</a>
+          <a href="#courses">Online courses</a>
+          <a href="#practical">Practical resources</a>
+        </nav>
+        <button class="theme-toggle" type="button" aria-pressed="false">Dark</button>
+      </div>
+    </header>
+
+    <main id="content">
+      <header class="page-heading" id="top">
+        <h1>Learning Resources</h1>
+        <p>Books, courses, and practical tools for learning causal inference.</p>
+      </header>
+
+      <section class="next-routes" id="educagent" aria-labelledby="next-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="next-title">Learning with EducAgent</h2>
+            <p>Choose guided learning or frame a research question.</p>
+          </div>
+        </div>
+
+        <div class="route-list">
+          <a href="/portal/">
+            <span>
+              <strong>EducAgent Portal</strong>
+              <small>Work through causal examples with help from EducAgent.</small>
+            </span>
+            <span aria-hidden="true">/portal/ →</span>
+          </a>
+          <a href="/nirvana/">
+            <span>
+              <strong>Causal Research Framing</strong>
+              <small>Prepare an editable Causal Research Brief with Nirvana.</small>
+            </span>
+            <span aria-hidden="true">/nirvana/ →</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="resource-section" id="books" aria-labelledby="books-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="books-title">Books</h2>
+            <p>From intuition to identification and estimation.</p>
+          </div>
+        </div>
+
+        <div class="resource-list">
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://theeffectbook.net/" target="_blank" rel="noreferrer">
+                  The Effect <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Nick Huntington-Klein's approachable introduction to research design and causality with observational data.</p>
+            </div>
+            <p class="meta">Free online / Beginner</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://miguelhernan.org/whatifbook" target="_blank" rel="noreferrer">
+                  Causal Inference: What If <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Miguel Hernán and James Robins' rigorous treatment of potential outcomes, with code and data.</p>
+            </div>
+            <p class="meta">Free PDF / Intermediate</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://mixtape.scunning.com/" target="_blank" rel="noreferrer">
+                  Causal Inference: The Mixtape <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Scott Cunningham's applied guide to design-based methods, with examples in R and Stata.</p>
+            </div>
+            <p class="meta">Free HTML / Intermediate</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://arxiv.org/abs/2305.18793" target="_blank" rel="noreferrer">
+                  A First Course in Causal Inference <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Peng Ding's statistics-first Berkeley lecture notes, including exercises and formal derivations.</p>
+            </div>
+            <p class="meta">Free preprint / Intermediate</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="resource-section" id="courses" aria-labelledby="courses-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="courses-title">Online courses</h2>
+            <p>Lectures, notes, examples, and exercises.</p>
+          </div>
+        </div>
+
+        <div class="resource-list">
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://www.bradyneal.com/causal-inference-course" target="_blank" rel="noreferrer">
+                  Introduction to Causal Inference <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Brady Neal's complete first course with videos, slides, readings, and an evolving textbook.</p>
+            </div>
+            <p class="meta">Free / Video and text / Beginner</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://opencourse.inf.ed.ac.uk/mci" target="_blank" rel="noreferrer">
+                  Methods for Causal Inference <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>The University of Edinburgh's open course materials on effect estimation, causal graphs, discovery, and Python exercises.</p>
+            </div>
+            <p class="meta">Free / University course / Intermediate</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://www.oli.cmu.edu/courses/causal-and-statistical-reasoning-open-free/" target="_blank" rel="noreferrer">
+                  Causal and Statistical Reasoning <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Carnegie Mellon University's open course with simulations, case studies, comprehension checks, and computer tutors.</p>
+            </div>
+            <p class="meta">Free / Interactive / Beginner</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://www.gsb.stanford.edu/faculty-research/labs-initiatives/sil/research/methods/ai-machine-learning/short-course" target="_blank" rel="noreferrer">
+                  Machine Learning and Causal Inference <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Stanford's short video course on treatment effects, heterogeneity, observational studies, and policy learning.</p>
+            </div>
+            <p class="meta">Free / Video and code / Advanced</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="resource-section" id="practical" aria-labelledby="practical-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="practical-title">Practical resources</h2>
+            <p>Tools for diagrams, estimation, and discovery.</p>
+          </div>
+        </div>
+
+        <div class="resource-list">
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://dagitty.net/learn/index.html" target="_blank" rel="noreferrer">
+                  DAGitty tutorials and diagram tool <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Interactive exercises on variable roles, d-separation, Simpson's paradox, and covariate adjustment.</p>
+            </div>
+            <p class="meta">Browser tool / Beginner</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://github.com/matheusfacure/python-causality-handbook" target="_blank" rel="noreferrer">
+                  Causal Inference for the Brave and True <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>An open, practical handbook for impact estimation with reproducible Python notebooks.</p>
+            </div>
+            <p class="meta">GitHub / Python / Beginner</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://github.com/py-why/dowhy" target="_blank" rel="noreferrer">
+                  DoWhy <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>A Python library structured around modelling, identifying, estimating, and refuting causal effects.</p>
+            </div>
+            <p class="meta">GitHub / Python / Intermediate</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://github.com/r-causal/ggdag" target="_blank" rel="noreferrer">
+                  ggdag <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>An R package for creating and analysing causal diagrams with the grammar of graphics.</p>
+            </div>
+            <p class="meta">GitHub / R / Intermediate</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://github.com/py-why/EconML" target="_blank" rel="noreferrer">
+                  EconML <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>Machine-learning methods for estimating heterogeneous treatment effects from experimental or observational data.</p>
+            </div>
+            <p class="meta">GitHub / Python / Advanced</p>
+          </article>
+
+          <article class="resource-item">
+            <div>
+              <h3>
+                <a href="https://github.com/py-why/causal-learn" target="_blank" rel="noreferrer">
+                  causal-learn <span aria-hidden="true">↗</span>
+                </a>
+              </h3>
+              <p>A Python toolkit for classical and recent causal discovery algorithms.</p>
+            </div>
+            <p class="meta">GitHub / Python / Advanced</p>
+          </article>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>External resources reviewed on 4 September 2026.</p>
+      <p><a href="/sources.html">Sources &amp; rights</a> · Free access does not imply unrestricted reuse.</p>
+    </footer>
+    <script>
+      (() => {
+        const button = document.querySelector(".theme-toggle");
+        const themeColour = document.querySelector('meta[name="theme-color"]');
+        const apply = (theme) => {
+          document.documentElement.dataset.theme = theme;
+          button.textContent = theme === "dark" ? "Light" : "Dark";
+          button.setAttribute("aria-pressed", String(theme === "dark"));
+          button.setAttribute("aria-label", `Use ${theme === "dark" ? "light" : "dark"} theme`);
+          themeColour.content = theme === "dark" ? "#1f1b28" : "#ffffff";
+        };
+        apply(document.documentElement.dataset.theme);
+        button.addEventListener("click", () => {
+          const theme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+          apply(theme);
+          try { localStorage.setItem("educagent-theme", theme); } catch {}
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "additionalProperties": false,
+  "description": "An authored selection of released activities for a low-stakes entry check.",
+  "properties": {
+    "activity_ids": {
+      "items": {
+        "minLength": 1,
+        "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$",
+        "type": "string"
+      },
+      "maxItems": 24,
+      "minItems": 1,
+      "title": "Activity Ids",
+      "type": "array"
+    },
+    "diagnostic_id": {
+      "minLength": 1,
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$",
+      "title": "Diagnostic Id",
+      "type": "string"
+    },
+    "introduction": {
+      "minLength": 1,
+      "title": "Introduction",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "title": {
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "version": {
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "diagnostic_id",
+    "version",
+    "title",
+    "introduction",
+    "activity_ids"
+  ],
+  "title": "DiagnosticPlan",
+  "type": "object"
+}

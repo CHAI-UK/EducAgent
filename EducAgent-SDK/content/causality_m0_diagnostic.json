@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "diagnostic_id": "causality.m0.entry",
+  "version": "1.1.0",
+  "title": "Your Causality M0 starting point",
+  "introduction": "Optionally answer nine short questions to suggest a review route, or start from the basics without a quiz. The entry check is a starting snapshot, not mastery or course completion. Review may revisit these questions for practice.",
+  "activity_ids": [
+    "variables-and-values.practice",
+    "observed-association.practice",
+    "association-is-not-causation.practice",
+    "treatment-and-outcome.practice",
+    "observation-vs-intervention.practice",
+    "world-data-model.practice",
+    "data-vs-assumptions.practice",
+    "basic-dag-language.practice",
+    "probabilistic-effects.practice"
+  ]
+}

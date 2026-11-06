@@ -1,0 +1,113 @@
+{
+  "catalog_version": "1.3.0",
+  "courses": {
+    "m1_effect": {
+      "general": {
+        "profile_id": "general",
+        "title": "Effect of an intervention",
+        "question": "What would offering this programme change?",
+        "example": "A college offers six weeks of study support. Students who join tend to do better on a skills check. Would offering the programme improve results, or were those students better prepared to begin with? The recorded difference alone cannot answer what changing the offer would do.",
+        "why": "Use this course to compare possible actions. A causal effect compares what would happen under two alternatives for the same group of people. In each programme practice, change one control, predict the result and run the test. Compare the results before interpreting them. You will calculate average differences and ask which assumptions support them. An average benefit does not tell you how every person responds.",
+        "actions": [
+          "Name the programme, alternative, eligible people, outcome and follow-up time.",
+          "Change one control in the programme story, predict its result and compare two test runs.",
+          "Learn when comparing similar starting groups can support an effect estimate.",
+          "Separate the assumptions that determine an effect from the uncertainty in estimating it."
+        ],
+        "comparison": {
+          "this_course_question": "What would changing an action do to the outcome?",
+          "other_module_id": "m1_shift",
+          "other_title": "Robust prediction or generation",
+          "other_course_question": "Will a model still predict or report correctly in a changed setting?",
+          "connection": "A college may need to know both whether offering study support would help and whether a prediction tool would work at another college. Changing the programme and testing the tool are different investigations. Foundations introduces the causal terms used in both."
+        },
+        "scenario_image": {
+          "path": "media/course-openings/effect-opening-v1.png",
+          "alt_text": "Two fictional learning settings: an instructor discusses alternative adult training activities, while a physiotherapist considers alternative rehabilitation programmes with participants. Neither scene shows an outcome."
+        },
+        "image_caption": "Intervention questions in learning support and rehabilitation.",
+        "grounding_claim_ids": ["m1.effect.intervention", "m1.effect.average", "m1.effect.adjustment", "m1.effect.identification", "m1.effect.authored-case"]
+      },
+      "medical": {
+        "profile_id": "medical",
+        "title": "Effect of an intervention",
+        "question": "What would changing the programme do to recovery?",
+        "example": "A rehabilitation service compares two six-week programmes. Patients attending them have different recovery rates. Would changing the programme offer improve recovery, or do the groups differ in their starting health? The recorded difference alone does not establish what changing care would do.",
+        "why": "Use this course to compare changes in care. A causal effect compares outcomes under two alternatives for the same eligible population. In each programme practice, change one control, predict the result and run the test. Compare the results before interpreting them. Define the recovery measure and follow-up, then ask which evidence and assumptions support an average effect. These are reasoning exercises, not patient-care advice.",
+        "actions": [
+          "Name the programme, comparison, eligible patients, outcome and follow-up time.",
+          "Change one control in the programme story, predict its result and compare two test runs.",
+          "Learn when comparing similar starting groups can support an effect estimate.",
+          "Separate determining an effect, estimating it from a sample and applying it elsewhere."
+        ],
+        "comparison": {
+          "this_course_question": "What would changing care do to the outcome?",
+          "other_module_id": "m1_shift",
+          "other_title": "Robust prediction or generation",
+          "other_course_question": "Will an assistant still predict or report correctly at another hospital?",
+          "connection": "A service may need to know both whether a change in care would help and whether its assistant would work at another hospital. Evaluating care and testing the assistant are different investigations; answering one does not answer the other. Foundations introduces the causal terms used in both."
+        },
+        "scenario_image": {
+          "path": "media/course-openings/effect-opening-v1.png",
+          "alt_text": "Two fictional learning settings: an instructor discusses alternative adult training activities, while a physiotherapist considers alternative rehabilitation programmes with participants. Neither scene shows an outcome."
+        },
+        "image_caption": "Intervention questions in learning support and rehabilitation.",
+        "grounding_claim_ids": ["m1.effect.intervention", "m1.effect.average", "m1.effect.adjustment", "m1.effect.identification", "m1.effect.authored-case"]
+      }
+    },
+    "m1_shift": {
+      "general": {
+        "profile_id": "general",
+        "title": "Robust prediction or generation",
+        "question": "Will a parcel-damage prediction still work at another warehouse?",
+        "example": "A warehouse assistant predicts whether a parcel is damaged. It can read a warehouse label or a recorded parcel-damage flag: a yes/no finding from a photograph. Checking answers are separate labels used to evaluate predictions. At the first warehouse, labels often match them. The next warehouse labels parcels differently and takes different photographs. Which rule will still work?",
+        "why": "Prediction estimates an answer from recorded inputs. Follow the parcels while changing one thing at a time. A causal explanation helps distinguish changes to labels, measurements and the process that causes damage, without guaranteeing reliability. After the prediction exercises, you will try generation: writing a report from a source. The exercises use a teaching model and rule-based drafts, not a deployed AI system.",
+        "actions": [
+          "Start with the parcel story and learn what the checking answer means.",
+          "Change one label or measurement control; predict, run and compare the same cases.",
+          "Explain which changes were tested and why one stable score is not a guarantee.",
+          "Then test report generation: compare invented details with the number of reports available."
+        ],
+        "comparison": {
+          "this_course_question": "Will a model still predict or report correctly in a changed setting?",
+          "other_module_id": "m1_effect",
+          "other_title": "Effect of an intervention",
+          "other_course_question": "What would changing an action do to the outcome?",
+          "connection": "Changing a photograph's background tests the assistant. Changing parcel handling asks whether an action prevents damage. A warehouse may need both investigations, and answering one does not answer the other. Foundations introduces the causal terms used in both."
+        },
+        "scenario_image": {
+          "path": "media/course-openings/shift-opening-v1.png",
+          "alt_text": "An inspector compares the same parcel in different photographic settings, alongside a fictional clinician comparing chest-image sources from different imaging rooms and a draft report. No scores or diagnoses are shown."
+        },
+        "image_caption": "Checking a change of setting: parcel inspection and medical imaging.",
+        "grounding_claim_ids": ["m1.shift.shift", "m1.shift.prediction", "m1.shift.invariance", "m1.shift.limits", "m1.shift.authored-case"]
+      },
+      "medical": {
+        "profile_id": "medical",
+        "title": "Robust prediction or generation",
+        "question": "Will an image-finding prediction still work at another hospital?",
+        "example": "A hospital assistant predicts whether a chest image shows an opacity: a cloudy area, not a diagnosis by itself. It can read a hospital marker or a recorded opacity flag: a yes/no image finding. Checking answers are separate labels used to evaluate predictions. Markers often match them at the first hospital. The next hospital marks images differently and records findings less reliably. Which rule will still work?",
+        "why": "Prediction estimates an answer from recorded inputs. Follow the images while changing one thing at a time. A causal explanation distinguishes changes to markers, measurements and the underlying condition, without guaranteeing reliability. After the prediction exercises, you will try generation: writing a report from a source. The exercises use a teaching model and rule-based drafts; they do not test a clinical deployment.",
+        "actions": [
+          "Start with the imaging story and learn what the checking answer means.",
+          "Change one marker or measurement control; predict, run and compare the same cases.",
+          "Explain which changes were tested and why one stable score is not a guarantee.",
+          "Then test report generation: compare invented details with the number of reports available."
+        ],
+        "comparison": {
+          "this_course_question": "Will an assistant still predict or report correctly at another hospital?",
+          "other_module_id": "m1_effect",
+          "other_title": "Effect of an intervention",
+          "other_course_question": "What would changing care do to the outcome?",
+          "connection": "Testing an imaging assistant at another hospital asks a different question from whether a treatment improves recovery. A service may need both investigations; answering one does not answer the other. The teaching model does not approve clinical deployment. Foundations introduces the causal terms used in both."
+        },
+        "scenario_image": {
+          "path": "media/course-openings/shift-opening-v1.png",
+          "alt_text": "An inspector compares the same parcel in different photographic settings, alongside a fictional clinician comparing chest-image sources from different imaging rooms and a draft report. No scores or diagnoses are shown."
+        },
+        "image_caption": "Checking a change of setting: parcel inspection and medical imaging.",
+        "grounding_claim_ids": ["m1.shift.shift", "m1.shift.prediction", "m1.shift.invariance", "m1.shift.limits", "m1.shift.authored-case"]
+      }
+    }
+  }
+}

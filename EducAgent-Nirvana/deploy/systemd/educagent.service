@@ -1,0 +1,18 @@
+# User service example. Replace BOTH absolute paths before installing.
+[Unit]
+Description=EducAgent private review server (Learning, Portal, Nirvana)
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/educagent
+ExecStart=/opt/conda/envs/educagent-server/bin/python /srv/educagent/run.py --data-dir /srv/educagent-data
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=35
+UMask=0077
+NoNewPrivileges=true
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target

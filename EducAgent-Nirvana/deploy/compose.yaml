@@ -1,0 +1,36 @@
+name: educagent-review
+services:
+  educagent:
+    build: .
+    ports:
+      - "127.0.0.1:9090:9090"
+    env_file:
+      - ./config/elm.env
+    environment:
+      BIND_HOST: 0.0.0.0
+      DATA_DIR: /data
+      SESSION_COOKIE_SECURE: "${SESSION_COOKIE_SECURE:-0}"
+    volumes:
+      - portal-data:/data
+    restart: unless-stopped
+    init: true
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    healthcheck:
+      test: ["CMD", "python", "check.py", "--url", "http://127.0.0.1:9090", "--liveness-only"]
+      interval: 60s
+      timeout: 30s
+      start_period: 60s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+volumes:
+  portal-data:

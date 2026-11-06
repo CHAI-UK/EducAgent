@@ -1,0 +1,287 @@
+{
+  "schema_version": "3.0",
+  "pack_id": "causality.m0.episode",
+  "version": "0.3.0",
+  "title": "Causality M0 Observation and Intervention Episode",
+  "concepts": [
+    {
+      "concept_id": "observation-vs-intervention",
+      "objective": "Distinguish records from deliberate assignment, state the remaining causal assumption, and transfer the distinction to a new setting.",
+      "completion_activity_ids": [
+        "observation-vs-intervention.commitment.01",
+        "observation-vs-intervention.assumption.01",
+        "observation-vs-intervention.transfer.01"
+      ],
+      "m1_ready_activity_ids": [
+        "observation-vs-intervention.transfer.01"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "peters-janzing-scholkopf-2017",
+      "citation": "Peters, Jonas; Janzing, Dominik; Schölkopf, Bernhard. Elements of Causal Inference: Foundations and Learning Algorithms. MIT Press, 2017.",
+      "rights": "Source license: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/). This pack contains citation metadata and independently authored factual summaries, not source excerpts. External distribution still requires a separate rights review.",
+      "review_status": "reviewed"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "association-is-observational",
+      "proposition": "An observed association describes how variables vary together in an observational distribution.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 1.4.1, Model (i), paragraph defining the observational distribution"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "observation-does-not-identify-intervention",
+      "proposition": "Different causal models can produce the same observational distribution while implying different intervention distributions; without additional causal assumptions or interventional evidence, observation alone may not identify an intervention effect.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 1.4.1, Figure 1.3 and summary paragraph"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "conditioning-differs-from-intervening",
+      "proposition": "Observing a variable at a value and intervening to set it to that value can produce different distributions.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 3.2, Example 3.2 (Cause-effect interventions)"
+        }
+      ],
+      "release_status": "released"
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "episode.commitment.question",
+      "kind": "question",
+      "text": "A clinic records patients' existing sleep duration and later concentration scores. Did the clinic create observational evidence or interventional evidence?",
+      "claim_ids": [
+        "association-is-observational"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.commitment.hint",
+      "kind": "hint",
+      "text": "Ask whether the clinic only recorded existing sleep durations or deliberately assigned them.",
+      "claim_ids": [
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.commitment.explanation",
+      "kind": "explanation",
+      "text": "Observational evidence records what already happened. Interventional evidence comes from deliberately setting or assigning a variable.",
+      "claim_ids": [
+        "association-is-observational",
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.commitment.consequence.accepted",
+      "kind": "consequence",
+      "text": "The clinic observed existing sleep durations; it did not set them. That makes this observational evidence.",
+      "claim_ids": [
+        "association-is-observational"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.commitment.consequence.rejected",
+      "kind": "consequence",
+      "text": "Calling this interventional treats a record as if the clinic assigned sleep duration. The clinic only observed what patients already did.",
+      "claim_ids": [
+        "association-is-observational",
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.assumption.question",
+      "kind": "question",
+      "text": "The clinic finds that longer sleep is associated with better concentration. Which statement remains an assumption rather than a conclusion from those records alone?",
+      "claim_ids": [
+        "association-is-observational",
+        "observation-does-not-identify-intervention"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.assumption.hint",
+      "kind": "hint",
+      "text": "Separate seeing patients with different sleep durations from deliberately assigning a sleep duration.",
+      "claim_ids": [
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.assumption.explanation",
+      "kind": "explanation",
+      "text": "The records support an association. They do not by themselves identify what would happen if sleep duration were deliberately assigned.",
+      "claim_ids": [
+        "association-is-observational",
+        "observation-does-not-identify-intervention"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.assumption.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. The records describe an association; the effect of assigning more sleep is still an assumption without added causal support.",
+      "claim_ids": [
+        "observation-does-not-identify-intervention"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.assumption.consequence.rejected",
+      "kind": "consequence",
+      "text": "That turns an observed association into an intervention effect. The records alone do not show what deliberate assignment would do.",
+      "claim_ids": [
+        "observation-does-not-identify-intervention"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.transfer.question",
+      "kind": "question",
+      "text": "A software team notices that users who voluntarily enable focus mode make fewer typing mistakes. Is this observational evidence or interventional evidence?",
+      "claim_ids": [
+        "association-is-observational"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.transfer.hint",
+      "kind": "hint",
+      "text": "Ask whether the team assigned focus mode or only compared users' existing choices.",
+      "claim_ids": [
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.transfer.explanation",
+      "kind": "explanation",
+      "text": "Users chose focus mode themselves, so the team observed an association rather than intervening to set focus mode.",
+      "claim_ids": [
+        "association-is-observational",
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.transfer.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. The team observed users' existing choices; it did not assign focus mode.",
+      "claim_ids": [
+        "association-is-observational"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "episode.transfer.consequence.rejected",
+      "kind": "consequence",
+      "text": "Voluntary use is not assignment by the team. This evidence is observational, even if the association is useful to investigate.",
+      "claim_ids": [
+        "association-is-observational",
+        "conditioning-differs-from-intervening"
+      ],
+      "release_status": "released"
+    }
+  ],
+  "activities": [
+    {
+      "activity_id": "observation-vs-intervention.commitment.01",
+      "concept_id": "observation-vs-intervention",
+      "activity_type": "classification",
+      "is_transfer": false,
+      "requires_revision": true,
+      "question_resource_id": "episode.commitment.question",
+      "choices": [
+        {
+          "option_id": "commitment.observational",
+          "text": "Observational evidence",
+          "correct": true,
+          "consequence_resource_id": "episode.commitment.consequence.accepted"
+        },
+        {
+          "option_id": "commitment.interventional",
+          "text": "Interventional evidence",
+          "correct": false,
+          "misconception_id": "recording-is-assignment",
+          "hint_resource_ids": [
+            "episode.commitment.hint"
+          ],
+          "consequence_resource_id": "episode.commitment.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "episode.commitment.explanation"
+    },
+    {
+      "activity_id": "observation-vs-intervention.assumption.01",
+      "concept_id": "observation-vs-intervention",
+      "activity_type": "choice",
+      "is_transfer": false,
+      "question_resource_id": "episode.assumption.question",
+      "choices": [
+        {
+          "option_id": "assumption.assigning-sleep-improves-concentration",
+          "text": "Deliberately assigning a longer sleep duration will improve concentration for a patient.",
+          "correct": true,
+          "consequence_resource_id": "episode.assumption.consequence.accepted"
+        },
+        {
+          "option_id": "assumption.records-show-association",
+          "text": "Patients with longer reported sleep were associated with better reported concentration in these records.",
+          "correct": false,
+          "misconception_id": "association-is-only-an-assumption",
+          "hint_resource_ids": [
+            "episode.assumption.hint"
+          ],
+          "consequence_resource_id": "episode.assumption.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "episode.assumption.explanation"
+    },
+    {
+      "activity_id": "observation-vs-intervention.transfer.01",
+      "concept_id": "observation-vs-intervention",
+      "activity_type": "classification",
+      "is_transfer": true,
+      "question_resource_id": "episode.transfer.question",
+      "choices": [
+        {
+          "option_id": "transfer.observational",
+          "text": "Observational evidence",
+          "correct": true,
+          "consequence_resource_id": "episode.transfer.consequence.accepted"
+        },
+        {
+          "option_id": "transfer.interventional",
+          "text": "Interventional evidence",
+          "correct": false,
+          "misconception_id": "voluntary-use-is-assignment",
+          "hint_resource_ids": [
+            "episode.transfer.hint"
+          ],
+          "consequence_resource_id": "episode.transfer.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "episode.transfer.explanation"
+    }
+  ]
+}

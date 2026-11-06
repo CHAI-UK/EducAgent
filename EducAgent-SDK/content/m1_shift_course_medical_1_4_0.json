@@ -1,0 +1,2365 @@
+{
+  "schema_version": "3.0",
+  "pack_id": "causality.m1.shift.medical",
+  "version": "1.4.0",
+  "title": "Robust prediction or generation",
+  "concepts": [
+    {
+      "concept_id": "distribution-shift",
+      "objective": "Identify changes in the population, measurement or target-generating process and distinguish within-environment performance from evidence about deployment.",
+      "completion_activity_ids": [
+        "distribution-shift.quiz",
+        "distribution-shift.challenge",
+        "m1-shift-investigation.01",
+        "m1-shift-final.01"
+      ]
+    },
+    {
+      "concept_id": "causal-vs-spurious-features",
+      "objective": "Distinguish prediction from intervention targets and explain why neither predictive strength nor a causal label alone guarantees robustness.",
+      "completion_activity_ids": [
+        "causal-vs-spurious-features.quiz",
+        "causal-vs-spurious-features.challenge",
+        "m1-shift-investigation.02",
+        "m1-shift-final.02"
+      ]
+    },
+    {
+      "concept_id": "invariance-across-environments",
+      "objective": "Compare conditional relationships across environments and state the mechanism and support assumptions needed for a scoped invariance argument, without treating stability as causal proof.",
+      "completion_activity_ids": [
+        "invariance-across-environments.quiz",
+        "invariance-across-environments.challenge",
+        "m1-shift-investigation.03",
+        "m1-shift-final.03"
+      ]
+    },
+    {
+      "concept_id": "when-predictions-can-still-fail",
+      "objective": "Design external-environment checks for prediction and generation, including content preservation, failure monitoring and abstention when evidence does not cover the intended use.",
+      "completion_activity_ids": [
+        "when-predictions-can-still-fail.quiz",
+        "when-predictions-can-still-fail.challenge",
+        "m1-shift-investigation.04",
+        "m1-shift-final.04"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "peters-janzing-scholkopf-2017",
+      "citation": "Peters, Jonas; Janzing, Dominik; Schölkopf, Bernhard. Elements of Causal Inference: Foundations and Learning Algorithms. MIT Press, 2017.",
+      "rights": "Reference source: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/). This pack contains independently authored explanations and invented teaching data, not textbook excerpts or figures. Source metadata checked locally; subject-matter expert approval is separate.",
+      "review_status": "reviewed"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "m1.shift.shift",
+      "proposition": "A relationship useful for prediction in observed environments need not apply in a new environment whose generating processes or support differ.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 8.3, Domain Adaptation, environments and equation (8.7)"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.shift.prediction",
+      "proposition": "The most informative observational predictor need not be an effective intervention target, because prediction and changing the target are different tasks.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.3, Example 6.10, Predictors and intervention targets"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.shift.invariance",
+      "proposition": "Under a causal model, changes to other mechanisms can leave the target mechanism invariant. Domain generalization additionally assumes that the relevant conditional relationship persists in the test environment and has adequate support; stability can also occur for non-parent predictor sets.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.6, equation (6.7); Section 8.3, equation (8.7), discussion of non-parent sets and overlapping supports"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.shift.limits",
+      "proposition": "Evidence from multiple environments is interpreted under assumptions about which mechanisms change. Hidden variables and previously unexamined mechanism changes can invalidate an invariance argument.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 8.3, equation (8.7) assumptions; Section 9.5.6, restrictions on hidden variables and environment interventions"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.shift.authored-case",
+      "proposition": "Reference counts and assessment cases in this pack are authored teaching data. Interactive experiment outcomes are deterministically recomputed from the released model and learner settings. Ratios, differences and weighted sums use declared denominators and target weights. Generation fidelity and withholding criteria are declared teaching-model rules, not empirical guarantees or textbook claims about a particular generator.",
+      "deterministic_derivation": {
+        "method_id": "m1.authored-case",
+        "method_version": "1.1.0"
+      },
+      "release_status": "released"
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.hook",
+      "kind": "question",
+      "text": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag, a yes/no image finding. At the first hospital, the marker often matches the checking answer. At another hospital, the marker is applied differently and image findings are recorded less reliably. A separate test there checks the proposed use. If accuracy is lower, the scores alone cannot separate the effects of those changes.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.step-1",
+      "kind": "explanation",
+      "text": "The assistant predicts whether an opacity is present: a cloudy area on a chest image. A reference is a separate answer used to check the prediction. Here it is a preset checking answer for whether the opacity is present, set by the teaching model before any measurement error. It is not a real clinical or inspection review.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.step-2",
+      "kind": "explanation",
+      "text": "The new hospital may see different cases, use different hospital markers or record the image finding less reliably. These are different changes. A fall in accuracy tells us that predictions are worse on the tested cases, not which change caused every error.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.step-3",
+      "kind": "explanation",
+      "text": "Test records from the intended hospital, with suitable checking answers. Keep them separate from records used for training or tuning. In the practice, you will change how often the hospital marker matches the reference and test one fixed prediction rule.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.definition",
+      "kind": "explanation",
+      "text": "Distribution shift means that the cases, measurements or process producing an outcome change between settings. An old test score describes the old setting; it does not guarantee performance after a change.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.pitfall",
+      "kind": "explanation",
+      "text": "Splitting the first site's records again does not test new measurements at another site.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Name the setting that changed, then test predictions on cases representing that setting.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.quiz.accepted",
+      "kind": "consequence",
+      "text": "Records from the new site let the team check performance with the changed measurements. Use suitable checking answers and keep these records separate from training and tuning. Splitting the old records again can miss those measurement errors.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.quiz.rejected",
+      "kind": "consequence",
+      "text": "Where did the test records come from? Check whether they include the new measurements.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.quiz.hint",
+      "kind": "hint",
+      "text": "Which records contain the conditions the assistant will now face?",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.quiz.question",
+      "kind": "question",
+      "text": "An assistant predicts whether an opacity is present. It was tested at one hospital, but a second hospital records images differently. How should the team test it at the second site?",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.quiz.explanation",
+      "kind": "explanation",
+      "text": "Records from the new site let the team check performance with the changed measurements. Use suitable checking answers and keep these records separate from training and tuning. Splitting the old records again can miss those measurement errors.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.challenge.accepted",
+      "kind": "consequence",
+      "text": "Recording settings and case mix both changed, so these tests do not show how much each contributed to the lower accuracy.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.challenge.rejected",
+      "kind": "consequence",
+      "text": "Read the new result and list both changes. The comparison does not hold one fixed while testing the other.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.challenge.hint",
+      "kind": "hint",
+      "text": "Could these tests separate the effects of the recording settings from those of the case mix?",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.challenge.question",
+      "kind": "question",
+      "text": "An opacity predictor scored 90% at its original hospital. A second hospital changes both scanner settings and patient mix. Its new test score is 70%. What can we conclude from these tests?",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.distribution-shift.challenge.explanation",
+      "kind": "explanation",
+      "text": "Recording settings and case mix both changed, so these tests do not show how much each contributed to the lower accuracy.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.hook",
+      "kind": "question",
+      "text": "The hospital marker often matches whether an opacity is present. Suppose we edit only that recorded marker. Could the assistant's prediction change while the patient's condition stays the same?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.step-1",
+      "kind": "explanation",
+      "text": "The hospital marker is a clue, sometimes called a cue. It can be useful because different kinds of cases arrive at different hospitals. Relabelling a recorded input is not an action that changes the patient's condition. Prediction and changing an outcome are different tasks.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.step-2",
+      "kind": "explanation",
+      "text": "In the practice, compare the same case number before and after the marker edit. Its checking answer and recorded opacity flag stay fixed. If the prediction changes, you have shown dependence on the marker. You have not shown that the marker caused or treated the underlying condition.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.step-3",
+      "kind": "explanation",
+      "text": "A causal explanation asks which processes produce the outcome and the recorded inputs. It can explain why a site shortcut may fail when those processes change. Other inputs still need checking: a feature proposed as a cause can be measured poorly or used for kinds of cases that have not been tested.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.definition",
+      "kind": "explanation",
+      "text": "A shortcut is an input that predicts well in one setting because it is associated with the answer there. That does not mean changing the input changes the underlying outcome. A plausible causal feature also needs reliable measurement and new-setting checks.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.pitfall",
+      "kind": "explanation",
+      "text": "Changing a prediction is not the same as changing the condition being predicted.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Ask what changed: the recorded input, the assistant's answer, or the underlying condition.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.quiz.accepted",
+      "kind": "consequence",
+      "text": "Changing only the recorded marker changed the prediction while the underlying condition stayed fixed. The other inputs still need testing.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.quiz.rejected",
+      "kind": "consequence",
+      "text": "Which part of the case did the edit change, and which part stayed fixed?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.quiz.hint",
+      "kind": "hint",
+      "text": "Separate the input, the prediction and the condition being described.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.quiz.question",
+      "kind": "question",
+      "text": "The assistant reads the hospital marker. We edit only that recorded marker; the patient's condition stays fixed. Its prediction changes. What have we learned?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.quiz.explanation",
+      "kind": "explanation",
+      "text": "Changing only the recorded marker changed the prediction while the underlying condition stayed fixed. The other inputs still need testing.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.challenge.accepted",
+      "kind": "consequence",
+      "text": "The assumed causal link does not fix an inaccurate blood-oxygen measurement. Check the predictions for the new cases and the process producing the exercise-test score.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.challenge.rejected",
+      "kind": "consequence",
+      "text": "Which value reaches the assistant: the feature itself or the device's recorded measurement?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.challenge.hint",
+      "kind": "hint",
+      "text": "The assistant receives a measured value, not direct access to the proposed cause.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.challenge.question",
+      "kind": "question",
+      "text": "The teaching model assumes blood oxygen level affects an exercise-test score. A new device measures blood oxygen poorly. Does that causal role guarantee reliable score predictions?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.causal-vs-spurious-features.challenge.explanation",
+      "kind": "explanation",
+      "text": "The assumed causal link does not fix an inaccurate blood-oxygen measurement. Check the predictions for the new cases and the process producing the exercise-test score.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.hook",
+      "kind": "question",
+      "text": "Two hospitals report the same overall accuracy for opacity predictions, but one sees a larger share of older adults. Compare errors for similar younger adults across hospitals, then compare similar older adults. Different group sizes can hide a change within a group. This compares errors; it does not by itself establish that the same measured features have the same outcome patterns, prove a cause or cover untested kinds of patients.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.step-1",
+      "kind": "explanation",
+      "text": "The image-reading rule copies the recorded opacity flag. The teaching model first sets the checking answer and then sometimes records the opposite finding. This measurement is not a feature established to cause the target. Reading it is not direct access to truth.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.step-2",
+      "kind": "explanation",
+      "text": "A rule that ignores the site marker can stay unchanged when only the marker changes. It may still fail when its own measured input becomes less reliable. A causal account helps identify the processes assumed to stay fixed and distinguish changes that test different assumptions.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.step-3",
+      "kind": "explanation",
+      "text": "The same overall accuracy can hide different errors in different groups. A conditional comparison checks outcomes for cases with the same relevant measured features, over values represented in both settings. The range represented is called support. Reference-group error rates shown in this exercise are useful error checks, not a direct test of that outcome-given-features relationship or a unique causal graph.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.definition",
+      "kind": "explanation",
+      "text": "An invariant relationship stays the same across the settings compared. Using it elsewhere assumes the relevant outcome process, measurements and range of cases remain suitable. Stable results are limited evidence, not proof of a cause or a guarantee for every new setting.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.pitfall",
+      "kind": "explanation",
+      "text": "Stable scores under a marker change do not validate a new measurement process or an unseen kind of case.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Say what was held fixed, what changed and which changes still need testing.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.quiz.accepted",
+      "kind": "consequence",
+      "text": "The similar opacity rates support stability for adult images with the same recorded finding at the tested hospitals. They do not check children's images or establish a cause. A new hospital may also change the process producing the outcome.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.quiz.rejected",
+      "kind": "consequence",
+      "text": "Does the conclusion include cases that none of the three sites tested?",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.quiz.hint",
+      "kind": "hint",
+      "text": "Which kinds of cases did the teams actually compare?",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.quiz.question",
+      "kind": "question",
+      "text": "In a teaching example, three hospitals compare adult chest images with the same recorded finding. They see similar opacity rates. Children's images were not tested. What does this support?",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.quiz.explanation",
+      "kind": "explanation",
+      "text": "The similar opacity rates support stability for adult images with the same recorded finding at the tested hospitals. They do not check children's images or establish a cause. A new hospital may also change the process producing the outcome.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.challenge.accepted",
+      "kind": "consequence",
+      "text": "An overall score mixes groups. Compare similar cases within those groups and check that there is enough data to judge uncertainty. A matching average alone does not do this.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.challenge.rejected",
+      "kind": "consequence",
+      "text": "How do the reported errors differ within the groups? Consider that alongside the overall score.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.challenge.hint",
+      "kind": "hint",
+      "text": "Could different group errors combine into the same overall score?",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.challenge.question",
+      "kind": "question",
+      "text": "Two hospitals both report 85% accuracy. At the second, errors are higher for high-risk patients, and the patient mix differs. Does the shared overall score show that performance stayed stable for similar patients?",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.invariance-across-environments.challenge.explanation",
+      "kind": "explanation",
+      "text": "An overall score mixes groups. Compare similar cases within those groups and check that there is enough data to judge uncertainty. A matching average alone does not do this.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.hook",
+      "kind": "question",
+      "text": "So far the assistant has predicted whether an opacity is present, a cloudy area on a chest image. It now writes a report. Suppose the report needs the scan date, but the source gives only the image finding and no date. The assistant can retain that finding, mark the date as unavailable and leave the incomplete report for review. Making up a date would add a fact without evidence. This response does not verify the missing information. A new recording setup still needs its own evaluation.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.step-1",
+      "kind": "explanation",
+      "text": "The source is the recorded opacity flag plus the context, if available. A draft that reverses a recorded finding fails source fidelity. A faithful copy can still preserve a wrong measurement, so comparing with the source is different from checking with the independent reference.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.step-2",
+      "kind": "explanation",
+      "text": "Complete every report writes a full draft and fills missing context with an unsupported detail. Preserve source facts copies available facts and withholds a full report when required context is absent. These are fixed teaching templates, not an LLM. Changing the report rule does not repair the input measurement.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.step-3",
+      "kind": "explanation",
+      "text": "Compare unsupported additions and full-report coverage over all cases. Also count source-supported reports among those issued. Withholding can reduce unsupported additions while leaving fewer cases with reports. If none are issued, fidelity among issued reports is undefined, not perfect. Withholding an unsupported claim, or abstaining, needs a clear review path and does not verify the missing fact.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.definition",
+      "kind": "explanation",
+      "text": "Generation produces an output such as a report. Source fidelity means keeping the facts actually recorded without inventing details. It is not proof that the source is true. Coverage is the share of cases receiving a full report.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.pitfall",
+      "kind": "explanation",
+      "text": "Fluent wording does not prevent invented facts, and copying the source can preserve a mistake. A withheld report has not supplied a correct answer.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Check prediction accuracy, source fidelity and coverage separately; make unsupported cases visible for review.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.quiz.accepted",
+      "kind": "consequence",
+      "text": "The draft contradicts its source. Source fidelity checks recorded meaning; it does not establish whether that source itself is correct.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.quiz.rejected",
+      "kind": "consequence",
+      "text": "Does the draft make the same factual claim as the source?",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.quiz.hint",
+      "kind": "hint",
+      "text": "Compare the findings stated in the source and the draft.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.quiz.question",
+      "kind": "question",
+      "text": "Now the assistant writes a report. The source says 'no opacity identified', but the fluent draft says 'opacity present'. Which check does the draft fail?",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.quiz.explanation",
+      "kind": "explanation",
+      "text": "The draft contradicts its source. Source fidelity checks recorded meaning; it does not establish whether that source itself is correct.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.challenge.accepted",
+      "kind": "consequence",
+      "text": "Flag the missing fact and untested setup for review. Withholding a claim does not verify the missing fact. Evidence is still needed before extending use to these cases.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.challenge.rejected",
+      "kind": "consequence",
+      "text": "An old score and a confident draft cannot supply the missing source fact.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.challenge.hint",
+      "kind": "hint",
+      "text": "Is the needed fact actually recorded, and was this setup tested?",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.challenge.question",
+      "kind": "question",
+      "text": "A new hospital's record lacks a fact required for a full report. Its recording method has not been evaluated. What should the assistant do?",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.when-predictions-can-still-fail.challenge.explanation",
+      "kind": "explanation",
+      "text": "Flag the missing fact and untested setup for review. Withholding a claim does not verify the missing fact. Evidence is still needed before extending use to these cases.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.01.accepted",
+      "kind": "consequence",
+      "text": "You tested one fixed marker-reading rule under the marking patterns you ran. These runs do not check a different measurement process or other untested conditions.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.01.rejected",
+      "kind": "consequence",
+      "text": "The experiment did not test every process that might change at another site.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.01.hint",
+      "kind": "hint",
+      "text": "Name the settings you actually ran. Which possible changes remain untested?",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.01.question",
+      "kind": "question",
+      "text": "What can you conclude from the two marker-agreement settings you tested?\n\nRecords available in this step:\nEarlier hospital test, not the current run\nModel | Correct / evaluated | Accuracy\nMarker-reading rule | 94 / 100 | 94%\nImage-reading rule | 88 / 100 | 88%\nSeparate earlier test cases. These fixed scores are background, not the results of your current settings.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.01.explanation",
+      "kind": "explanation",
+      "text": "You tested one fixed marker-reading rule under the marking patterns you ran. These runs do not check a different measurement process or other untested conditions.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.01.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict accuracy at 90% agreement, then run the test. Set agreement to 50%, predict again and rerun. Compare the two accuracies and select Record my comparison before answering below. Keep all other settings fixed.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.02.accepted",
+      "kind": "consequence",
+      "text": "The input marker changed while the checking answer and image measurement stayed fixed. The changed prediction therefore shows that the rule uses the marker, without showing a change in the underlying condition.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.02.rejected",
+      "kind": "consequence",
+      "text": "Follow the unchanged checking answer. The experiment did not change the condition it represents.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.02.hint",
+      "kind": "hint",
+      "text": "What did the edit change, and what did the experiment hold fixed?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.02.question",
+      "kind": "question",
+      "text": "The marker edit changes a prediction while its checking answer stays fixed. What did the edit test?\n\nRecords available in this step:\nEarlier hospital test, not the current run\nModel | Correct / evaluated | Accuracy\nMarker-reading rule | 94 / 100 | 94%\nImage-reading rule | 88 / 100 | 88%\nSeparate earlier test cases. These fixed scores are background, not the results of your current settings.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.02.explanation",
+      "kind": "explanation",
+      "text": "The input marker changed while the checking answer and image measurement stayed fixed. The changed prediction therefore shows that the rule uses the marker, without showing a change in the underlying condition.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.02.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict and run with the marker edit off. Then switch it on, predict again and rerun. Compare the same case numbers, select Record my comparison, and answer below. Keep all other settings fixed.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.03.accepted",
+      "kind": "consequence",
+      "text": "The rule ignores the marker but reads a noisy measurement. Results from the tested changes do not establish a cause or cover every untested process. Grouping errors by the checking answer also does not directly test whether outcomes stay similar for the same measured features.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.03.rejected",
+      "kind": "consequence",
+      "text": "Which input does the rule read? Check whether the conclusion assumes that input remains reliable after it changes.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.03.hint",
+      "kind": "hint",
+      "text": "The marker and the recorded opacity flag are different inputs.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.03.question",
+      "kind": "question",
+      "text": "An image-reading rule has the same accuracy after a marker change, but lower accuracy when its measurement worsens. What can we conclude?\n\nRecords available in this step:\nEarlier hospital test, not the current run\nModel | Correct / evaluated | Accuracy\nMarker-reading rule | 94 / 100 | 94%\nImage-reading rule | 88 / 100 | 88%\nSeparate earlier test cases. These fixed scores are background, not the results of your current settings.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.03.explanation",
+      "kind": "explanation",
+      "text": "The rule ignores the marker but reads a noisy measurement. Results from the tested changes do not establish a cause or cover every untested process. Grouping errors by the checking answer also does not directly test whether outcomes stay similar for the same measured features.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.03.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict the result at 10% measurement error and run the test. Change the single control to 40%, predict again and rerun. Compare accuracy, select Record my comparison, and answer below. Keep all other settings fixed.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.04.accepted",
+      "kind": "consequence",
+      "text": "Reference accuracy checks predictions against the checking answer; source fidelity checks drafts against the recorded source. A faithful draft can preserve a measurement error. Withholding incomplete reports can avoid unsupported additions, but fewer cases receive reports and the missing facts remain unknown.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.04.rejected",
+      "kind": "consequence",
+      "text": "A report rule cannot make an absent fact known or repair an incorrectly recorded measurement.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.04.hint",
+      "kind": "hint",
+      "text": "Compare the prediction with its checking answer, and the draft with its recorded source.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.04.question",
+      "kind": "question",
+      "text": "Some drafts copy a source measurement that disagrees with the checking answer. Other records lack required context. What can a source-preserving report rule establish?\n\nRecords available in this step:\nEarlier hospital test, not the current run\nModel | Correct / evaluated | Accuracy\nMarker-reading rule | 94 / 100 | 94%\nImage-reading rule | 88 / 100 | 88%\nSeparate earlier test cases. These fixed scores are background, not the results of your current settings.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.04.explanation",
+      "kind": "explanation",
+      "text": "Reference accuracy checks predictions against the checking answer; source fidelity checks drafts against the recorded source. A faithful draft can preserve a measurement error. Withholding incomplete reports can avoid unsupported additions, but fewer cases receive reports and the missing facts remain unknown.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-investigation.04.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict and run with Complete every report. Change only to Preserve source facts, predict again and rerun. Compare drafts, unsupported additions and coverage, select Record my comparison, and answer below. Keep all input settings fixed.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.01.accepted",
+      "kind": "consequence",
+      "text": "Accuracy was lower in the new test. Measurements and case mix both changed, so the comparison does not show how much each contributed to the drop.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.01.rejected",
+      "kind": "consequence",
+      "text": "The test did not vary one condition while holding the others fixed. Do not assign the whole gap to one change.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.01.hint",
+      "kind": "hint",
+      "text": "Which result did the team measure, and which changes did the tests separate?",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.01.question",
+      "kind": "question",
+      "text": "The predictor is correct in 91/100 original-site cases and 72/100 new-site cases. Both measurements and case mix changed. What can we conclude from this comparison?\n\nRecords available in this step:\nPrediction test at the new site\nCheck | Original setting | External setting\nEvent prediction accuracy | 91 / 100 | 72 / 100\nBoth measurements and case mix changed. This table does not isolate the cause of the accuracy gap.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.01.explanation",
+      "kind": "explanation",
+      "text": "Accuracy was lower in the new test. Measurements and case mix both changed, so the comparison does not show how much each contributed to the drop.",
+      "claim_ids": [
+        "m1.shift.shift",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.02.accepted",
+      "kind": "consequence",
+      "text": "An ID can predict because it records where cases came from; changing it need not change the outcome. A causal feature may help prediction, but its measurements, case ranges and outcome process still need checking.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.02.rejected",
+      "kind": "consequence",
+      "text": "What would changing the ID do to the outcome? What still needs checking when the assistant receives a measured causal feature?",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.02.hint",
+      "kind": "hint",
+      "text": "Predicting an outcome, changing it and predicting reliably elsewhere are separate questions.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.02.question",
+      "kind": "question",
+      "text": "The team can predict readmission using a hospital ID or a pre-discharge feature proposed to affect recovery. What can it conclude about these inputs?\n\nRecords available in this step:\nPrediction test at the new site\nCheck | Original setting | External setting\nEvent prediction accuracy | 91 / 100 | 72 / 100\nBoth measurements and case mix changed. This table does not isolate the cause of the accuracy gap.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.02.explanation",
+      "kind": "explanation",
+      "text": "An ID can predict because it records where cases came from; changing it need not change the outcome. A causal feature may help prediction, but its measurements, case ranges and outcome process still need checking.",
+      "claim_ids": [
+        "m1.shift.prediction",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.03.accepted",
+      "kind": "consequence",
+      "text": "The relationship was stable in the old settings. Changing the process that produces the outcome changes an assumption behind reuse, even if measured feature ranges overlap.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.03.rejected",
+      "kind": "consequence",
+      "text": "Which assumption changes when the process producing the outcome changes? The earlier tests did not cover that process.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.03.hint",
+      "kind": "hint",
+      "text": "Which process did the earlier argument assume would stay the same?",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.03.question",
+      "kind": "question",
+      "text": "Similar cases had similar outcomes in two old settings. The new setting changes the process producing the outcome. Can the team rely on the old relationship without checking it again?\n\nRecords available in this step:\nPrediction test at the new site\nCheck | Original setting | External setting\nEvent prediction accuracy | 91 / 100 | 72 / 100\nBoth measurements and case mix changed. This table does not isolate the cause of the accuracy gap.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.03.explanation",
+      "kind": "explanation",
+      "text": "The relationship was stable in the old settings. Changing the process that produces the outcome changes an assumption behind reuse, even if measured feature ranges overlap.",
+      "claim_ids": [
+        "m1.shift.invariance",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.04.accepted",
+      "kind": "consequence",
+      "text": "Reference accuracy checks predictions; source fidelity checks drafts. Flag the untested range and missing source fact for review instead of filling in the report. Keep monitoring the defined errors; these checks do not guarantee zero future failures.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.04.rejected",
+      "kind": "consequence",
+      "text": "Would this plan leave an unsupported claim in the report? Include a review step for cases with missing evidence.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.04.hint",
+      "kind": "hint",
+      "text": "What evidence is needed to check each output, and what should happen when a required fact is missing?",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.04.question",
+      "kind": "question",
+      "text": "Now check report generation. New-site drafts add unsupported facts in 12/100 cases. A new record also lacks a needed fact and uses untested measurements. How should the team evaluate the outputs and handle this record?\n\nRecords available in this step:\nReport additions at the new site\nReport check | Original site | New site\nDrafts with unsupported factual additions | 1 / 100 | 12 / 100\nThese counts describe unsupported additions, not writing quality or prediction accuracy. Missing source facts still need review.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.shift.m1-shift-final.04.explanation",
+      "kind": "explanation",
+      "text": "Reference accuracy checks predictions; source fidelity checks drafts. Flag the untested range and missing source fact for review instead of filling in the report. Keep monitoring the defined errors; these checks do not guarantee zero future failures.",
+      "claim_ids": [
+        "m1.shift.limits",
+        "m1.shift.authored-case"
+      ],
+      "release_status": "released"
+    }
+  ],
+  "activities": [
+    {
+      "activity_id": "distribution-shift.quiz",
+      "concept_id": "distribution-shift",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.distribution-shift.quiz.question",
+      "choices": [
+        {
+          "option_id": "distribution-shift.quiz.supported",
+          "text": "Test separate cases from the new site with suitable checking answers.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.distribution-shift.quiz.accepted"
+        },
+        {
+          "option_id": "distribution-shift.quiz.alternative-1",
+          "text": "Split the first site's records again and use that score.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.distribution-shift.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.distribution-shift.quiz.rejected"
+        },
+        {
+          "option_id": "distribution-shift.quiz.alternative-2",
+          "text": "Match the new case mix but do not check the changed measurements.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.distribution-shift.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.distribution-shift.quiz.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.distribution-shift.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "distribution-shift.challenge",
+      "concept_id": "distribution-shift",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.distribution-shift.challenge.question",
+      "choices": [
+        {
+          "option_id": "distribution-shift.challenge.alternative-1",
+          "text": "The changed recording settings caused the entire drop in accuracy.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.distribution-shift.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.distribution-shift.challenge.rejected"
+        },
+        {
+          "option_id": "distribution-shift.challenge.supported",
+          "text": "Accuracy was lower on the new test, but the tests do not isolate the cause.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.distribution-shift.challenge.accepted"
+        },
+        {
+          "option_id": "distribution-shift.challenge.alternative-2",
+          "text": "The old score still establishes 90% accuracy for the new site.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.distribution-shift.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.distribution-shift.challenge.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.distribution-shift.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "causal-vs-spurious-features.quiz",
+      "concept_id": "causal-vs-spurious-features",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.causal-vs-spurious-features.quiz.question",
+      "choices": [
+        {
+          "option_id": "causal-vs-spurious-features.quiz.alternative-1",
+          "text": "The marker edit changed the underlying condition because the prediction changed.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.causal-vs-spurious-features.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.causal-vs-spurious-features.quiz.rejected"
+        },
+        {
+          "option_id": "causal-vs-spurious-features.quiz.alternative-2",
+          "text": "Removing the marker validates all other inputs without further testing.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.causal-vs-spurious-features.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.causal-vs-spurious-features.quiz.rejected"
+        },
+        {
+          "option_id": "causal-vs-spurious-features.quiz.supported",
+          "text": "The prediction depends on the marker; the underlying condition stayed the same.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.causal-vs-spurious-features.quiz.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.causal-vs-spurious-features.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "causal-vs-spurious-features.challenge",
+      "concept_id": "causal-vs-spurious-features",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.causal-vs-spurious-features.challenge.question",
+      "choices": [
+        {
+          "option_id": "causal-vs-spurious-features.challenge.supported",
+          "text": "No. Check the measurements and the predictions in the new setting.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.causal-vs-spurious-features.challenge.accepted"
+        },
+        {
+          "option_id": "causal-vs-spurious-features.challenge.alternative-1",
+          "text": "Yes. A causal role makes the old rule reliable despite measurement errors.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.causal-vs-spurious-features.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.causal-vs-spurious-features.challenge.rejected"
+        },
+        {
+          "option_id": "causal-vs-spurious-features.challenge.alternative-2",
+          "text": "No. A feature cannot help predict an outcome until it has been experimentally changed.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.causal-vs-spurious-features.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.causal-vs-spurious-features.challenge.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.causal-vs-spurious-features.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "invariance-across-environments.quiz",
+      "concept_id": "invariance-across-environments",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.invariance-across-environments.quiz.question",
+      "choices": [
+        {
+          "option_id": "invariance-across-environments.quiz.alternative-1",
+          "text": "Proof of a cause, so no more new-site testing is needed.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.invariance-across-environments.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.invariance-across-environments.quiz.rejected"
+        },
+        {
+          "option_id": "invariance-across-environments.quiz.supported",
+          "text": "A stable relationship over those tested settings and ranges.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.invariance-across-environments.quiz.accepted"
+        },
+        {
+          "option_id": "invariance-across-environments.quiz.alternative-2",
+          "text": "Reliable prediction for feature values absent from every tested site.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.invariance-across-environments.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.invariance-across-environments.quiz.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.invariance-across-environments.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "invariance-across-environments.challenge",
+      "concept_id": "invariance-across-environments",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.invariance-across-environments.challenge.question",
+      "choices": [
+        {
+          "option_id": "invariance-across-environments.challenge.alternative-1",
+          "text": "Yes. Equal averages establish stability despite the different group errors.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.invariance-across-environments.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.invariance-across-environments.challenge.rejected"
+        },
+        {
+          "option_id": "invariance-across-environments.challenge.alternative-2",
+          "text": "Yes. Equal averages mean changing group sizes cannot affect the comparison.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.invariance-across-environments.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.invariance-across-environments.challenge.rejected"
+        },
+        {
+          "option_id": "invariance-across-environments.challenge.supported",
+          "text": "No. The same average can hide different errors within relevant groups.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.invariance-across-environments.challenge.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.invariance-across-environments.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "m1-shift-investigation.01",
+      "concept_id": "distribution-shift",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-investigation.01.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-investigation.01.alternative-1",
+          "text": "The first score remains valid under a different, untested measurement process.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.01.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.01.rejected"
+        },
+        {
+          "option_id": "m1-shift-investigation.01.alternative-2",
+          "text": "The new score applies to every other site without further testing.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.01.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.01.rejected"
+        },
+        {
+          "option_id": "m1-shift-investigation.01.supported",
+          "text": "These runs measure this rule only under the settings tested; future changes still need checking.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.01.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-investigation.01.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Practical exercise 1 of 4",
+        "introduction": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag: a yes/no image finding. At the first hospital, the marker often matches the checking answer. Another hospital may mark images differently or record findings less reliably.",
+        "scenario_id": "shift.assistant-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "site-original",
+            "label": "Earlier hospital test, not the current run",
+            "columns": [
+              "Model",
+              "Correct / evaluated",
+              "Accuracy"
+            ],
+            "rows": [
+              [
+                "Marker-reading rule",
+                "94 / 100",
+                "94%"
+              ],
+              [
+                "Image-reading rule",
+                "88 / 100",
+                "88%"
+              ]
+            ],
+            "note": "Separate earlier test cases. These fixed scores are background, not the results of your current settings."
+          }
+        ],
+        "prompt": "What can you conclude from the two marker-agreement settings you tested?"
+      },
+      "experiment": {
+        "experiment_id": "m1-shift-investigation.01.experiment",
+        "title": "Prediction: a label that stops being useful",
+        "instructions_resource_id": "m1.shift.m1-shift-investigation.01.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "shift",
+          "source_positive": "Recorded opacity flag: present.",
+          "source_negative": "Recorded opacity flag: absent.",
+          "qualifier": "Acquisition context: standard protocol.",
+          "unsupported_detail": "Acquisition context: enhanced protocol."
+        },
+        "initial_config": {
+          "kind": "shift",
+          "predictor": "cue",
+          "cue_accuracy_pct": 90,
+          "measurement_error_pct": 10,
+          "flip_cue": false,
+          "generator": "fluent",
+          "metadata_available_pct": 100
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "story": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag: a yes/no image finding. At the first hospital, the marker often matches the checking answer. Another hospital may mark images differently or record findings less reliably.",
+          "goal": "Test the hospital marker prediction rule after the marking pattern changes.",
+          "section": "prediction",
+          "parameter_id": "cue_accuracy_pct",
+          "parameter_label": "Hospital marker matches the checking answer",
+          "parameter_description": "Change only the percentage of cases in which the hospital marker matches the preset checking answer. The assistant keeps reading that marker; all other settings stay fixed.",
+          "prediction_prompt": "How often will the marker-reading rule correctly predict whether an opacity is present, at 90% and then 50% marker agreement?",
+          "comparison_prompt": "Compare prediction accuracy in the two runs. Which marking patterns did you test? What would still need checking after a different measurement change?",
+          "metrics": [
+            {
+              "metric_label": "Reference prediction accuracy",
+              "label": "Predictions matching the checking answer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-shift-investigation.02",
+      "concept_id": "causal-vs-spurious-features",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-investigation.02.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-investigation.02.supported",
+          "text": "Whether the prediction depends on the marker; the underlying condition stayed fixed.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.02.accepted"
+        },
+        {
+          "option_id": "m1-shift-investigation.02.alternative-1",
+          "text": "Whether changing the marker improves the underlying condition.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.02.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.02.rejected"
+        },
+        {
+          "option_id": "m1-shift-investigation.02.alternative-2",
+          "text": "Whether the image-reading rule works under an untested recording process.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.02.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.02.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-investigation.02.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Practical exercise 2 of 4",
+        "introduction": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag: a yes/no image finding. At the first hospital, the marker often matches the checking answer. Another hospital may mark images differently or record findings less reliably.",
+        "scenario_id": "shift.assistant-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "site-original",
+            "label": "Earlier hospital test, not the current run",
+            "columns": [
+              "Model",
+              "Correct / evaluated",
+              "Accuracy"
+            ],
+            "rows": [
+              [
+                "Marker-reading rule",
+                "94 / 100",
+                "94%"
+              ],
+              [
+                "Image-reading rule",
+                "88 / 100",
+                "88%"
+              ]
+            ],
+            "note": "Separate earlier test cases. These fixed scores are background, not the results of your current settings."
+          }
+        ],
+        "prompt": "The marker edit changes a prediction while its checking answer stays fixed. What did the edit test?"
+      },
+      "experiment": {
+        "experiment_id": "m1-shift-investigation.02.experiment",
+        "title": "Prediction: edit the marker, not the condition",
+        "instructions_resource_id": "m1.shift.m1-shift-investigation.02.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "shift",
+          "source_positive": "Recorded opacity flag: present.",
+          "source_negative": "Recorded opacity flag: absent.",
+          "qualifier": "Acquisition context: standard protocol.",
+          "unsupported_detail": "Acquisition context: enhanced protocol."
+        },
+        "initial_config": {
+          "kind": "shift",
+          "predictor": "cue",
+          "cue_accuracy_pct": 90,
+          "measurement_error_pct": 10,
+          "flip_cue": false,
+          "generator": "grounded",
+          "metadata_available_pct": 100
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "story": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag: a yes/no image finding. At the first hospital, the marker often matches the checking answer. Another hospital may mark images differently or record findings less reliably.",
+          "goal": "Distinguish changing an assistant's input from changing the underlying outcome.",
+          "section": "prediction",
+          "parameter_id": "flip_cue",
+          "parameter_label": "Reverse the recorded hospital marker",
+          "parameter_description": "Switch this on to reverse the marker for the same cases. The preset checking answer and recorded opacity flag stay fixed. The assistant still reads the marker.",
+          "prediction_prompt": "If you reverse only the hospital marker, what will happen to predictions? Will the checking answers change too?",
+          "comparison_prompt": "Compare a matching case before and after the edit: marker, prediction and checking answer. Did this edit change the patient's condition, or just the assistant's input?",
+          "metrics": [
+            {
+              "metric_label": "Reference prediction accuracy",
+              "label": "Predictions matching the checking answer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-shift-investigation.03",
+      "concept_id": "invariance-across-environments",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-investigation.03.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-investigation.03.alternative-1",
+          "text": "Stable results after one marker change validate every future measurement process.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.03.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.03.rejected"
+        },
+        {
+          "option_id": "m1-shift-investigation.03.supported",
+          "text": "Stability under one change does not guarantee stability under a different change.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.03.accepted"
+        },
+        {
+          "option_id": "m1-shift-investigation.03.alternative-2",
+          "text": "Two stable scores identify the feature's causal direction without other evidence.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.03.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.03.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-investigation.03.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Practical exercise 3 of 4",
+        "introduction": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag: a yes/no image finding. At the first hospital, the marker often matches the checking answer. Another hospital may mark images differently or record findings less reliably. For this stage the assistant reads the recorded opacity flag, not the marker.",
+        "scenario_id": "shift.assistant-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "site-original",
+            "label": "Earlier hospital test, not the current run",
+            "columns": [
+              "Model",
+              "Correct / evaluated",
+              "Accuracy"
+            ],
+            "rows": [
+              [
+                "Marker-reading rule",
+                "94 / 100",
+                "94%"
+              ],
+              [
+                "Image-reading rule",
+                "88 / 100",
+                "88%"
+              ]
+            ],
+            "note": "Separate earlier test cases. These fixed scores are background, not the results of your current settings."
+          }
+        ],
+        "prompt": "An image-reading rule has the same accuracy after a marker change, but lower accuracy when its measurement worsens. What can we conclude?"
+      },
+      "experiment": {
+        "experiment_id": "m1-shift-investigation.03.experiment",
+        "title": "Prediction: test the image-reading rule's limit",
+        "instructions_resource_id": "m1.shift.m1-shift-investigation.03.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "shift",
+          "source_positive": "Recorded opacity flag: present.",
+          "source_negative": "Recorded opacity flag: absent.",
+          "qualifier": "Acquisition context: standard protocol.",
+          "unsupported_detail": "Acquisition context: enhanced protocol."
+        },
+        "initial_config": {
+          "kind": "shift",
+          "predictor": "content",
+          "cue_accuracy_pct": 90,
+          "measurement_error_pct": 10,
+          "flip_cue": false,
+          "generator": "grounded",
+          "metadata_available_pct": 100
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "story": "A hospital wants an assistant to predict whether an opacity is present on a chest image. An opacity is a cloudy area, not a diagnosis by itself. The assistant can read a hospital marker or a recorded opacity flag: a yes/no image finding. At the first hospital, the marker often matches the checking answer. Another hospital may mark images differently or record findings less reliably. For this stage the assistant reads the recorded opacity flag, not the marker.",
+          "goal": "Test how measurement errors affect a rule that ignores the marker.",
+          "section": "prediction",
+          "parameter_id": "measurement_error_pct",
+          "parameter_label": "Opacity flag recorded incorrectly",
+          "parameter_description": "The assistant now reads the recorded opacity flag, not the marker. Change only how often this measurement is the opposite of the preset checking answer. It is a noisy measurement, not a cause of the target.",
+          "prediction_prompt": "At 10% and then 40% measurement error, how often do you expect the image-reading rule to agree with the checking answer?",
+          "comparison_prompt": "Compare accuracy before and after the measurement change. Why does ignoring the marker not protect a rule from errors in the measurement it reads?",
+          "metrics": [
+            {
+              "metric_label": "Reference prediction accuracy",
+              "label": "Predictions matching the checking answer"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "when-predictions-can-still-fail.quiz",
+      "concept_id": "when-predictions-can-still-fail",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.when-predictions-can-still-fail.quiz.question",
+      "choices": [
+        {
+          "option_id": "when-predictions-can-still-fail.quiz.supported",
+          "text": "Source fidelity: the draft reverses a recorded fact.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.when-predictions-can-still-fail.quiz.accepted"
+        },
+        {
+          "option_id": "when-predictions-can-still-fail.quiz.alternative-1",
+          "text": "Only a style check; fluent wording is enough to verify the facts.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.when-predictions-can-still-fail.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.when-predictions-can-still-fail.quiz.rejected"
+        },
+        {
+          "option_id": "when-predictions-can-still-fail.quiz.alternative-2",
+          "text": "Nothing; polished wording can replace the source's factual statement.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.when-predictions-can-still-fail.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.shift.when-predictions-can-still-fail.quiz.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.when-predictions-can-still-fail.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "when-predictions-can-still-fail.challenge",
+      "concept_id": "when-predictions-can-still-fail",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.when-predictions-can-still-fail.challenge.question",
+      "choices": [
+        {
+          "option_id": "when-predictions-can-still-fail.challenge.alternative-1",
+          "text": "Add a plausible missing fact and treat the completed draft as evidence.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.when-predictions-can-still-fail.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.when-predictions-can-still-fail.challenge.rejected"
+        },
+        {
+          "option_id": "when-predictions-can-still-fail.challenge.supported",
+          "text": "Flag the gap, withhold the unsupported claim and request review.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.when-predictions-can-still-fail.challenge.accepted"
+        },
+        {
+          "option_id": "when-predictions-can-still-fail.challenge.alternative-2",
+          "text": "Issue the full report based on the old score without flagging the untested setup.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.when-predictions-can-still-fail.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.shift.when-predictions-can-still-fail.challenge.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.when-predictions-can-still-fail.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "m1-shift-investigation.04",
+      "concept_id": "when-predictions-can-still-fail",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-investigation.04.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-investigation.04.alternative-1",
+          "text": "Preserving the source proves the recorded measurement agrees with the checking answer.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.04.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.04.rejected"
+        },
+        {
+          "option_id": "m1-shift-investigation.04.alternative-2",
+          "text": "Adding a plausible detail establishes the fact missing from the source record.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-investigation.04.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.04.rejected"
+        },
+        {
+          "option_id": "m1-shift-investigation.04.supported",
+          "text": "A faithful draft can retain a measurement error; it cannot supply missing context.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-investigation.04.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-investigation.04.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Practical exercise 4 of 4",
+        "introduction": "The hospital assistant now writes a report from each recorded opacity flag and its recording context. Only 60 of 100 records contain the required context; the other 40 lack it. A complete-looking draft can fill that gap without evidence. Checking what a report says is a separate task from checking a prediction.",
+        "scenario_id": "shift.assistant-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "site-original",
+            "label": "Earlier hospital test, not the current run",
+            "columns": [
+              "Model",
+              "Correct / evaluated",
+              "Accuracy"
+            ],
+            "rows": [
+              [
+                "Marker-reading rule",
+                "94 / 100",
+                "94%"
+              ],
+              [
+                "Image-reading rule",
+                "88 / 100",
+                "88%"
+              ]
+            ],
+            "note": "Separate earlier test cases. These fixed scores are background, not the results of your current settings."
+          }
+        ],
+        "prompt": "Some drafts copy a source measurement that disagrees with the checking answer. Other records lack required context. What can a source-preserving report rule establish?"
+      },
+      "experiment": {
+        "experiment_id": "m1-shift-investigation.04.experiment",
+        "title": "Generation: choose what to do with a missing fact",
+        "instructions_resource_id": "m1.shift.m1-shift-investigation.04.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "shift",
+          "source_positive": "Recorded opacity flag: present.",
+          "source_negative": "Recorded opacity flag: absent.",
+          "qualifier": "Acquisition context: standard protocol.",
+          "unsupported_detail": "Acquisition context: enhanced protocol."
+        },
+        "initial_config": {
+          "kind": "shift",
+          "predictor": "content",
+          "cue_accuracy_pct": 50,
+          "measurement_error_pct": 30,
+          "flip_cue": true,
+          "generator": "fluent",
+          "metadata_available_pct": 60
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "story": "The hospital assistant now writes a report from each recorded opacity flag and its recording context. Only 60 of 100 records contain the required context; the other 40 lack it. A complete-looking draft can fill that gap without evidence. Checking what a report says is a separate task from checking a prediction.",
+          "goal": "Compare unsupported additions with the number of cases receiving a full report.",
+          "section": "generation",
+          "parameter_id": "generator",
+          "parameter_label": "Report rule",
+          "parameter_description": "Change only the report rule. The prediction rule, measured findings and missing-context cases stay the same. The templates either complete every report or preserve source facts and withhold incomplete reports.",
+          "prediction_prompt": "What will happen to unsupported additions and full-report coverage if the assistant stops filling in missing context?",
+          "comparison_prompt": "Compare the same source and draft in each run. How did unsupported additions and coverage change? Did the report rule repair an incorrect source measurement?",
+          "metrics": [
+            {
+              "metric_label": "Full-report coverage",
+              "label": "Cases receiving a full report"
+            },
+            {
+              "metric_label": "Reports with unsupported additions / all cases",
+              "label": "Cases with an invented detail"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-shift-final.01",
+      "concept_id": "distribution-shift",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-final.01.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-final.01.supported",
+          "text": "Accuracy fell on this new test; the comparison does not isolate why.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-final.01.accepted"
+        },
+        {
+          "option_id": "m1-shift-final.01.alternative-1",
+          "text": "The recording change alone caused the entire drop in prediction accuracy.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.01.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.01.rejected"
+        },
+        {
+          "option_id": "m1-shift-final.01.alternative-2",
+          "text": "The original test validates new-site use despite the observed performance gap.",
+          "correct": false,
+          "misconception_id": "m1.shift.shift.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.01.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.01.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-final.01.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Final check 1 of 4",
+        "introduction": "A new hospital will use a readmission predictor. The team has checking answers for whether patients were readmitted and recorded measurements available before discharge.",
+        "scenario_id": "shift.new-service-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "new-service-final",
+            "label": "Prediction test at the new site",
+            "columns": [
+              "Check",
+              "Original setting",
+              "External setting"
+            ],
+            "rows": [
+              [
+                "Event prediction accuracy",
+                "91 / 100",
+                "72 / 100"
+              ]
+            ],
+            "note": "Both measurements and case mix changed. This table does not isolate the cause of the accuracy gap."
+          }
+        ],
+        "prompt": "The predictor is correct in 91/100 original-site cases and 72/100 new-site cases. Both measurements and case mix changed. What can we conclude from this comparison?"
+      }
+    },
+    {
+      "activity_id": "m1-shift-final.02",
+      "concept_id": "causal-vs-spurious-features",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-final.02.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-final.02.alternative-1",
+          "text": "The more predictive ID is the better action for improving the underlying outcome.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.02.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.02.rejected"
+        },
+        {
+          "option_id": "m1-shift-final.02.supported",
+          "text": "An ID can predict without causing the outcome; a causal feature still needs measurement checks.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-final.02.accepted"
+        },
+        {
+          "option_id": "m1-shift-final.02.alternative-2",
+          "text": "A causal feature's old rule remains reliable despite a changed measurement process.",
+          "correct": false,
+          "misconception_id": "m1.shift.prediction.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.02.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.02.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-final.02.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Final check 2 of 4",
+        "introduction": "A new hospital will use a readmission predictor. The team has checking answers for whether patients were readmitted and recorded measurements available before discharge.",
+        "scenario_id": "shift.new-service-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "new-service-final",
+            "label": "Prediction test at the new site",
+            "columns": [
+              "Check",
+              "Original setting",
+              "External setting"
+            ],
+            "rows": [
+              [
+                "Event prediction accuracy",
+                "91 / 100",
+                "72 / 100"
+              ]
+            ],
+            "note": "Both measurements and case mix changed. This table does not isolate the cause of the accuracy gap."
+          }
+        ],
+        "prompt": "The team can predict readmission using a hospital ID or a pre-discharge feature proposed to affect recovery. What can it conclude about these inputs?"
+      }
+    },
+    {
+      "activity_id": "m1-shift-final.03",
+      "concept_id": "invariance-across-environments",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-final.03.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-final.03.alternative-1",
+          "text": "Yes. Overlapping feature ranges validate reuse even after the outcome process changes.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.03.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.03.rejected"
+        },
+        {
+          "option_id": "m1-shift-final.03.alternative-2",
+          "text": "Yes. Two stable old settings already cover the new outcome-producing process.",
+          "correct": false,
+          "misconception_id": "m1.shift.invariance.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.03.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.03.rejected"
+        },
+        {
+          "option_id": "m1-shift-final.03.supported",
+          "text": "No. A changed outcome process falls outside the earlier stability argument.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-final.03.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-final.03.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Final check 3 of 4",
+        "introduction": "A new hospital will use a readmission predictor. The team has checking answers for whether patients were readmitted and recorded measurements available before discharge.",
+        "scenario_id": "shift.new-service-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "new-service-final",
+            "label": "Prediction test at the new site",
+            "columns": [
+              "Check",
+              "Original setting",
+              "External setting"
+            ],
+            "rows": [
+              [
+                "Event prediction accuracy",
+                "91 / 100",
+                "72 / 100"
+              ]
+            ],
+            "note": "Both measurements and case mix changed. This table does not isolate the cause of the accuracy gap."
+          }
+        ],
+        "prompt": "Similar cases had similar outcomes in two old settings. The new setting changes the process producing the outcome. Can the team rely on the old relationship without checking it again?"
+      }
+    },
+    {
+      "activity_id": "m1-shift-final.04",
+      "concept_id": "when-predictions-can-still-fail",
+      "activity_type": "classification",
+      "question_resource_id": "m1.shift.m1-shift-final.04.question",
+      "choices": [
+        {
+          "option_id": "m1-shift-final.04.supported",
+          "text": "Check predictions and source fidelity separately; withhold the unsupported claim for review.",
+          "correct": true,
+          "consequence_resource_id": "m1.shift.m1-shift-final.04.accepted"
+        },
+        {
+          "option_id": "m1-shift-final.04.alternative-1",
+          "text": "Check writing quality, fill the missing detail and use the draft as evidence.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.04.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.04.rejected"
+        },
+        {
+          "option_id": "m1-shift-final.04.alternative-2",
+          "text": "Use old-site accuracy to issue the complete report without flagging its missing fact.",
+          "correct": false,
+          "misconception_id": "m1.shift.limits.confusion",
+          "hint_resource_ids": [
+            "m1.shift.m1-shift-final.04.hint"
+          ],
+          "consequence_resource_id": "m1.shift.m1-shift-final.04.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.shift.m1-shift-final.04.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Final check 4 of 4",
+        "introduction": "The same team now checks an assistant that drafts a report from recorded facts. This report task needs its own checks, separate from predicting an event.",
+        "scenario_id": "shift.new-service-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "new-service-final",
+            "label": "Report additions at the new site",
+            "columns": [
+              "Report check",
+              "Original site",
+              "New site"
+            ],
+            "rows": [
+              [
+                "Drafts with unsupported factual additions",
+                "1 / 100",
+                "12 / 100"
+              ]
+            ],
+            "note": "These counts describe unsupported additions, not writing quality or prediction accuracy. Missing source facts still need review."
+          }
+        ],
+        "prompt": "Now check report generation. New-site drafts add unsupported facts in 12/100 cases. A new record also lacks a needed fact and uses untested measurements. How should the team evaluate the outputs and handle this record?"
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "profile_id": "medical",
+      "concept_id": "distribution-shift",
+      "title": "Will the prediction work at another hospital?",
+      "hook_resource_id": "m1.shift.distribution-shift.lecture.hook",
+      "example_label_resource_id": "m1.shift.distribution-shift.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "The job and its checking answer",
+          "resource_id": "m1.shift.distribution-shift.lecture.step-1"
+        },
+        {
+          "title": "What can be different?",
+          "resource_id": "m1.shift.distribution-shift.lecture.step-2"
+        },
+        {
+          "title": "A check that matches the proposed use",
+          "resource_id": "m1.shift.distribution-shift.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.shift.distribution-shift.lecture.definition",
+      "pitfall_resource_id": "m1.shift.distribution-shift.lecture.pitfall",
+      "takeaway_resource_id": "m1.shift.distribution-shift.lecture.takeaway",
+      "practice_activity_id": "distribution-shift.quiz",
+      "challenge_activity_id": "distribution-shift.challenge",
+      "challenge_title": "Try the idea in another situation",
+      "scenario_image": {
+        "path": "media/m1-courses/shift-medical.png",
+        "alt_text": "Researchers compare imaging workflows at two hospitals with a report draft; the illustration contains no diagnostic evidence or results."
+      }
+    },
+    {
+      "profile_id": "medical",
+      "concept_id": "causal-vs-spurious-features",
+      "title": "Does the assistant rely on the hospital marker?",
+      "hook_resource_id": "m1.shift.causal-vs-spurious-features.lecture.hook",
+      "example_label_resource_id": "m1.shift.causal-vs-spurious-features.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "A clue is not an outcome-changing action",
+          "resource_id": "m1.shift.causal-vs-spurious-features.lecture.step-1"
+        },
+        {
+          "title": "Follow the same case",
+          "resource_id": "m1.shift.causal-vs-spurious-features.lecture.step-2"
+        },
+        {
+          "title": "What a causal explanation adds",
+          "resource_id": "m1.shift.causal-vs-spurious-features.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.shift.causal-vs-spurious-features.lecture.definition",
+      "pitfall_resource_id": "m1.shift.causal-vs-spurious-features.lecture.pitfall",
+      "takeaway_resource_id": "m1.shift.causal-vs-spurious-features.lecture.takeaway",
+      "practice_activity_id": "causal-vs-spurious-features.quiz",
+      "challenge_activity_id": "causal-vs-spurious-features.challenge",
+      "challenge_title": "Try the idea in another situation",
+      "scenario_image": {
+        "path": "media/m1-courses/shift-medical.png",
+        "alt_text": "Researchers compare imaging workflows at two hospitals with a report draft; the illustration contains no diagnostic evidence or results."
+      }
+    },
+    {
+      "profile_id": "medical",
+      "concept_id": "invariance-across-environments",
+      "title": "Check stability across settings",
+      "hook_resource_id": "m1.shift.invariance-across-environments.lecture.hook",
+      "example_label_resource_id": "m1.shift.invariance-across-environments.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "The rule still reads a measurement",
+          "resource_id": "m1.shift.invariance-across-environments.lecture.step-1"
+        },
+        {
+          "title": "Stable under which change?",
+          "resource_id": "m1.shift.invariance-across-environments.lecture.step-2"
+        },
+        {
+          "title": "Compare relevant cases, not just one average",
+          "resource_id": "m1.shift.invariance-across-environments.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.shift.invariance-across-environments.lecture.definition",
+      "pitfall_resource_id": "m1.shift.invariance-across-environments.lecture.pitfall",
+      "takeaway_resource_id": "m1.shift.invariance-across-environments.lecture.takeaway",
+      "practice_activity_id": "invariance-across-environments.quiz",
+      "challenge_activity_id": "invariance-across-environments.challenge",
+      "challenge_title": "Try the idea in another situation",
+      "scenario_image": {
+        "path": "media/m1-courses/shift-medical.png",
+        "alt_text": "Researchers compare imaging workflows at two hospitals with a report draft; the illustration contains no diagnostic evidence or results."
+      }
+    },
+    {
+      "profile_id": "medical",
+      "concept_id": "when-predictions-can-still-fail",
+      "title": "Write a report from the record",
+      "hook_resource_id": "m1.shift.when-predictions-can-still-fail.lecture.hook",
+      "example_label_resource_id": "m1.shift.when-predictions-can-still-fail.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "Check what the source actually says",
+          "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.step-1"
+        },
+        {
+          "title": "Two report rules",
+          "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.step-2"
+        },
+        {
+          "title": "Show both the errors and the missing reports",
+          "resource_id": "m1.shift.when-predictions-can-still-fail.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.shift.when-predictions-can-still-fail.lecture.definition",
+      "pitfall_resource_id": "m1.shift.when-predictions-can-still-fail.lecture.pitfall",
+      "takeaway_resource_id": "m1.shift.when-predictions-can-still-fail.lecture.takeaway",
+      "practice_activity_id": "when-predictions-can-still-fail.quiz",
+      "challenge_activity_id": "when-predictions-can-still-fail.challenge",
+      "challenge_title": "Try the idea in another situation",
+      "scenario_image": {
+        "path": "media/m1-courses/shift-medical.png",
+        "alt_text": "Researchers compare imaging workflows at two hospitals with a report draft; the illustration contains no diagnostic evidence or results."
+      }
+    }
+  ]
+}

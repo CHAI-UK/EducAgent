@@ -1,0 +1,30 @@
+{
+  "schema_version": "3.0",
+  "pack_id": "causality.m0.delayed-transfer",
+  "version": "1.1.0",
+  "title": "Causality M0 Delayed Association Check",
+  "concepts": [
+    {"concept_id": "association-is-not-causation", "objective": "Keep association and causation distinct in a new setting.", "completion_activity_ids": ["m0-delayed-transfer.01"], "m1_ready_activity_ids": []}
+  ],
+  "sources": [
+    {"source_id": "peters-janzing-scholkopf-2017", "citation": "Peters, Jonas; Janzing, Dominik; Schölkopf, Bernhard. Elements of Causal Inference: Foundations and Learning Algorithms. MIT Press, 2017.", "rights": "Source license: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/). This pack contains independently authored assessment summaries, not source excerpts. External distribution still requires a separate rights review.", "review_status": "reviewed"}
+  ],
+  "claims": [
+    {"claim_id": "records-show-association", "proposition": "Records can show that variables occur together or vary together.", "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 1.1, pages 1-2, joint observations and distributions"}], "release_status": "released"},
+    {"claim_id": "association-does-not-establish-cause", "proposition": "An observed association by itself does not determine which variable causes the other.", "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 1.3, page 6, correlation and causal structure"}], "release_status": "released"},
+    {"claim_id": "intervention-deliberately-sets", "proposition": "An intervention deliberately sets or changes a variable, unlike merely observing its existing value.", "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 3.2, page 34, interventions and do notation"}], "release_status": "released"},
+    {"claim_id": "world-data-model-distinct", "proposition": "The world is the partly hidden system, data are observed records, and a model is an explanation of how the system may work.", "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Sections 1.1 and 1.3, pages 2 and 5-6, observations and causal models"}], "release_status": "released"},
+    {"claim_id": "causal-direction-is-assumption", "proposition": "Data can support a pattern, while a causal direction or mechanism often requires an explicit assumption.", "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Sections 1.2-1.4, pages 4-10, causal assumptions and equivalent observations"}], "release_status": "released"},
+    {"claim_id": "dag-terms", "proposition": "In a DAG, nodes represent variables, arrows represent proposed directions, and paths are connected routes through arrows.", "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.1, pages 81-82, graph terminology"}], "release_status": "released"}
+  ],
+  "resources": [
+    {"resource_id": "delayed.question", "kind": "question", "text": "A city team records households' voluntary use of a water-filter app, later illness-related absences, and a DAG proposed to explain the pattern. Which conclusion is justified without adding an assumption?", "claim_ids": ["records-show-association", "association-does-not-establish-cause", "world-data-model-distinct", "dag-terms"], "release_status": "released"},
+    {"resource_id": "delayed.hint", "kind": "hint", "text": "Separate the recorded pattern from the proposed DAG and from what would happen if the city deliberately assigned use of the app.", "claim_ids": ["association-does-not-establish-cause", "intervention-deliberately-sets", "causal-direction-is-assumption"], "release_status": "released"},
+    {"resource_id": "delayed.explanation", "kind": "explanation", "text": "The records establish an association. The DAG is a model with explicit causal assumptions, and an intervention would require deliberately assigning use rather than only observing voluntary choices.", "claim_ids": ["records-show-association", "association-does-not-establish-cause", "world-data-model-distinct", "intervention-deliberately-sets", "dag-terms"], "release_status": "released"},
+    {"resource_id": "delayed.consequence.accepted", "kind": "consequence", "text": "Correct choice on this delayed association-versus-causation check. This is one classification decision, not evidence of mastery across the nine M0 concepts.", "claim_ids": ["records-show-association", "association-does-not-establish-cause", "causal-direction-is-assumption", "intervention-deliberately-sets"], "release_status": "released"},
+    {"resource_id": "delayed.consequence.rejected", "kind": "consequence", "text": "That conclusion treats an observed pattern and a model drawing as if they already proved an intervention effect. They are different kinds of information.", "claim_ids": ["association-does-not-establish-cause", "world-data-model-distinct", "intervention-deliberately-sets"], "release_status": "released"}
+  ],
+  "activities": [
+    {"activity_id": "m0-delayed-transfer.01", "concept_id": "association-is-not-causation", "activity_type": "classification", "is_transfer": true, "question_resource_id": "delayed.question", "choices": [{"option_id": "delayed.association-only", "text": "The records support an association; causal direction and an intervention effect still require explicit assumptions or interventional evidence.", "correct": true, "consequence_resource_id": "delayed.consequence.accepted"}, {"option_id": "delayed.proves-intervention", "text": "Because voluntary app users had fewer absences, assigning the app to other households would reduce their absences.", "correct": false, "misconception_id": "model-proves-intervention", "hint_resource_ids": ["delayed.hint"], "consequence_resource_id": "delayed.consequence.rejected"}], "explanation_resource_id": "delayed.explanation"}
+  ]
+}

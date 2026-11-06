@@ -1,0 +1,380 @@
+{
+  "version": "1.0.0",
+  "profiles": {
+    "general": {
+      "lectures": [
+        {
+          "concept_id": "variables-and-values",
+          "title": "Name the feature, then read its value",
+          "hook": "A fictional clinic records resting heart rates of 64, 72 and 80 beats per minute. What stays the same across the three records, and what changes?",
+          "example_label": "Synthetic teaching records; no real patient measurements. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/variables-and-values-clinic.png", "alt_text": "A clinician reviews anonymised heart-rate records while patients rest in a clinic; the illustration is context, not the example data."},
+          "worked_steps": [
+            {"title": "Choose a feature", "text": "Resting heart rate is the feature recorded for each person. Its name tells us what to look for in every row."},
+            {"title": "Read a value", "text": "For one record, the value is 72 beats per minute. The number is a value of heart rate, not a different variable."},
+            {"title": "Compare records", "text": "Other records can have different values of the same feature. A variable need not change in every row; it needs to be capable of taking different values."}
+          ],
+          "definition": "A variable is a feature that can take different values. A value is a particular instance of that feature, such as one recorded heart rate.",
+          "pitfall": "Do not confuse the variable's name with one person's value. A constant value in a small sample does not, by itself, make a feature incapable of varying.",
+          "takeaway": "Ask: what feature are we recording, and what value does it have in this case?",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Appendix A.1, page 213, basic definitions"}],
+          "challenge_title": "Fresh case: a count in a dashboard"
+        },
+        {
+          "concept_id": "observed-association",
+          "title": "Notice a pattern across records",
+          "hook": "Fictional records show that people reporting more weekly exercise also tend to have lower resting heart rates. What does the recorded pattern describe?",
+          "example_label": "Synthetic teaching example; not an empirical exercise study. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/observed-association-park.png", "alt_text": "People gather after casual exercise while a researcher reviews anonymous records; the picture does not supply the association data."},
+          "worked_steps": [
+            {"title": "Find two variables", "text": "The records contain reported exercise and resting heart rate. Each person contributes values for both features."},
+            {"title": "Describe how they vary", "text": "In this fictional dataset, higher exercise values occur alongside lower heart-rate values. Variables can be associated while moving in opposite directions."},
+            {"title": "Report the pattern carefully", "text": "Say which values tend to occur together across the records. One isolated heart-rate reading is not itself a pattern between the two variables."}
+          ],
+          "definition": "An observed association is a pattern in how variables occur together or vary together in the records.",
+          "pitfall": "Association does not require both variables to increase. One can tend to decrease as the other increases.",
+          "takeaway": "First describe the recorded relationship between the variables in plain language.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 1.1, pages 1-2, joint observations and distributions"}],
+          "challenge_title": "Fresh case: a pattern in a product log"
+        },
+        {
+          "concept_id": "association-is-not-causation",
+          "title": "A shared pattern is not yet a cause",
+          "hook": "A fictional city records that ice-cream sales and sunglasses sales rise together. Would stopping ice-cream sales change sunglasses sales?",
+          "example_label": "Synthetic city example; proposed explanations are hypotheses. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/association-not-causation-market.png", "alt_text": "A sunny market has an ice-cream stall beside a sunglasses display; it illustrates the setting without establishing a causal direction."},
+          "worked_steps": [
+            {"title": "Separate the observation", "text": "The records describe sales rising together. That is a statement about the observed pattern, not the result of an action on either shop."},
+            {"title": "Consider an alternative", "text": "Warm, sunny days could influence both purchases. This is a possible shared explanation; proposing it does not establish that it is the true explanation."},
+            {"title": "Ask the action question", "text": "Stopping ice-cream sales changes one part of the situation. The recorded association alone does not tell us whether sunglasses sales would change."}
+          ],
+          "worked_graph": {
+            "label": "One possible explanation, not established by the sales records",
+            "nodes": [{"node_id": "weather", "label": "Sunny weather"}, {"node_id": "ice-cream", "label": "Ice-cream sales"}, {"node_id": "sunglasses", "label": "Sunglasses sales"}],
+            "edges": [{"from": "weather", "to": "ice-cream"}, {"from": "weather", "to": "sunglasses"}],
+            "note": "This partial hypothetical graph shows a possible shared cause. It does not settle the effect of changing either kind of sale."
+          },
+          "definition": "Association describes how variables vary together. An observed association alone does not establish which variable causes the other or what an intervention would do.",
+          "pitfall": "Do not turn co-occurrence into a causal conclusion. A plausible common cause is also not proof that there is no effect between the variables.",
+          "takeaway": "Keep the observed pattern, a proposed explanation and the effect of an action separate.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 1.3, Figure 1.2 and Principle 1.1, association and possible causal explanations"}],
+          "challenge_title": "Shared practical investigation: a different everyday claim"
+        },
+        {
+          "concept_id": "treatment-and-outcome",
+          "title": "Say what changes and what you will observe",
+          "hook": "A fictional question asks whether giving a different drug dose would change recovery. Which part is the proposed change, and which part is the result?",
+          "example_label": "Synthetic question; no drug benefit or dosing recommendation is asserted. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/treatment-and-outcome-consultation.png", "alt_text": "A clinician and patient discuss an unlabeled dose card and recovery journal; neither gives a recommended treatment."},
+          "worked_steps": [
+            {"title": "Identify the change", "text": "The drug dose is the feature the question proposes changing. In causal reasoning, the word treatment names the intervention of interest."},
+            {"title": "Identify the outcome", "text": "Recovery is the result the question asks about. Naming it tells us what consequence of the change we want to understand."},
+            {"title": "Write the question", "text": "What would happen to recovery if the dose were changed? Recognising this question type does not answer whether the change would help."}
+          ],
+          "definition": "A treatment-and-outcome question asks what happens to an outcome when a treatment is changed. Treatment can also mean a non-medical intervention, such as a changed service process.",
+          "pitfall": "Naming a treatment and outcome is not evidence that the treatment has a beneficial effect.",
+          "takeaway": "Complete the sentence: if we changed this treatment, what would happen to this outcome?",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.3, pages 91-92, total causal effect"}],
+          "challenge_title": "Fresh case: changing a service process"
+        },
+        {
+          "concept_id": "observation-vs-intervention",
+          "title": "Recording a choice is different from assigning it",
+          "hook": "A fictional clinic records how long patients already sleep. Has recording those values changed anyone's sleep duration?",
+          "example_label": "Synthetic teaching example; no sleep intervention or health effect is asserted. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/observation-sleep-recording.png", "alt_text": "A person sleeps while a plain wristband passively records sleep; it is not shown assigning a sleep duration."},
+          "worked_steps": [
+            {"title": "Describe the record", "text": "The clinic reads durations that already occurred. The act described in this example is recording existing values."},
+            {"title": "Contrast an assignment", "text": "A different example would deliberately assign a sleep schedule. That would change how the value was set rather than simply read it."},
+            {"title": "Check how the value arose", "text": "Sorting people by their existing durations is still observation. Ask whether someone deliberately set the value, not just whether two groups were compared."}
+          ],
+          "definition": "Observation records existing values. An intervention deliberately sets or changes a variable, replacing how that value would otherwise be produced.",
+          "pitfall": "Selecting cases with a particular value is not the same action as setting that value.",
+          "takeaway": "Ask who, if anyone, assigned the value in the situation being described.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 3.2, page 34, interventions and do notation"}],
+          "challenge_title": "Fresh case: observing people's existing choices"
+        },
+        {
+          "concept_id": "world-data-model",
+          "title": "Keep the system, its records and an explanation apart",
+          "hook": "A researcher has fictional measurements and a sketch of a hidden disease process. Are the measurements and the sketch the same kind of information?",
+          "example_label": "Synthetic records and proposed explanation; not a verified disease mechanism. Expert content review pending.",
+          "scenario_image": null,
+          "worked_steps": [
+            {"title": "Name the world", "text": "The world is the system producing the observations. Its processes may be only partly visible to the researcher."},
+            {"title": "Name the data", "text": "The recorded measurements are data. They show what was observed, rather than every hidden step that produced it."},
+            {"title": "Name the model", "text": "The sketch is a proposed explanation of how the system might work. It represents the researcher's model rather than another measured record."}
+          ],
+          "definition": "The world is the partly hidden system, data are its observed records, and a model is an explanation of how that system may work.",
+          "pitfall": "A well-drawn explanation does not become observed data merely because it looks precise.",
+          "takeaway": "Label each piece of information: system, observation or explanatory model.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Sections 1.1 and 1.3, pages 2 and 5-6, observations and causal models"}],
+          "challenge_title": "Fresh case: explaining a different hidden system"
+        },
+        {
+          "concept_id": "data-vs-assumptions",
+          "title": "Distinguish a recorded pattern from a proposed reason",
+          "hook": "Fictional museum records show that busier visitor days also have more cafe sales. Is the claim that school holidays cause both patterns recorded directly?",
+          "example_label": "Synthetic museum records and hypothetical explanation; no real visitor or sales finding. Expert content review pending.",
+          "scenario_image": null,
+          "worked_steps": [
+            {"title": "State what the records support", "text": "The fictional records contain a pattern between visitor counts and cafe sales. Report that observed relationship first."},
+            {"title": "Identify the extra claim", "text": "Saying school holidays cause both higher visitor counts and more sales adds a proposed causal reason. It is not the same statement as saying the two recorded quantities vary together."},
+            {"title": "Make the assumption visible", "text": "Write: our proposed explanation assumes that school holidays influence both. The supplied pattern does not directly establish this explanation; stating the assumption separately keeps its status clear."}
+          ],
+          "definition": "Data can support an observed pattern. A causal direction or mechanism adds an assumption about how the pattern is produced.",
+          "pitfall": "A familiar or plausible explanation is still different from a direct observation of that explanation.",
+          "takeaway": "Use separate sentences for what the records show and what the causal explanation assumes.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Sections 1.2-1.4, pages 4-10, causal assumptions and equivalent observations"}],
+          "challenge_title": "Fresh case: data or an additional causal assumption?"
+        },
+        {
+          "concept_id": "basic-dag-language",
+          "title": "Return to the umbrella case as a DAG",
+          "hook": "In the umbrella investigation you proposed that rain influences both umbrella carrying and wet pavement. We can now give that picture a formal name: a directed acyclic graph, or DAG.",
+          "example_label": "Synthetic proposed diagram; arrows are assumptions, not measured effects. Expert content review pending.",
+          "scenario_image": null,
+          "worked_steps": [
+            {"title": "Name the three nodes", "text": "Rain, umbrella carrying and pavement wetness are variables. Each box is a node; a particular rainy arrival is a value or case, not another node."},
+            {"title": "Read the two arrows", "text": "Rain → umbrella carrying and Rain → pavement wetness represent the simulator's supplied causal assumptions. They are not effect sizes, and the observational table alone did not prove those directions."},
+            {"title": "Trace a path without inventing a cause", "text": "Umbrella carrying ← Rain → pavement wetness is a path through a common cause. It is not a directed path from umbrellas to wet pavement. The graph is acyclic because following arrow directions never brings you back to the starting node."}
+          ],
+          "worked_graph": {
+            "label": "The umbrella simulator's supplied causal model",
+            "nodes": [{"node_id": "rain", "label": "Rain"}, {"node_id": "umbrella", "label": "Umbrella carrying"}, {"node_id": "wet", "label": "Pavement wetness"}],
+            "edges": [{"from": "rain", "to": "umbrella"}, {"from": "rain", "to": "wet"}],
+            "note": "The earlier intervention left wetness unchanged. The complete two-arrow diagram additionally uses the simulator's supplied assumptions; that one test did not uniquely identify this graph."
+          },
+          "definition": "In a DAG, nodes represent variables, arrows represent proposed directions, and paths are connected routes through arrows.",
+          "pitfall": "Do not read an arrow as a recorded number or as proof that the proposed direction is true.",
+          "takeaway": "Name the graphical feature first: node, arrow or path. Then ask which assumption it represents.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.1, pages 81-82, graph terminology"}],
+          "challenge_title": "Fresh case: a route through another proposed diagram"
+        },
+        {
+          "concept_id": "probabilistic-effects",
+          "title": "A changed chance is not a guarantee",
+          "hook": "A fictional teaching simulator declares that assigning Treatment T increases recovery probability, but some simulated treated cases do not recover. Is that a contradiction?",
+          "example_label": "Treatment T and its effects are supplied simulator assumptions, not clinical findings or recommendations. Expert content review pending.",
+          "scenario_image": null,
+          "worked_steps": [
+            {"title": "Read the supplied assumption", "text": "The simulator declares a higher recovery probability under assigned Treatment T. This is a given property of the teaching model, not a treatment effect inferred from patient records."},
+            {"title": "Allow different outcomes", "text": "A higher recovery probability can coexist with some simulated treated cases not recovering. A better chance does not make the favourable outcome certain."},
+            {"title": "Separate probability from certainty", "text": "The model changes what is likely across cases. It does not say that every individual case must have the same result."}
+          ],
+          "definition": "A cause can change an outcome's probability without determining every individual outcome.",
+          "pitfall": "One case with an unfavourable result does not turn a stipulated probability change into a deterministic guarantee.",
+          "takeaway": "Ask whether the claim concerns a changed chance or a certain result for every case.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.3, pages 91-92, intervention effects on distributions"}],
+          "challenge_title": "Fresh case: a probabilistic onboarding effect"
+        }
+      ],
+      "resources": {},
+      "choice_text": {},
+      "activity_images": {}
+    },
+    "medical": {
+      "lectures": [
+        {
+          "concept_id": "variables-and-values",
+          "title": "Separate a clinical variable from its reading",
+          "hook": "A fictional clinic records resting heart rates of 64, 72 and 80 beats per minute. Which part names the variable, and which parts are values?",
+          "example_label": "Synthetic clinical records; no real patient data. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/variables-and-values-clinic.png", "alt_text": "A clinician reviews anonymised heart-rate records while patients rest; the picture is context, not the fictional measurements."},
+          "worked_steps": [
+            {"title": "Name the clinical feature", "text": "Resting heart rate is the feature collected for each patient. The variable's name tells us what each reading concerns."},
+            {"title": "Read one patient's value", "text": "A value of 72 beats per minute is one reading of heart rate. It is not a separate variable called 72."},
+            {"title": "Keep the variable across cases", "text": "Other patients or later records can have different readings. The feature stays resting heart rate even when its value changes."}
+          ],
+          "definition": "A variable can take different values across cases or times. A particular measurement is a value of that variable.",
+          "pitfall": "Repeated identical readings in a small dataset do not, by themselves, mean the clinical feature cannot vary.",
+          "takeaway": "Name the feature, the case and the reading before comparing patients.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Appendix A.1, page 213, basic definitions"}],
+          "challenge_title": "Fresh clinical case: a hospital dashboard count"
+        },
+        {
+          "concept_id": "observed-association",
+          "title": "Describe what clinical records show",
+          "hook": "In fictional clinic records, patients reporting more weekly walking also tend to have lower resting heart rates. What pattern has been recorded?",
+          "example_label": "Synthetic clinical example; not a finding about exercise or heart health. Expert content review pending.",
+          "scenario_image": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A clinician discusses a plain clipboard with a patient in a fictional clinic; the illustration does not supply the example records."},
+          "worked_steps": [
+            {"title": "Identify both measurements", "text": "The records include reported walking and resting heart rate. Each patient's row contains a value for each variable."},
+            {"title": "Describe their relationship", "text": "In this supplied dataset, higher walking values tend to occur with lower heart-rate values. Association can run in opposite directions."},
+            {"title": "State the observed pattern", "text": "Report that relationship across the recorded cases. A single low heart-rate measurement is not itself the relationship between walking and heart rate."}
+          ],
+          "definition": "An observed association is a pattern in how variables occur together or vary together in clinical records.",
+          "pitfall": "Do not require both values to increase. A recorded relationship can involve one increasing while the other decreases.",
+          "takeaway": "Describe the two variables and the recorded pattern before asking for an explanation.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 1.1, pages 1-2, joint observations and distributions"}],
+          "challenge_title": "Fresh clinical case: portal use and appointment attendance"
+        },
+        {
+          "concept_id": "association-is-not-causation",
+          "title": "A group difference is not yet a treatment effect",
+          "hook": "A fictional clinic records poorer recovery among patients receiving Treatment A. Does that recorded difference establish that Treatment A harms recovery?",
+          "example_label": "Treatment A and these records are fictional; possible mechanisms are hypotheses. Expert content review pending.",
+          "scenario_image": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A clinician and patients in a fictional clinic provide context without showing a treatment-effect conclusion."},
+          "worked_steps": [
+            {"title": "Report the group difference", "text": "Treatment receipt and recovery differ across the fictional recorded groups. This describes an association, not the outcome of assigning different treatments to comparable patients."},
+            {"title": "Consider a possible shared explanation", "text": "Patients with more severe illness might be more likely to receive Treatment A and less likely to recover. This is a hypothesis about the records, not an established explanation."},
+            {"title": "Keep the treatment question open", "text": "The group difference alone does not establish harm, benefit or no effect. A possible severity difference does not settle the treatment's effect either."}
+          ],
+          "worked_graph": {
+            "label": "Possible explanation, not established by the clinic records",
+            "nodes": [{"node_id": "severity", "label": "Baseline illness severity"}, {"node_id": "treatment", "label": "Treatment A receipt"}, {"node_id": "recovery", "label": "Recovery"}],
+            "edges": [{"from": "severity", "to": "treatment"}, {"from": "severity", "to": "recovery"}],
+            "note": "Only proposed common-cause paths are shown. This partial hypothesis does not assert that severity explains everything or that Treatment A has no effect."
+          },
+          "definition": "Association describes how variables vary together. A recorded association alone does not establish a causal direction or a treatment effect.",
+          "pitfall": "Poorer recovery in a treated group is not, by itself, proof of harm. A plausible alternative explanation is not proof of benefit or no effect.",
+          "takeaway": "Separate the observed group difference, a proposed explanation and the effect of assigning treatment.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 1.3, Figure 1.2 and Principle 1.1, association and possible causal explanations"}],
+          "challenge_title": "Shared neutral investigation: apply the same distinction to a new case"
+        },
+        {
+          "concept_id": "treatment-and-outcome",
+          "title": "Frame the clinical change and its outcome",
+          "hook": "A fictional clinician asks what would happen to recovery if a drug dose were changed. What is being changed, and what result is being asked about?",
+          "example_label": "Synthetic question about a fictional treatment; no benefit or dose recommendation. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/treatment-and-outcome-consultation.png", "alt_text": "A clinician and patient discuss an unlabeled dose card and a recovery journal without any recommended treatment."},
+          "worked_steps": [
+            {"title": "Specify the treatment", "text": "The proposed change concerns drug dose. Here treatment names the intervention whose consequence the question asks about."},
+            {"title": "Specify the outcome", "text": "Recovery is the result of interest. A clear outcome tells the reader which consequence of the proposed change matters."},
+            {"title": "Recognise the question, not an answer", "text": "What would happen to recovery if the dose changed? This is a treatment-and-outcome question even though no direction or size of effect has been established."}
+          ],
+          "definition": "A treatment-and-outcome question asks what would happen to an outcome if a treatment were changed.",
+          "pitfall": "A well-framed clinical question does not prove that the proposed treatment helps or harms.",
+          "takeaway": "State the proposed treatment change and name the outcome you want to understand.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.3, pages 91-92, total causal effect"}],
+          "challenge_title": "Fresh clinical case: physiotherapy schedule and mobility"
+        },
+        {
+          "concept_id": "observation-vs-intervention",
+          "title": "Reading a patient record is not assigning a value",
+          "hook": "A fictional clinic reads patients' existing sleep durations from their records. Did the clinic assign those durations by recording them?",
+          "example_label": "Synthetic records; no real sleep intervention or health effect. Expert content review pending.",
+          "scenario_image": {"path": "media/causality-m0/observation-sleep-recording.png", "alt_text": "A person sleeps while a plain wristband passively records sleep; it does not show an assigned sleep duration."},
+          "worked_steps": [
+            {"title": "Identify the observation", "text": "The clinic records sleep that already occurred. No assigned sleep duration is described in this example."},
+            {"title": "Imagine a different action", "text": "A separate fictional study might deliberately assign a schedule. That changes how a value is set instead of merely reading an existing value."},
+            {"title": "Check the assignment process", "text": "Comparing existing long-sleep and short-sleep groups still records their existing values. Grouping patients does not itself assign their sleep."}
+          ],
+          "definition": "Observation records existing values. An intervention deliberately sets or changes a variable, replacing how that value would otherwise arise.",
+          "pitfall": "Selecting patients who already chose an app or behaviour is different from assigning that choice.",
+          "takeaway": "Ask how the value arose: was it recorded as it was, or deliberately set?",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 3.2, page 34, interventions and do notation"}],
+          "challenge_title": "Fresh clinical case: patients' existing app choices"
+        },
+        {
+          "concept_id": "world-data-model",
+          "title": "Distinguish a patient process from records and a model",
+          "hook": "A fictional investigator has laboratory readings and a drawing of how a hidden illness process might produce them. Which object is the explanatory model?",
+          "example_label": "Synthetic measurements and hypothetical illness model; no verified disease mechanism. Expert content review pending.",
+          "scenario_image": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A clinician reviews a plain clipboard with a patient in a fictional clinic; it is context, not laboratory evidence."},
+          "worked_steps": [
+            {"title": "Identify the clinical world", "text": "The patient's system produces what can be measured. The investigator may not observe every process operating within it."},
+            {"title": "Identify the clinical data", "text": "The recorded laboratory readings are observations. They are not a complete account of every hidden process."},
+            {"title": "Identify the proposed model", "text": "The drawing offers an explanation of how the partly hidden system might work. It is a model, rather than another measured laboratory reading."}
+          ],
+          "definition": "The world is the partly hidden system, data are observed records, and a model is an explanation of how that system may work.",
+          "pitfall": "Do not treat the labels and arrows in an explanatory drawing as if they were additional measurements.",
+          "takeaway": "Keep patient process, observed record and explanatory model distinct.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Sections 1.1 and 1.3, pages 2 and 5-6, observations and causal models"}],
+          "challenge_title": "Fresh clinical case: explaining a laboratory device"
+        },
+        {
+          "concept_id": "data-vs-assumptions",
+          "title": "Mark where a clinical explanation adds an assumption",
+          "hook": "Fictional records show that patients who contact a nurse more often also report more symptoms. Is saying illness severity causes both just another description of those records?",
+          "example_label": "Synthetic clinical pattern and proposed explanation; not a finding about nursing or illness. Expert content review pending.",
+          "scenario_image": {"path": "media/foundation-samples/medical-association.png", "alt_text": "Patients and a clinician in a fictional clinic provide context without demonstrating why symptoms and clinical contact co-occur."},
+          "worked_steps": [
+            {"title": "Report the recorded pattern", "text": "The supplied records contain values for nurse contact and reported symptoms. The fictional example says those variables vary together."},
+            {"title": "Locate the causal explanation", "text": "Saying severity causes both variables proposes how the pattern might be produced. It adds a mechanism rather than repeating the observed relationship."},
+            {"title": "State its status", "text": "Write that severity is a proposed shared explanation. It remains an assumption in this example, not a causal mechanism directly established by the records."}
+          ],
+          "definition": "Clinical data can support a pattern. A causal direction or mechanism is an additional assumption that should be stated explicitly.",
+          "pitfall": "Clinical plausibility and familiarity do not make a proposed explanation a directly observed fact.",
+          "takeaway": "Separate what was recorded from what the clinical causal model assumes.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Sections 1.2-1.4, pages 4-10, causal assumptions and equivalent observations"}],
+          "challenge_title": "Fresh clinical case: recorded contact or a proposed cause?"
+        },
+        {
+          "concept_id": "basic-dag-language",
+          "title": "Use the umbrella investigation to read a DAG",
+          "hook": "Recall the shared umbrella investigation. Its three-variable picture is a useful starting point for reading clinical diagrams: first name variables, then proposed causal directions.",
+          "example_label": "Synthetic proposed clinical diagram; no true drug mechanism or effect is asserted. Expert content review pending.",
+          "scenario_image": null,
+          "worked_steps": [
+            {"title": "Read the nodes before the story", "text": "Rain, umbrella carrying and pavement wetness are the three nodes. A clinical diagram uses the same convention: a node could name dose or symptom score, rather than one patient's particular reading."},
+            {"title": "Read arrows as assumptions", "text": "The two rain arrows express the simulator's supplied model. Likewise, a dose → symptom arrow in a clinical hypothesis states a causal direction; the drawing itself is not a clinical result or an effect size."},
+            {"title": "Distinguish a path from a directed path", "text": "Umbrella carrying ← Rain → pavement wetness is a connected path through a common cause, not a directed path from carrying umbrellas to wetness. A DAG has arrows but no directed cycle; following arrow directions cannot return to the starting node."}
+          ],
+          "worked_graph": {
+            "label": "A familiar general case, now read as a DAG",
+            "nodes": [{"node_id": "rain", "label": "Rain"}, {"node_id": "umbrella", "label": "Umbrella carrying"}, {"node_id": "wet", "label": "Pavement wetness"}],
+            "edges": [{"from": "rain", "to": "umbrella"}, {"from": "rain", "to": "wet"}],
+            "note": "These are the teaching simulator's assumptions. The unchanged intervention result did not, on its own, prove this unique graph. Clinical graphs require their own justified assumptions."
+          },
+          "definition": "Nodes represent variables, arrows represent proposed directions, and paths are connected routes through arrows in a DAG.",
+          "pitfall": "An arrow in a clinical hypothesis is not a numerical result or proof that the proposed relation is true.",
+          "takeaway": "Identify the node, arrow or path, then say which modelling assumption it displays.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.1, pages 81-82, graph terminology"}],
+          "challenge_title": "Fresh clinical case: a path through a different proposed diagram"
+        },
+        {
+          "concept_id": "probabilistic-effects",
+          "title": "A treatment probability is not an individual promise",
+          "hook": "A fictional teaching simulator declares that assigning Treatment T increases recovery probability, but some simulated treated cases do not recover. Can both statements hold?",
+          "example_label": "Treatment T and its effects are supplied simulator assumptions, not clinical findings or recommendations. Expert content review pending.",
+          "scenario_image": null,
+          "worked_steps": [
+            {"title": "Read the given simulator rule", "text": "The teaching model stipulates a higher recovery probability under assigned Treatment T. The example does not infer this effect from an observed treated group."},
+            {"title": "Allow variation across cases", "text": "A higher recovery chance still allows some simulated patients not to recover. A probability increase does not promise recovery for everyone."},
+            {"title": "Recognise the claim's level", "text": "The supplied causal effect concerns how likely recovery is across cases. It does not determine the result for every individual case."}
+          ],
+          "definition": "A cause can change an outcome's probability without determining every individual outcome.",
+          "pitfall": "Do not interpret a stipulated probability increase as either a guaranteed individual result or evidence of a real treatment benefit.",
+          "takeaway": "Keep a changed chance separate from an individual guarantee and from an empirical clinical conclusion.",
+          "source_refs": [{"source_id": "peters-janzing-scholkopf-2017", "locator": "Section 6.3, pages 91-92, intervention effects on distributions"}],
+          "challenge_title": "Fresh clinical simulator case: a different probabilistic outcome"
+        }
+      ],
+      "resources": {
+        "variables.question.practice": "A fictional clinic records each patient's resting heart rate. Is resting heart rate a variable?",
+        "variables.question.transfer": "A fictional hospital dashboard records the number of ward alerts each hour. Is the alert count a variable?",
+        "association.question.practice": "Fictional clinic records show that patients reporting more weekly walking also tend to have lower resting heart rates. Do the records show an observed association?",
+        "association.question.transfer": "A fictional clinic log shows that patients who use its patient portal more often also attend more scheduled appointments. Does the log show an observed association?",
+        "not-causation.question.practice": "A fictional clinic records that patients receiving Treatment A recover less often than patients who do not receive it. Do these records alone establish that Treatment A causes poorer recovery?",
+        "treatment.question.practice": "A fictional clinician asks what would happen to recovery if a patient were given a different drug dose. Is this a treatment-and-outcome question?",
+        "treatment.question.transfer": "A fictional physiotherapy study asks what would happen to mobility if the assigned weekly session schedule were changed. Is this a treatment-and-outcome question?",
+        "intervention.question.practice": "A fictional clinic only records patients' existing sleep durations and assigns no sleep schedule. Is this observation or an intervention on sleep?",
+        "intervention.question.transfer": "A fictional clinical team compares patients who already chose a symptom-tracking app with those who did not. The team does not assign app use. Is this observation or an intervention on app use?",
+        "world-data-model.question.practice": "A fictional investigator draws an explanation of how a hidden illness process might generate observed clinical records. Is the drawing data or a model?",
+        "world-data-model.question.transfer": "A fictional hospital engineer draws a proposed explanation of how a laboratory device's internal calibration process might produce drifting sensor readings. Is that explanatory drawing data or a model?",
+        "assumptions.question.practice": "Fictional clinic records show that patients receiving a review flag also have more symptoms. Is the claim that illness severity causes both a direct observation from these records or an additional causal assumption?",
+        "assumptions.question.transfer": "A fictional clinic log shows that patients who use a symptom tracker more often also contact nurses more often. Is the claim that symptom severity causes both behaviours a direct observation from this log or an additional causal assumption?",
+        "dag.question.practice": "In a fictional clinician's proposed causal diagram, what does an arrow from a drug dose to a symptom score represent: a proposed causal direction or a measured value?",
+        "dag.question.transfer": "In a fictional proposed diagram relating physiotherapy, mobility and readiness for discharge, what does a connected route through arrows represent: a path or a node?",
+        "probability.question.practice": "A supplied fictional teaching simulator declares that assigned Treatment T raises recovery probability, but some simulated treated patients still do not recover. Is the supplied effect probabilistic or deterministic?",
+        "probability.question.transfer": "A fictional teaching simulator declares that an assigned exercise programme lowers readmission probability, but some simulated patients are still readmitted. Is the supplied effect probabilistic or a deterministic guarantee?",
+        "integrated.question": "A fictional clinical team records that patients with longer voluntary sleep tend to have better concentration and recovery, then draws a DAG to explain the pattern. Which conclusion is justified by these records without adding a causal assumption?"
+      },
+      "choice_text": {
+        "integrated.proves-intervention": "Because patients with more voluntary sleep recovered better in these fictional records, deliberately assigning more sleep would improve other patients' recovery."
+      },
+      "activity_images": {
+        "observed-association.practice": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A fictional clinician discusses a plain clipboard with a patient; this is context for recorded variables, not association evidence."},
+        "association-is-not-causation.practice": {"path": "media/foundation-samples/medical-association.png", "alt_text": "Patients and a clinician in a fictional clinic provide context without establishing Treatment A's effect."},
+        "observation-vs-intervention.transfer": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A clinician reviews a plain clipboard in a fictional clinic; the picture does not depict assignment of app use."},
+        "world-data-model.practice": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A fictional clinical consultation provides context; the picture is not a laboratory record or a causal model."},
+        "world-data-model.transfer": null,
+        "data-vs-assumptions.practice": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A fictional clinic provides context for a proposed explanation; it does not prove why a review flag and symptoms co-occur."},
+        "data-vs-assumptions.transfer": {"path": "media/foundation-samples/medical-association.png", "alt_text": "A clinician and patients in a fictional clinic provide context without revealing the cause of tracker use or nurse contact."},
+        "basic-dag-language.practice": null,
+        "probabilistic-effects.practice": null
+      }
+    }
+  }
+}

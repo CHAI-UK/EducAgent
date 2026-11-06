@@ -1,0 +1,493 @@
+{
+  "catalog_version": "1.6.0",
+  "images": {
+    "service-records": {
+      "path": "media/question-context/foundation-general-it-v1.png",
+      "alt_text": "An IT service team reviewing records on a laptop; the illustration contains no measurement values."
+    },
+    "college-programme": {
+      "path": "media/question-context/effect-general-study-v1.png",
+      "alt_text": "Students and a college adviser discussing a study-support programme, without showing its results."
+    },
+    "library-reminders": {
+      "path": "media/question-context/effect-general-library-v1.png",
+      "alt_text": "An adult librarian and borrower talk at a library counter beside a computer and a blank card. No reminder setting or outcome is shown."
+    },
+    "rehab-programme": {
+      "path": "media/question-context/effect-medical-rehab-v1.png",
+      "alt_text": "A rehabilitation team planning a programme with adult participants, without showing treatment results."
+    },
+    "warehouse-images": {
+      "path": "media/question-context/shift-general-parcels-v1.png",
+      "alt_text": "Parcel photography workstations in different warehouse settings, without model predictions or scores."
+    },
+    "hospital-images": {
+      "path": "media/question-context/shift-medical-imaging-v1.png",
+      "alt_text": "Clinical imaging workstations in different hospital settings, without diagnoses or model predictions."
+    },
+    "clinic-records": {
+      "path": "media/causality-m0/variables-and-values-clinic.png",
+      "alt_text": "A clinician recording measurements for several patients in a clinic."
+    },
+    "consultation": {
+      "path": "media/causality-m0/treatment-and-outcome-consultation.png",
+      "alt_text": "A clinician and an adult patient discussing a fictional care plan."
+    },
+    "digital-document": {
+      "path": "media/question-context/digital-service-use-v1.png",
+      "alt_text": "An adult edits an online document on a laptop at home beside a plain notebook; no saved or completed status is shown."
+    },
+    "digital-tutorial": {
+      "path": "media/question-context/digital-tutorial-v1.png",
+      "alt_text": "An adult explores an online service tutorial on a laptop beside a notebook; no usage or subscription outcome is shown."
+    },
+    "medical-app-records": {
+      "path": "media/question-context/medical-app-use-v1.png",
+      "alt_text": "An adult patient holds a smartphone while a nurse sits beside a computer and blank records in a clinic."
+    },
+    "laboratory-records": {
+      "path": "media/question-context/laboratory-records-v1.png",
+      "alt_text": "A laboratory scientist reviews a measurement instrument, an indistinct monitor and an unmarked notebook."
+    },
+    "campus-travel": {
+      "path": "media/question-context/campus-travel-v1.png",
+      "alt_text": "An adult student and campus adviser talk beside a blank travel card at a campus bus stop; no allocation, journey or attendance outcome is shown."
+    },
+    "operation-planning": {
+      "path": "media/question-context/operation-planning-v1.png",
+      "alt_text": "A clinician and an adult patient discuss a plan at a desk with a closed folder and blank paper; no procedure or outcome is shown."
+    },
+    "sleep-recording": {
+      "path": "media/causality-m0/observation-sleep-recording.png",
+      "alt_text": "A person rests while a wristband records sleep; no causal graph, concentration or recovery result is shown."
+    }
+  },
+  "packs": [
+    {
+      "pack_id": "causality.m0.general.course",
+      "pack_version": "1.7.0",
+      "activities": {
+        "variables-and-values.practice": "service-records",
+        "variables-and-values.transfer": "service-records",
+        "observed-association.transfer": "digital-document",
+        "treatment-and-outcome.practice": "college-programme",
+        "treatment-and-outcome.transfer": "digital-tutorial",
+        "observation-vs-intervention.practice": "service-records",
+        "world-data-model.transfer": "laboratory-records",
+        "basic-dag-language.transfer": "digital-tutorial",
+        "probabilistic-effects.transfer": "digital-tutorial",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "variables-and-values": "service-records",
+        "treatment-and-outcome": "college-programme",
+        "observation-vs-intervention": "service-records"
+      }
+    },
+    {
+      "pack_id": "causality.m0.medical.course",
+      "pack_version": "1.7.0",
+      "activities": {
+        "variables-and-values.transfer": "clinic-records",
+        "observed-association.transfer": "medical-app-records",
+        "association-is-not-causation.practice": "consultation",
+        "treatment-and-outcome.transfer": "rehab-programme",
+        "observation-vs-intervention.transfer": "medical-app-records",
+        "world-data-model.practice": "laboratory-records",
+        "world-data-model.transfer": "laboratory-records",
+        "data-vs-assumptions.practice": "medical-app-records",
+        "data-vs-assumptions.transfer": "medical-app-records",
+        "basic-dag-language.practice": "consultation",
+        "basic-dag-language.transfer": "rehab-programme",
+        "probabilistic-effects.practice": "consultation",
+        "probabilistic-effects.transfer": "rehab-programme",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "association-is-not-causation": "consultation",
+        "world-data-model": "laboratory-records",
+        "data-vs-assumptions": "medical-app-records",
+        "probabilistic-effects": "consultation"
+      }
+    },
+    {
+      "pack_id": "causality.m0.general.course",
+      "pack_version": "1.6.0",
+      "activities": {
+        "variables-and-values.practice": "service-records",
+        "variables-and-values.transfer": "service-records",
+        "observed-association.transfer": "digital-document",
+        "treatment-and-outcome.practice": "college-programme",
+        "treatment-and-outcome.transfer": "digital-tutorial",
+        "observation-vs-intervention.practice": "service-records",
+        "basic-dag-language.transfer": "digital-tutorial",
+        "probabilistic-effects.transfer": "digital-tutorial",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "variables-and-values": "service-records",
+        "treatment-and-outcome": "college-programme",
+        "observation-vs-intervention": "service-records"
+      }
+    },
+    {
+      "pack_id": "causality.m0.medical.course",
+      "pack_version": "1.6.0",
+      "activities": {
+        "variables-and-values.transfer": "clinic-records",
+        "observed-association.transfer": "medical-app-records",
+        "association-is-not-causation.practice": "consultation",
+        "treatment-and-outcome.transfer": "rehab-programme",
+        "observation-vs-intervention.transfer": "medical-app-records",
+        "world-data-model.practice": "laboratory-records",
+        "world-data-model.transfer": "laboratory-records",
+        "data-vs-assumptions.practice": "medical-app-records",
+        "data-vs-assumptions.transfer": "medical-app-records",
+        "basic-dag-language.practice": "consultation",
+        "basic-dag-language.transfer": "rehab-programme",
+        "probabilistic-effects.practice": "consultation",
+        "probabilistic-effects.transfer": "rehab-programme",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "association-is-not-causation": "consultation",
+        "world-data-model": "laboratory-records",
+        "data-vs-assumptions": "medical-app-records",
+        "probabilistic-effects": "consultation"
+      }
+    },
+    {
+      "pack_id": "causality.m0.general.course",
+      "pack_version": "1.5.0",
+      "activities": {
+        "variables-and-values.practice": "service-records",
+        "variables-and-values.transfer": "service-records",
+        "observed-association.transfer": "digital-document",
+        "treatment-and-outcome.practice": "college-programme",
+        "treatment-and-outcome.transfer": "digital-tutorial",
+        "observation-vs-intervention.practice": "service-records",
+        "basic-dag-language.transfer": "digital-tutorial",
+        "probabilistic-effects.transfer": "digital-tutorial",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "variables-and-values": "service-records",
+        "treatment-and-outcome": "college-programme",
+        "observation-vs-intervention": "service-records"
+      }
+    },
+    {
+      "pack_id": "causality.m0.medical.course",
+      "pack_version": "1.5.0",
+      "activities": {
+        "variables-and-values.transfer": "clinic-records",
+        "observed-association.transfer": "medical-app-records",
+        "association-is-not-causation.practice": "consultation",
+        "treatment-and-outcome.transfer": "rehab-programme",
+        "observation-vs-intervention.transfer": "medical-app-records",
+        "world-data-model.practice": "laboratory-records",
+        "world-data-model.transfer": "laboratory-records",
+        "data-vs-assumptions.practice": "medical-app-records",
+        "data-vs-assumptions.transfer": "medical-app-records",
+        "basic-dag-language.practice": "consultation",
+        "basic-dag-language.transfer": "rehab-programme",
+        "probabilistic-effects.practice": "consultation",
+        "probabilistic-effects.transfer": "rehab-programme",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "association-is-not-causation": "consultation",
+        "world-data-model": "laboratory-records",
+        "data-vs-assumptions": "medical-app-records",
+        "probabilistic-effects": "consultation"
+      }
+    },
+    {
+      "pack_id": "causality.m1.effect.general",
+      "pack_version": "1.2.0",
+      "activities": {
+        "defining-an-intervention.quiz": "library-reminders",
+        "defining-an-intervention.challenge": "campus-travel",
+        "average-treatment-effect.quiz": "college-programme",
+        "average-treatment-effect.challenge": "college-programme",
+        "confounding-and-adjustment.quiz": "college-programme",
+        "confounding-and-adjustment.challenge": "college-programme",
+        "identifiability-of-effects.quiz": "college-programme",
+        "identifiability-of-effects.challenge": "college-programme"
+      },
+      "lessons": {
+        "defining-an-intervention": "college-programme",
+        "average-treatment-effect": "college-programme",
+        "confounding-and-adjustment": "college-programme",
+        "identifiability-of-effects": "college-programme"
+      }
+    },
+    {
+      "pack_id": "causality.m1.effect.medical",
+      "pack_version": "1.2.0",
+      "activities": {
+        "defining-an-intervention.quiz": "consultation",
+        "defining-an-intervention.challenge": "consultation",
+        "average-treatment-effect.quiz": "rehab-programme",
+        "average-treatment-effect.challenge": "rehab-programme",
+        "confounding-and-adjustment.quiz": "rehab-programme",
+        "confounding-and-adjustment.challenge": "operation-planning",
+        "identifiability-of-effects.quiz": "rehab-programme",
+        "identifiability-of-effects.challenge": "rehab-programme"
+      },
+      "lessons": {
+        "defining-an-intervention": "rehab-programme",
+        "average-treatment-effect": "rehab-programme",
+        "confounding-and-adjustment": "rehab-programme",
+        "identifiability-of-effects": "rehab-programme"
+      }
+    },
+    {
+      "pack_id": "causality.m1.shift.general",
+      "pack_version": "1.2.0",
+      "activities": {
+        "distribution-shift.quiz": "warehouse-images",
+        "distribution-shift.challenge": "warehouse-images",
+        "causal-vs-spurious-features.quiz": "warehouse-images",
+        "causal-vs-spurious-features.challenge": "warehouse-images",
+        "invariance-across-environments.quiz": "warehouse-images",
+        "invariance-across-environments.challenge": "warehouse-images",
+        "when-predictions-can-still-fail.quiz": "warehouse-images",
+        "when-predictions-can-still-fail.challenge": "warehouse-images"
+      },
+      "lessons": {
+        "distribution-shift": "warehouse-images",
+        "causal-vs-spurious-features": "warehouse-images",
+        "invariance-across-environments": "warehouse-images",
+        "when-predictions-can-still-fail": "warehouse-images"
+      }
+    },
+    {
+      "pack_id": "causality.m1.shift.medical",
+      "pack_version": "1.2.0",
+      "activities": {
+        "distribution-shift.quiz": "hospital-images",
+        "distribution-shift.challenge": "hospital-images",
+        "causal-vs-spurious-features.quiz": "hospital-images",
+        "causal-vs-spurious-features.challenge": "laboratory-records",
+        "invariance-across-environments.quiz": "hospital-images",
+        "invariance-across-environments.challenge": "hospital-images",
+        "when-predictions-can-still-fail.quiz": "hospital-images",
+        "when-predictions-can-still-fail.challenge": "hospital-images"
+      },
+      "lessons": {
+        "distribution-shift": "hospital-images",
+        "causal-vs-spurious-features": "hospital-images",
+        "invariance-across-environments": "hospital-images",
+        "when-predictions-can-still-fail": "hospital-images"
+      }
+    },
+    {
+      "pack_id": "causality.m1.shift.general",
+      "pack_version": "1.3.0",
+      "activities": {
+        "distribution-shift.quiz": "warehouse-images",
+        "distribution-shift.challenge": "warehouse-images",
+        "causal-vs-spurious-features.quiz": "warehouse-images",
+        "causal-vs-spurious-features.challenge": "warehouse-images",
+        "invariance-across-environments.quiz": "warehouse-images",
+        "invariance-across-environments.challenge": "warehouse-images",
+        "when-predictions-can-still-fail.quiz": "warehouse-images",
+        "when-predictions-can-still-fail.challenge": "warehouse-images"
+      },
+      "lessons": {
+        "distribution-shift": "warehouse-images",
+        "causal-vs-spurious-features": "warehouse-images",
+        "invariance-across-environments": "warehouse-images",
+        "when-predictions-can-still-fail": "warehouse-images"
+      }
+    },
+    {
+      "pack_id": "causality.m1.shift.medical",
+      "pack_version": "1.3.0",
+      "activities": {
+        "distribution-shift.quiz": "hospital-images",
+        "distribution-shift.challenge": "hospital-images",
+        "causal-vs-spurious-features.quiz": "hospital-images",
+        "causal-vs-spurious-features.challenge": "laboratory-records",
+        "invariance-across-environments.quiz": "hospital-images",
+        "invariance-across-environments.challenge": "hospital-images",
+        "when-predictions-can-still-fail.quiz": "hospital-images",
+        "when-predictions-can-still-fail.challenge": "hospital-images"
+      },
+      "lessons": {
+        "distribution-shift": "hospital-images",
+        "causal-vs-spurious-features": "hospital-images",
+        "invariance-across-environments": "hospital-images",
+        "when-predictions-can-still-fail": "hospital-images"
+      }
+    },
+    {
+      "pack_id": "causality.m1.effect.general",
+      "pack_version": "1.3.0",
+      "activities": {
+        "defining-an-intervention.quiz": "library-reminders",
+        "defining-an-intervention.challenge": "campus-travel",
+        "average-treatment-effect.quiz": "college-programme",
+        "average-treatment-effect.challenge": "college-programme",
+        "confounding-and-adjustment.quiz": "college-programme",
+        "confounding-and-adjustment.challenge": "college-programme",
+        "identifiability-of-effects.quiz": "college-programme",
+        "identifiability-of-effects.challenge": "college-programme"
+      },
+      "lessons": {
+        "defining-an-intervention": "college-programme",
+        "average-treatment-effect": "college-programme",
+        "confounding-and-adjustment": "college-programme",
+        "identifiability-of-effects": "college-programme"
+      }
+    },
+    {
+      "pack_id": "causality.m1.effect.medical",
+      "pack_version": "1.3.0",
+      "activities": {
+        "defining-an-intervention.quiz": "consultation",
+        "defining-an-intervention.challenge": "consultation",
+        "average-treatment-effect.quiz": "rehab-programme",
+        "average-treatment-effect.challenge": "rehab-programme",
+        "confounding-and-adjustment.quiz": "rehab-programme",
+        "confounding-and-adjustment.challenge": "operation-planning",
+        "identifiability-of-effects.quiz": "rehab-programme",
+        "identifiability-of-effects.challenge": "rehab-programme"
+      },
+      "lessons": {
+        "defining-an-intervention": "rehab-programme",
+        "average-treatment-effect": "rehab-programme",
+        "confounding-and-adjustment": "rehab-programme",
+        "identifiability-of-effects": "rehab-programme"
+      }
+    },
+    {
+      "pack_id": "causality.m0.general.course",
+      "pack_version": "1.8.0",
+      "activities": {
+        "variables-and-values.practice": "service-records",
+        "variables-and-values.transfer": "service-records",
+        "observed-association.transfer": "digital-document",
+        "treatment-and-outcome.practice": "college-programme",
+        "treatment-and-outcome.transfer": "digital-tutorial",
+        "observation-vs-intervention.practice": "service-records",
+        "world-data-model.transfer": "laboratory-records",
+        "basic-dag-language.transfer": "digital-tutorial",
+        "probabilistic-effects.transfer": "digital-tutorial",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "variables-and-values": "service-records",
+        "treatment-and-outcome": "college-programme",
+        "observation-vs-intervention": "service-records"
+      }
+    },
+    {
+      "pack_id": "causality.m0.medical.course",
+      "pack_version": "1.8.0",
+      "activities": {
+        "variables-and-values.transfer": "clinic-records",
+        "observed-association.transfer": "medical-app-records",
+        "association-is-not-causation.practice": "consultation",
+        "treatment-and-outcome.transfer": "rehab-programme",
+        "observation-vs-intervention.transfer": "medical-app-records",
+        "world-data-model.practice": "laboratory-records",
+        "world-data-model.transfer": "laboratory-records",
+        "data-vs-assumptions.practice": "medical-app-records",
+        "data-vs-assumptions.transfer": "medical-app-records",
+        "basic-dag-language.practice": "consultation",
+        "basic-dag-language.transfer": "rehab-programme",
+        "probabilistic-effects.practice": "consultation",
+        "probabilistic-effects.transfer": "rehab-programme",
+        "m0-integrated-transfer.01": "sleep-recording"
+      },
+      "lessons": {
+        "association-is-not-causation": "consultation",
+        "world-data-model": "laboratory-records",
+        "data-vs-assumptions": "medical-app-records",
+        "probabilistic-effects": "consultation"
+      }
+    },
+    {
+      "pack_id": "causality.m1.effect.general",
+      "pack_version": "1.4.0",
+      "activities": {
+        "defining-an-intervention.quiz": "library-reminders",
+        "defining-an-intervention.challenge": "campus-travel",
+        "average-treatment-effect.quiz": "college-programme",
+        "average-treatment-effect.challenge": "college-programme",
+        "confounding-and-adjustment.quiz": "college-programme",
+        "confounding-and-adjustment.challenge": "college-programme",
+        "identifiability-of-effects.quiz": "college-programme",
+        "identifiability-of-effects.challenge": "college-programme"
+      },
+      "lessons": {
+        "defining-an-intervention": "college-programme",
+        "average-treatment-effect": "college-programme",
+        "confounding-and-adjustment": "college-programme",
+        "identifiability-of-effects": "college-programme"
+      }
+    },
+    {
+      "pack_id": "causality.m1.effect.medical",
+      "pack_version": "1.4.0",
+      "activities": {
+        "defining-an-intervention.quiz": "consultation",
+        "defining-an-intervention.challenge": "consultation",
+        "average-treatment-effect.quiz": "rehab-programme",
+        "average-treatment-effect.challenge": "rehab-programme",
+        "confounding-and-adjustment.quiz": "rehab-programme",
+        "confounding-and-adjustment.challenge": "operation-planning",
+        "identifiability-of-effects.quiz": "rehab-programme",
+        "identifiability-of-effects.challenge": "rehab-programme"
+      },
+      "lessons": {
+        "defining-an-intervention": "rehab-programme",
+        "average-treatment-effect": "rehab-programme",
+        "confounding-and-adjustment": "rehab-programme",
+        "identifiability-of-effects": "rehab-programme"
+      }
+    },
+    {
+      "pack_id": "causality.m1.shift.general",
+      "pack_version": "1.4.0",
+      "activities": {
+        "distribution-shift.quiz": "warehouse-images",
+        "distribution-shift.challenge": "warehouse-images",
+        "causal-vs-spurious-features.quiz": "warehouse-images",
+        "causal-vs-spurious-features.challenge": "warehouse-images",
+        "invariance-across-environments.quiz": "warehouse-images",
+        "invariance-across-environments.challenge": "warehouse-images",
+        "when-predictions-can-still-fail.quiz": "warehouse-images",
+        "when-predictions-can-still-fail.challenge": "warehouse-images"
+      },
+      "lessons": {
+        "distribution-shift": "warehouse-images",
+        "causal-vs-spurious-features": "warehouse-images",
+        "invariance-across-environments": "warehouse-images",
+        "when-predictions-can-still-fail": "warehouse-images"
+      }
+    },
+    {
+      "pack_id": "causality.m1.shift.medical",
+      "pack_version": "1.4.0",
+      "activities": {
+        "distribution-shift.quiz": "hospital-images",
+        "distribution-shift.challenge": "hospital-images",
+        "causal-vs-spurious-features.quiz": "hospital-images",
+        "causal-vs-spurious-features.challenge": "laboratory-records",
+        "invariance-across-environments.quiz": "hospital-images",
+        "invariance-across-environments.challenge": "hospital-images",
+        "when-predictions-can-still-fail.quiz": "hospital-images",
+        "when-predictions-can-still-fail.challenge": "hospital-images"
+      },
+      "lessons": {
+        "distribution-shift": "hospital-images",
+        "causal-vs-spurious-features": "hospital-images",
+        "invariance-across-environments": "hospital-images",
+        "when-predictions-can-still-fail": "hospital-images"
+      }
+    }
+  ]
+}

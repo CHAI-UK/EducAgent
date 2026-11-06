@@ -1,0 +1,4140 @@
+{
+  "schema_version": "3.0",
+  "pack_id": "causality.m0.general.course",
+  "version": "1.2.0",
+  "title": "Causality foundations",
+  "concepts": [
+    {
+      "concept_id": "variables-and-values",
+      "objective": "Recognize a variable as something that can take different values.",
+      "completion_activity_ids": [
+        "variables-and-values.practice",
+        "variables-and-values.transfer",
+        "m0-final-quiz.01"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "observed-association",
+      "objective": "Recognize when records describe variables occurring together.",
+      "completion_activity_ids": [
+        "observed-association.practice",
+        "observed-association.transfer",
+        "m0-final-quiz.02"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "association-is-not-causation",
+      "objective": "State that an observed pattern alone does not establish a causal direction.",
+      "completion_activity_ids": [
+        "association-is-not-causation.practice",
+        "association-is-not-causation.transfer",
+        "m0-integrated-transfer.01",
+        "m0-final-quiz.03"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "treatment-and-outcome",
+      "objective": "Identify a question about changing a treatment and observing an outcome.",
+      "completion_activity_ids": [
+        "treatment-and-outcome.practice",
+        "treatment-and-outcome.transfer",
+        "m0-final-quiz.04"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "observation-vs-intervention",
+      "objective": "Distinguish observing existing values from deliberately setting a value.",
+      "completion_activity_ids": [
+        "observation-vs-intervention.practice",
+        "observation-vs-intervention.transfer",
+        "m0-final-quiz.05"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "world-data-model",
+      "objective": "Distinguish the partly hidden world, observed data, and a model of how the world may work.",
+      "completion_activity_ids": [
+        "world-data-model.practice",
+        "world-data-model.transfer",
+        "m0-final-quiz.06"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "data-vs-assumptions",
+      "objective": "Distinguish a pattern supported by data from a causal assumption.",
+      "completion_activity_ids": [
+        "data-vs-assumptions.practice",
+        "data-vs-assumptions.transfer",
+        "m0-final-quiz.07"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "basic-dag-language",
+      "objective": "Use node, arrow, path, and DAG as names for visible causal-model assumptions.",
+      "completion_activity_ids": [
+        "basic-dag-language.practice",
+        "basic-dag-language.transfer",
+        "m0-final-quiz.08"
+      ],
+      "m1_ready_activity_ids": []
+    },
+    {
+      "concept_id": "probabilistic-effects",
+      "objective": "Recognize that a cause can change a probability without determining every individual outcome.",
+      "completion_activity_ids": [
+        "probabilistic-effects.practice",
+        "probabilistic-effects.transfer",
+        "m0-final-quiz.09"
+      ],
+      "m1_ready_activity_ids": []
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "peters-janzing-scholkopf-2017",
+      "citation": "Peters, Jonas; Janzing, Dominik; Schölkopf, Bernhard. Elements of Causal Inference: Foundations and Learning Algorithms. MIT Press, 2017.",
+      "rights": "Source license: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/). This pack contains citation metadata and independently authored factual summaries, not source excerpts. External distribution still requires a separate rights review.",
+      "review_status": "reviewed"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "variables-take-values",
+      "proposition": "A variable is something that can take different values.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Appendix A.1, page 213, basic definitions"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "records-show-association",
+      "proposition": "Records can show that variables occur together or vary together.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 1.1, pages 1-2, joint observations and distributions"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "association-does-not-establish-cause",
+      "proposition": "An observed association by itself does not determine which variable causes the other.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 1.3, page 6, correlation and causal structure"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "treatment-changes-outcome-question",
+      "proposition": "A treatment-effect question asks what happens to an outcome when a treatment is changed.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.3, pages 91-92, total causal effect"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "intervention-deliberately-sets",
+      "proposition": "An intervention deliberately sets or changes a variable, unlike merely observing its existing value.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 3.2, page 34, interventions and do notation"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "world-data-model-distinct",
+      "proposition": "The world is the partly hidden system, data are observed records, and a model is an explanation of how the system may work.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Sections 1.1 and 1.3, pages 2 and 5-6, observations and causal models"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "causal-direction-is-assumption",
+      "proposition": "Data can support a pattern, while a causal direction or mechanism often requires an explicit assumption.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Sections 1.2-1.4, pages 4-10, causal assumptions and equivalent observations"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "dag-terms",
+      "proposition": "In a DAG, nodes represent variables, arrows represent proposed directions, and paths are connected routes through arrows.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.1, pages 81-82, graph terminology"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "causes-can-change-probability",
+      "proposition": "A cause can change the distribution or probability of an outcome without determining every individual outcome.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.3, pages 91-92, intervention effects on distributions"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "scene.rain-umbrella.synthetic-world",
+      "proposition": "The records, intervention result, and supplied model assumptions in this activity are declared properties of a synthetic teaching scene, not claims identified from real-world observations.",
+      "source_refs": [],
+      "deterministic_derivation": {
+        "method_id": "causal-scene.rain-umbrella",
+        "method_version": "1.1.0"
+      },
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.synthetic",
+      "proposition": "The independently authored profile lectures and adapted questions are synthetic teaching examples, not verified clinical or real-world findings. The shared rain simulator keeps its own declared rules and assessment.",
+      "source_refs": [],
+      "deterministic_derivation": {
+        "method_id": "foundation.profile-context",
+        "method_version": "1.0.0"
+      },
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.variables-and-values.reference",
+      "proposition": "A variable is something that can take different values.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Appendix A.1, page 213, basic definitions"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.observed-association.reference",
+      "proposition": "Records can show that variables occur together or vary together.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 1.1, pages 1-2, joint observations and distributions"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.association-is-not-causation.reference",
+      "proposition": "An observed association by itself does not determine which variable causes the other.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 1.3, Figure 1.2 and Principle 1.1, association and possible causal explanations"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.treatment-and-outcome.reference",
+      "proposition": "A treatment-effect question asks what happens to an outcome when a treatment is changed.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.3, pages 91-92, total causal effect"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.observation-vs-intervention.reference",
+      "proposition": "An intervention deliberately sets or changes a variable, unlike merely observing its existing value.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 3.2, page 34, interventions and do notation"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.world-data-model.reference",
+      "proposition": "The world is the partly hidden system, data are observed records, and a model is an explanation of how the system may work.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Sections 1.1 and 1.3, pages 2 and 5-6, observations and causal models"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.data-vs-assumptions.reference",
+      "proposition": "Data can support a pattern, while a causal direction or mechanism often requires an explicit assumption.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Sections 1.2-1.4, pages 4-10, causal assumptions and equivalent observations"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.basic-dag-language.reference",
+      "proposition": "In a DAG, nodes represent variables, arrows represent proposed directions, and paths are connected routes through arrows.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.1, pages 81-82, graph terminology"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.general.probabilistic-effects.reference",
+      "proposition": "A cause can change the distribution or probability of an outcome without determining every individual outcome.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.3, pages 91-92, intervention effects on distributions"
+        }
+      ],
+      "deterministic_derivation": null,
+      "release_status": "released"
+    },
+    {
+      "claim_id": "foundation.final-case",
+      "proposition": "The programme records and probability rules in the final case are authored teaching fixtures, not empirical findings.",
+      "source_refs": [],
+      "deterministic_derivation": {
+        "method_id": "foundation.final-case",
+        "method_version": "1.2.0"
+      },
+      "release_status": "released"
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "variables.question.practice",
+      "kind": "question",
+      "text": "A clinic records each patient's resting heart rate. Is resting heart rate a variable?",
+      "claim_ids": [
+        "variables-take-values"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "variables.question.transfer",
+      "kind": "question",
+      "text": "A dashboard records the number of alerts each hour. Is the alert count a variable?",
+      "claim_ids": [
+        "variables-take-values"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "variables.hint",
+      "kind": "hint",
+      "text": "Ask whether the item could have a different value for another record or time.",
+      "claim_ids": [
+        "variables-take-values"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "variables.explanation",
+      "kind": "explanation",
+      "text": "A variable is a recorded feature that can take different values across cases or times.",
+      "claim_ids": [
+        "variables-take-values"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "variables.consequence.accepted",
+      "kind": "consequence",
+      "text": "Yes. Different patients or hours can have different values, so this is a variable.",
+      "claim_ids": [
+        "variables-take-values"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "variables.consequence.rejected",
+      "kind": "consequence",
+      "text": "The value is not fixed by the story; it can vary across records, which is what makes it a variable.",
+      "claim_ids": [
+        "variables-take-values"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "association.question.practice",
+      "kind": "question",
+      "text": "Records show that people who exercise more often also report lower resting heart rates. Do the records show an observed association?",
+      "claim_ids": [
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "association.question.transfer",
+      "kind": "question",
+      "text": "A product log shows that users who save drafts more often also finish more documents. Does the log show an observed association?",
+      "claim_ids": [
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "association.hint",
+      "kind": "hint",
+      "text": "Look for two recorded variables that occur together or vary together.",
+      "claim_ids": [
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "association.explanation",
+      "kind": "explanation",
+      "text": "An association is a pattern in records: values of two variables occur or vary together.",
+      "claim_ids": [
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "association.consequence.accepted",
+      "kind": "consequence",
+      "text": "Yes. The records describe how two variables vary together; that is an observed association.",
+      "claim_ids": [
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "association.consequence.rejected",
+      "kind": "consequence",
+      "text": "The question asks only whether the recorded pattern co-occurs, not whether it has already established a cause.",
+      "claim_ids": [
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "not-causation.question.practice",
+      "kind": "question",
+      "text": "A city records that ice-cream sales and sunglasses sales rise together. Do these records alone establish that ice-cream sales cause sunglasses sales?",
+      "claim_ids": [
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "not-causation.question.transfer",
+      "kind": "question",
+      "text": "A synthetic campus log records umbrella carrying and wet pavement. Would giving everyone an umbrella change how often the pavement is wet? Investigate before making that claim.",
+      "claim_ids": [
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "not-causation.hint",
+      "kind": "hint",
+      "text": "Ask whether another cause or another causal direction could fit the same observed pattern.",
+      "claim_ids": [
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "not-causation.explanation",
+      "kind": "explanation",
+      "text": "A pattern in records can be associated without telling us the causal direction or mechanism.",
+      "claim_ids": [
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "not-causation.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct choice: the observed pattern alone does not establish a causal direction. This records one classification, not mastery of causal reasoning.",
+      "claim_ids": [
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "not-causation.consequence.rejected",
+      "kind": "consequence",
+      "text": "Treating co-occurrence as a causal direction skips the assumptions needed to distinguish causal explanations.",
+      "claim_ids": [
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.hook",
+      "kind": "question",
+      "text": "Mission: decide whether handing out umbrellas would make pavement wet. Inspect a synthetic campus log, commit a model and prediction, run a what-if test, then revise your explanation.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "records-show-association"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.records",
+      "kind": "explanation",
+      "text": "The log shows that umbrella carrying and wet pavement occur together in this synthetic scene. It does not record why they occur together.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "records-show-association",
+        "association-does-not-establish-cause"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.model",
+      "kind": "explanation",
+      "text": "Arrows are proposed causes, not facts established by the records. Compare umbrella carrying causing wet pavement, the reverse direction, or rain as a common cause. More than one model can fit these observations.",
+      "claim_ids": [
+        "dag-terms",
+        "world-data-model-distinct",
+        "causal-direction-is-assumption",
+        "scene.rain-umbrella.synthetic-world"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.prediction",
+      "kind": "question",
+      "text": "Before the result is shown, what do you predict if every arrival is deliberately given an umbrella?",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "scene.rain-umbrella.synthetic-world"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.intervention",
+      "kind": "question",
+      "text": "Run the declared intervention to test your prediction. What changes when umbrella carrying is deliberately set to yes?",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "scene.rain-umbrella.synthetic-world"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.result",
+      "kind": "consequence",
+      "text": "In this synthetic scene, setting umbrella carrying to yes leaves 96 wet-pavement arrivals and 144 not-wet-pavement arrivals.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.reflection",
+      "kind": "question",
+      "text": "Compare your prediction with the unchanged wet-pavement count. This test alone does not uniquely identify a graph. For the final model-building exercise, use these supplied simulator assumptions: rain causes umbrella carrying and pavement wetness; there are no other direct arrows among these three variables. Revise your graph to represent those assumptions and say what came from the test versus the supplied assumptions.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "association-does-not-establish-cause",
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.explanation",
+      "kind": "explanation",
+      "text": "The synthetic test left pavement wetness unchanged. It did not by itself identify a unique causal graph. The final graph check asks whether you can represent the supplied simulator assumptions: rain causes umbrella carrying and wet pavement, with no other direct arrows among these three variables. Your initial prediction and reflection are recorded but are not scored as correct reasoning.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "records-show-association",
+        "association-does-not-establish-cause",
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "treatment.question.practice",
+      "kind": "question",
+      "text": "A clinician asks: what would happen to recovery if a patient were given a new drug dose? Is this a treatment-and-outcome question?",
+      "claim_ids": [
+        "treatment-changes-outcome-question"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "treatment.question.transfer",
+      "kind": "question",
+      "text": "A product manager asks: what would happen to retention if the team changed the onboarding flow? Is this a treatment-and-outcome question?",
+      "claim_ids": [
+        "treatment-changes-outcome-question"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "treatment.hint",
+      "kind": "hint",
+      "text": "Identify what is deliberately changed and which result is being asked about.",
+      "claim_ids": [
+        "treatment-changes-outcome-question"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "treatment.explanation",
+      "kind": "explanation",
+      "text": "Treatment-and-outcome reasoning asks about changing one variable and the resulting outcome.",
+      "claim_ids": [
+        "treatment-changes-outcome-question"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "treatment.consequence.accepted",
+      "kind": "consequence",
+      "text": "Yes. The question explicitly asks about changing a treatment and the outcome that follows.",
+      "claim_ids": [
+        "treatment-changes-outcome-question"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "treatment.consequence.rejected",
+      "kind": "consequence",
+      "text": "The key feature is the proposed change to a treatment and its outcome, not merely a pattern already recorded.",
+      "claim_ids": [
+        "treatment-changes-outcome-question"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "intervention.question.practice",
+      "kind": "question",
+      "text": "A clinic only records patients' existing sleep durations. Is this observation or an intervention on sleep?",
+      "claim_ids": [
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "intervention.question.transfer",
+      "kind": "question",
+      "text": "A team compares users who already chose focus mode with those who did not. Is this observation or an intervention on focus mode?",
+      "claim_ids": [
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "intervention.hint",
+      "kind": "hint",
+      "text": "Ask who deliberately set the value, rather than merely recording an existing value.",
+      "claim_ids": [
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "intervention.explanation",
+      "kind": "explanation",
+      "text": "Observation records existing values. An intervention deliberately sets or changes a value.",
+      "claim_ids": [
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "intervention.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. No one assigned the value, so the evidence is observational rather than interventional.",
+      "claim_ids": [
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "intervention.consequence.rejected",
+      "kind": "consequence",
+      "text": "Recording or comparing existing choices is not the same as deliberately setting the value.",
+      "claim_ids": [
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "world-data-model.question.practice",
+      "kind": "question",
+      "text": "A researcher draws an explanation of how a hidden disease process might generate the observed records. Is the drawing data or a model?",
+      "claim_ids": [
+        "world-data-model-distinct"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "world-data-model.question.transfer",
+      "kind": "question",
+      "text": "An engineer writes an explanation of how a hidden service dependency may produce outage logs. Is the explanation data or a model?",
+      "claim_ids": [
+        "world-data-model-distinct"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "world-data-model.hint",
+      "kind": "hint",
+      "text": "Separate the records we can see from an explanation of the partly hidden system.",
+      "claim_ids": [
+        "world-data-model-distinct"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "world-data-model.explanation",
+      "kind": "explanation",
+      "text": "Data are observed records; a model is an explanation of how the partly hidden world may work.",
+      "claim_ids": [
+        "world-data-model-distinct"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "world-data-model.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. The drawing is an explanatory model, not the data themselves.",
+      "claim_ids": [
+        "world-data-model-distinct"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "world-data-model.consequence.rejected",
+      "kind": "consequence",
+      "text": "An explanation of hidden processes is a model; the observed logs or records are the data.",
+      "claim_ids": [
+        "world-data-model-distinct"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "assumptions.question.practice",
+      "kind": "question",
+      "text": "A dataset shows that people who carry umbrellas are often near wet streets. Is the claim that rain causes both an observation or an assumption?",
+      "claim_ids": [
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "assumptions.question.transfer",
+      "kind": "question",
+      "text": "A log shows that people who open help pages submit more bug reports. Is the claim that confusion causes both behaviors an observation or an assumption?",
+      "claim_ids": [
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "assumptions.hint",
+      "kind": "hint",
+      "text": "Ask whether the statement reports a recorded pattern or adds a causal mechanism to explain it.",
+      "claim_ids": [
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "assumptions.explanation",
+      "kind": "explanation",
+      "text": "Data can support an observed pattern. A causal direction or mechanism is an additional assumption that should be stated.",
+      "claim_ids": [
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "assumptions.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. The causal explanation goes beyond the observed pattern, so it is an assumption.",
+      "claim_ids": [
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "assumptions.consequence.rejected",
+      "kind": "consequence",
+      "text": "The records may support co-occurrence, but they do not directly record the proposed causal explanation.",
+      "claim_ids": [
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "dag.question.practice",
+      "kind": "question",
+      "text": "In a causal diagram, what does an arrow from sleep to concentration represent: a proposed causal direction or a measured value?",
+      "claim_ids": [
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "dag.question.transfer",
+      "kind": "question",
+      "text": "In a diagram of focus mode and typing errors, what does a connected route through arrows represent: a path or a node?",
+      "claim_ids": [
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "dag.hint",
+      "kind": "hint",
+      "text": "Recall that nodes name variables, arrows name proposed directions, and connected routes are paths.",
+      "claim_ids": [
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "dag.explanation",
+      "kind": "explanation",
+      "text": "A node represents a variable, an arrow a proposed direction, and a path a connected route through arrows in a DAG.",
+      "claim_ids": [
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "dag.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. The named graphical feature makes an assumption visible; it is not an observed numeric value.",
+      "claim_ids": [
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "dag.consequence.rejected",
+      "kind": "consequence",
+      "text": "Keep the graph terms separate: nodes are variables, arrows are directions, and paths are connected routes.",
+      "claim_ids": [
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "probability.question.practice",
+      "kind": "question",
+      "text": "A treatment raises the chance of recovery but some treated patients still do not recover. Is the effect probabilistic or deterministic?",
+      "claim_ids": [
+        "causes-can-change-probability"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "probability.question.transfer",
+      "kind": "question",
+      "text": "An onboarding change lowers the chance that a user abandons setup, but some users still abandon it. Is the effect probabilistic or deterministic?",
+      "claim_ids": [
+        "causes-can-change-probability"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "probability.hint",
+      "kind": "hint",
+      "text": "Ask whether the cause changes what is likely, or guarantees the same outcome for every individual.",
+      "claim_ids": [
+        "causes-can-change-probability"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "probability.explanation",
+      "kind": "explanation",
+      "text": "A causal effect can change an outcome probability without determining every individual result.",
+      "claim_ids": [
+        "causes-can-change-probability"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "probability.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct. The cause changes a probability, not a guaranteed outcome for every individual.",
+      "claim_ids": [
+        "causes-can-change-probability"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "probability.consequence.rejected",
+      "kind": "consequence",
+      "text": "A changed chance is not a guarantee. Individual outcomes can still differ under a probabilistic effect.",
+      "claim_ids": [
+        "causes-can-change-probability"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "integrated.question",
+      "kind": "question",
+      "text": "A research team records voluntary sleep, concentration, and recovery, then draws a DAG to explain the pattern. Which conclusion is justified without adding an assumption?",
+      "claim_ids": [
+        "records-show-association",
+        "association-does-not-establish-cause",
+        "world-data-model-distinct",
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "integrated.hint",
+      "kind": "hint",
+      "text": "Separate the recorded association from the causal model and from what would happen if sleep were deliberately assigned.",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "integrated.explanation",
+      "kind": "explanation",
+      "text": "The records establish an association. The DAG is a model with explicit causal assumptions, and an intervention would require deliberately setting sleep rather than only observing it.",
+      "claim_ids": [
+        "records-show-association",
+        "association-does-not-establish-cause",
+        "world-data-model-distinct",
+        "intervention-deliberately-sets",
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "integrated.consequence.accepted",
+      "kind": "consequence",
+      "text": "Correct choice on this association-versus-causation check. The records do not establish the proposed intervention effect. This single decision does not assess all nine M0 concepts.",
+      "claim_ids": [
+        "records-show-association",
+        "association-does-not-establish-cause",
+        "causal-direction-is-assumption",
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "integrated.consequence.rejected",
+      "kind": "consequence",
+      "text": "That conclusion treats an observed pattern and a model drawing as if they already proved an intervention effect. Those are different kinds of information.",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "world-data-model-distinct",
+        "intervention-deliberately-sets"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.hint",
+      "kind": "hint",
+      "text": "Represent the supplied simulator assumptions, not a graph claimed to be uniquely discovered: rain causes both umbrella carrying and pavement wetness, with no other direct arrows among these three variables.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "causal-direction-is-assumption",
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.consequence.accepted",
+      "kind": "consequence",
+      "text": "Your graph matches the supplied simulator assumptions. This is a model-representation check, not proof that the data identified a unique graph. Your prediction and reflection remain unscored.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "causal-direction-is-assumption",
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "scene.rain-umbrella.consequence.rejected",
+      "kind": "consequence",
+      "text": "This graph does not yet represent the supplied simulator assumptions. For this exercise, include rain causing umbrella carrying and wet pavement, with no other direct arrows. Other graphs may fit the observed pattern; this check is not causal discovery.",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world",
+        "causal-direction-is-assumption",
+        "dag-terms"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.hook",
+      "kind": "question",
+      "text": "A fictional clinic records resting heart rates of 64, 72 and 80 beats per minute. What stays the same across the three records, and what changes?",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.example-label",
+      "kind": "explanation",
+      "text": "Synthetic teaching records; no real patient measurements. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.worked-step.1",
+      "kind": "explanation",
+      "text": "Resting heart rate is the feature recorded for each person. Its name tells us what to look for in every row.",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.worked-step.2",
+      "kind": "explanation",
+      "text": "For one record, the value is 72 beats per minute. The number is a value of heart rate, not a different variable.",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.worked-step.3",
+      "kind": "explanation",
+      "text": "Other records can have different values of the same feature. A variable need not change in every row; it needs to be capable of taking different values.",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.definition",
+      "kind": "explanation",
+      "text": "A variable is a feature that can take different values. A value is a particular instance of that feature, such as one recorded heart rate.",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.pitfall",
+      "kind": "explanation",
+      "text": "Do not confuse the variable's name with one person's value. A constant value in a small sample does not, by itself, make a feature incapable of varying.",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.variables-and-values.takeaway",
+      "kind": "explanation",
+      "text": "Ask: what feature are we recording, and what value does it have in this case?",
+      "claim_ids": [
+        "foundation.general.variables-and-values.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.hook",
+      "kind": "question",
+      "text": "Fictional records show that people reporting more weekly exercise also tend to have lower resting heart rates. What does the recorded pattern describe?",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.example-label",
+      "kind": "explanation",
+      "text": "Synthetic teaching example; not an empirical exercise study. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.worked-step.1",
+      "kind": "explanation",
+      "text": "The records contain reported exercise and resting heart rate. Each person contributes values for both features.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.worked-step.2",
+      "kind": "explanation",
+      "text": "In this fictional dataset, higher exercise values occur alongside lower heart-rate values. Variables can be associated while moving in opposite directions.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.worked-step.3",
+      "kind": "explanation",
+      "text": "Say which values tend to occur together across the records. One isolated heart-rate reading is not itself a pattern between the two variables.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.definition",
+      "kind": "explanation",
+      "text": "An observed association is a pattern in how variables occur together or vary together in the records.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.pitfall",
+      "kind": "explanation",
+      "text": "Association does not require both variables to increase. One can tend to decrease as the other increases.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observed-association.takeaway",
+      "kind": "explanation",
+      "text": "First describe the recorded relationship between the variables in plain language.",
+      "claim_ids": [
+        "foundation.general.observed-association.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.hook",
+      "kind": "question",
+      "text": "A fictional city records that ice-cream sales and sunglasses sales rise together. Would stopping ice-cream sales change sunglasses sales?",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.example-label",
+      "kind": "explanation",
+      "text": "Synthetic city example; proposed explanations are hypotheses. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.worked-step.1",
+      "kind": "explanation",
+      "text": "The records describe sales rising together. That is a statement about the observed pattern, not the result of an action on either shop.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.worked-step.2",
+      "kind": "explanation",
+      "text": "Warm, sunny days could influence both purchases. This is a possible shared explanation; proposing it does not establish that it is the true explanation.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.worked-step.3",
+      "kind": "explanation",
+      "text": "Stopping ice-cream sales changes one part of the situation. The recorded association alone does not tell us whether sunglasses sales would change.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.graph-note",
+      "kind": "explanation",
+      "text": "This partial hypothetical graph shows a possible shared cause. It does not settle the effect of changing either kind of sale.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.definition",
+      "kind": "explanation",
+      "text": "Association describes how variables vary together. An observed association alone does not establish which variable causes the other or what an intervention would do.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.pitfall",
+      "kind": "explanation",
+      "text": "Do not turn co-occurrence into a causal conclusion. A plausible common cause is also not proof that there is no effect between the variables.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.association-is-not-causation.takeaway",
+      "kind": "explanation",
+      "text": "Keep the observed pattern, a proposed explanation and the effect of an action separate.",
+      "claim_ids": [
+        "foundation.general.association-is-not-causation.reference",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.hook",
+      "kind": "question",
+      "text": "A fictional question asks whether giving a different drug dose would change recovery. Which part is the proposed change, and which part is the result?",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.example-label",
+      "kind": "explanation",
+      "text": "Synthetic question; no drug benefit or dosing recommendation is asserted. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.worked-step.1",
+      "kind": "explanation",
+      "text": "The drug dose is the feature the question proposes changing. In causal reasoning, the word treatment names the intervention of interest.",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.worked-step.2",
+      "kind": "explanation",
+      "text": "Recovery is the result the question asks about. Naming it tells us what consequence of the change we want to understand.",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.worked-step.3",
+      "kind": "explanation",
+      "text": "What would happen to recovery if the dose were changed? Recognising this question type does not answer whether the change would help.",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.definition",
+      "kind": "explanation",
+      "text": "A treatment-and-outcome question asks what happens to an outcome when a treatment is changed. Treatment can also mean a non-medical intervention, such as a changed service process.",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.pitfall",
+      "kind": "explanation",
+      "text": "Naming a treatment and outcome is not evidence that the treatment has a beneficial effect.",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.treatment-and-outcome.takeaway",
+      "kind": "explanation",
+      "text": "Complete the sentence: if we changed this treatment, what would happen to this outcome?",
+      "claim_ids": [
+        "foundation.general.treatment-and-outcome.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.hook",
+      "kind": "question",
+      "text": "A fictional clinic records how long patients already sleep. Has recording those values changed anyone's sleep duration?",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.example-label",
+      "kind": "explanation",
+      "text": "Synthetic teaching example; no sleep intervention or health effect is asserted. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.worked-step.1",
+      "kind": "explanation",
+      "text": "The clinic reads durations that already occurred. The act described in this example is recording existing values.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.worked-step.2",
+      "kind": "explanation",
+      "text": "A different example would deliberately assign a sleep schedule. That would change how the value was set rather than simply read it.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.worked-step.3",
+      "kind": "explanation",
+      "text": "Sorting people by their existing durations is still observation. Ask whether someone deliberately set the value, not just whether two groups were compared.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.definition",
+      "kind": "explanation",
+      "text": "Observation records existing values. An intervention deliberately sets or changes a variable, replacing how that value would otherwise be produced.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.pitfall",
+      "kind": "explanation",
+      "text": "Selecting cases with a particular value is not the same action as setting that value.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.observation-vs-intervention.takeaway",
+      "kind": "explanation",
+      "text": "Ask who, if anyone, assigned the value in the situation being described.",
+      "claim_ids": [
+        "foundation.general.observation-vs-intervention.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.hook",
+      "kind": "question",
+      "text": "A researcher has fictional measurements and a sketch of a hidden disease process. Are the measurements and the sketch the same kind of information?",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.example-label",
+      "kind": "explanation",
+      "text": "Synthetic records and proposed explanation; not a verified disease mechanism. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.worked-step.1",
+      "kind": "explanation",
+      "text": "The world is the system producing the observations. Its processes may be only partly visible to the researcher.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.worked-step.2",
+      "kind": "explanation",
+      "text": "The recorded measurements are data. They show what was observed, rather than every hidden step that produced it.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.worked-step.3",
+      "kind": "explanation",
+      "text": "The sketch is a proposed explanation of how the system might work. It represents the researcher's model rather than another measured record.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.definition",
+      "kind": "explanation",
+      "text": "The world is the partly hidden system, data are its observed records, and a model is an explanation of how that system may work.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.pitfall",
+      "kind": "explanation",
+      "text": "A well-drawn explanation does not become observed data merely because it looks precise.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.world-data-model.takeaway",
+      "kind": "explanation",
+      "text": "Label each piece of information: system, observation or explanatory model.",
+      "claim_ids": [
+        "foundation.general.world-data-model.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.hook",
+      "kind": "question",
+      "text": "Fictional museum records show that busier visitor days also have more cafe sales. Is the claim that school holidays cause both patterns recorded directly?",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.example-label",
+      "kind": "explanation",
+      "text": "Synthetic museum records and hypothetical explanation; no real visitor or sales finding. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.worked-step.1",
+      "kind": "explanation",
+      "text": "The fictional records contain a pattern between visitor counts and cafe sales. Report that observed relationship first.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.worked-step.2",
+      "kind": "explanation",
+      "text": "Saying school holidays cause both higher visitor counts and more sales adds a proposed causal reason. It is not the same statement as saying the two recorded quantities vary together.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.worked-step.3",
+      "kind": "explanation",
+      "text": "Write: our proposed explanation assumes that school holidays influence both. The supplied pattern does not directly establish this explanation; stating the assumption separately keeps its status clear.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.definition",
+      "kind": "explanation",
+      "text": "Data can support an observed pattern. A causal direction or mechanism adds an assumption about how the pattern is produced.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.pitfall",
+      "kind": "explanation",
+      "text": "A familiar or plausible explanation is still different from a direct observation of that explanation.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.data-vs-assumptions.takeaway",
+      "kind": "explanation",
+      "text": "Use separate sentences for what the records show and what the causal explanation assumes.",
+      "claim_ids": [
+        "foundation.general.data-vs-assumptions.reference",
+        "records-show-association",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.hook",
+      "kind": "question",
+      "text": "In the umbrella investigation you proposed that rain influences both umbrella carrying and wet pavement. We can now give that picture a formal name: a directed acyclic graph, or DAG.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.example-label",
+      "kind": "explanation",
+      "text": "Synthetic proposed diagram; arrows are assumptions, not measured effects. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.worked-step.1",
+      "kind": "explanation",
+      "text": "Rain, umbrella carrying and pavement wetness are variables. Each box is a node; a particular rainy arrival is a value or case, not another node.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.worked-step.2",
+      "kind": "explanation",
+      "text": "Rain → umbrella carrying and Rain → pavement wetness represent the simulator's supplied causal assumptions. They are not effect sizes, and the observational table alone did not prove those directions.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.worked-step.3",
+      "kind": "explanation",
+      "text": "Umbrella carrying ← Rain → pavement wetness is a path through a common cause. It is not a directed path from umbrellas to wet pavement. The graph is acyclic because following arrow directions never brings you back to the starting node.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.graph-note",
+      "kind": "explanation",
+      "text": "The earlier intervention left wetness unchanged. The complete two-arrow diagram additionally uses the simulator's supplied assumptions; that one test did not uniquely identify this graph.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.definition",
+      "kind": "explanation",
+      "text": "In a DAG, nodes represent variables, arrows represent proposed directions, and paths are connected routes through arrows.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.pitfall",
+      "kind": "explanation",
+      "text": "Do not read an arrow as a recorded number or as proof that the proposed direction is true.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.basic-dag-language.takeaway",
+      "kind": "explanation",
+      "text": "Name the graphical feature first: node, arrow or path. Then ask which assumption it represents.",
+      "claim_ids": [
+        "foundation.general.basic-dag-language.reference",
+        "causal-direction-is-assumption",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.hook",
+      "kind": "question",
+      "text": "A fictional teaching simulator declares that assigning Treatment T increases recovery probability, but some simulated treated cases do not recover. Is that a contradiction?",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.example-label",
+      "kind": "explanation",
+      "text": "Treatment T and its effects are supplied simulator assumptions, not clinical findings or recommendations. Expert content review pending.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.worked-step.1",
+      "kind": "explanation",
+      "text": "The simulator declares a higher recovery probability under assigned Treatment T. This is a given property of the teaching model, not a treatment effect inferred from patient records.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.worked-step.2",
+      "kind": "explanation",
+      "text": "A higher recovery probability can coexist with some simulated treated cases not recovering. A better chance does not make the favourable outcome certain.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.worked-step.3",
+      "kind": "explanation",
+      "text": "The model changes what is likely across cases. It does not say that every individual case must have the same result.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.definition",
+      "kind": "explanation",
+      "text": "A cause can change an outcome's probability without determining every individual outcome.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.pitfall",
+      "kind": "explanation",
+      "text": "One case with an unfavourable result does not turn a stipulated probability change into a deterministic guarantee.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "foundation.general.probabilistic-effects.takeaway",
+      "kind": "explanation",
+      "text": "Ask whether the claim concerns a changed chance or a certain result for every case.",
+      "claim_ids": [
+        "foundation.general.probabilistic-effects.reference",
+        "foundation.general.synthetic"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.01.final.question",
+      "kind": "question",
+      "text": "A community reading programme records 0, 2 or 4 sessions attended for each participant. Which answer names the variable rather than one recorded value?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "variables-take-values",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.01.final.explanation",
+      "kind": "explanation",
+      "text": "The variable is the feature collected for every person. Zero, two and four are possible values of that feature.",
+      "claim_ids": [
+        "variables-take-values",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.01.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "variables-take-values",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.01.final.accepted",
+      "kind": "consequence",
+      "text": "The variable is the feature collected for every person. Zero, two and four are possible values of that feature.",
+      "claim_ids": [
+        "variables-take-values",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.01.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. The variable is the feature collected for every person. Zero, two and four are possible values of that feature.",
+      "claim_ids": [
+        "variables-take-values",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.02.final.question",
+      "kind": "question",
+      "text": "In programme records, 20 people attending at least three reading sessions have a mean comprehension score of 74; 20 attending fewer sessions have a mean of 62. What do these records show directly?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.02.final.explanation",
+      "kind": "explanation",
+      "text": "The table describes a difference between observed groups. It does not record an intervention or establish either causal direction.",
+      "claim_ids": [
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.02.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.02.final.accepted",
+      "kind": "consequence",
+      "text": "The table describes a difference between observed groups. It does not record an intervention or establish either causal direction.",
+      "claim_ids": [
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.02.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. The table describes a difference between observed groups. It does not record an intervention or establish either causal direction.",
+      "claim_ids": [
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.03.final.question",
+      "kind": "question",
+      "text": "The programme team says that higher scores among frequent attendees prove that offering more reading sessions will help everyone. Participants chose whether to attend. Which response is justified?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.03.final.explanation",
+      "kind": "explanation",
+      "text": "Self-selection leaves alternative explanations open. The observed pattern alone proves neither a benefit nor an absence of effect.",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.03.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.03.final.accepted",
+      "kind": "consequence",
+      "text": "Self-selection leaves alternative explanations open. The observed pattern alone proves neither a benefit nor an absence of effect.",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.03.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. Self-selection leaves alternative explanations open. The observed pattern alone proves neither a benefit nor an absence of effect.",
+      "claim_ids": [
+        "association-does-not-establish-cause",
+        "records-show-association",
+        "intervention-deliberately-sets",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.04.final.question",
+      "kind": "question",
+      "text": "Which question directly asks about the effect of an intervention in this reading programme?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "treatment-changes-outcome-question",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.04.final.explanation",
+      "kind": "explanation",
+      "text": "An intervention-effect question specifies a change to the offer and asks about the resulting outcome, rather than merely describing existing records.",
+      "claim_ids": [
+        "treatment-changes-outcome-question",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.04.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "treatment-changes-outcome-question",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.04.final.accepted",
+      "kind": "consequence",
+      "text": "An intervention-effect question specifies a change to the offer and asks about the resulting outcome, rather than merely describing existing records.",
+      "claim_ids": [
+        "treatment-changes-outcome-question",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.04.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. An intervention-effect question specifies a change to the offer and asks about the resulting outcome, rather than merely describing existing records.",
+      "claim_ids": [
+        "treatment-changes-outcome-question",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.05.final.question",
+      "kind": "question",
+      "text": "The coordinator uses random numbers to assign participants to a three-session offer or a one-session offer, then records scores. What makes this different from grouping people by their existing attendance?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.05.final.explanation",
+      "kind": "explanation",
+      "text": "The deliberate assignment is the intervention. Random assignment does not guarantee a beneficial effect or an identical outcome for everyone.",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.05.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.05.final.accepted",
+      "kind": "consequence",
+      "text": "The deliberate assignment is the intervention. Random assignment does not guarantee a beneficial effect or an identical outcome for everyone.",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.05.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. The deliberate assignment is the intervention. Random assignment does not guarantee a beneficial effect or an identical outcome for everyone.",
+      "claim_ids": [
+        "intervention-deliberately-sets",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.06.final.question",
+      "kind": "question",
+      "text": "A researcher proposes that family encouragement influences both attendance and reading progress, although encouragement was not measured. In the world/data/model distinction, what is this proposed explanation?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "world-data-model-distinct",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.06.final.explanation",
+      "kind": "explanation",
+      "text": "A proposed mechanism belongs to the model. It may concern an unmeasured part of the world, but proposing it does not make it observed data or establish that it is true.",
+      "claim_ids": [
+        "world-data-model-distinct",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.06.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "world-data-model-distinct",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.06.final.accepted",
+      "kind": "consequence",
+      "text": "A proposed mechanism belongs to the model. It may concern an unmeasured part of the world, but proposing it does not make it observed data or establish that it is true.",
+      "claim_ids": [
+        "world-data-model-distinct",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.06.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. A proposed mechanism belongs to the model. It may concern an unmeasured part of the world, but proposing it does not make it observed data or establish that it is true.",
+      "claim_ids": [
+        "world-data-model-distinct",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.07.final.question",
+      "kind": "question",
+      "text": "The attendance table contains only session counts and follow-up scores. Which statement adds a causal assumption beyond those recorded columns?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "causal-direction-is-assumption",
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.07.final.explanation",
+      "kind": "explanation",
+      "text": "A claim about what causes attendance and scores is an additional causal assumption. Row counts, recorded means and recorded columns describe the data.",
+      "claim_ids": [
+        "causal-direction-is-assumption",
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.07.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "causal-direction-is-assumption",
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.07.final.accepted",
+      "kind": "consequence",
+      "text": "A claim about what causes attendance and scores is an additional causal assumption. Row counts, recorded means and recorded columns describe the data.",
+      "claim_ids": [
+        "causal-direction-is-assumption",
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.07.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. A claim about what causes attendance and scores is an additional causal assumption. Row counts, recorded means and recorded columns describe the data.",
+      "claim_ids": [
+        "causal-direction-is-assumption",
+        "records-show-association",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.08.final.question",
+      "kind": "question",
+      "text": "A proposed diagram contains Offer → Sessions attended → Comprehension score. What is the connected route from Offer to Comprehension score?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "dag-terms",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.08.final.explanation",
+      "kind": "explanation",
+      "text": "Following both arrows gives a directed path through sessions attended. There is no arrow returning to Offer, and drawing the path does not estimate an effect size.",
+      "claim_ids": [
+        "dag-terms",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.08.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "dag-terms",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.08.final.accepted",
+      "kind": "consequence",
+      "text": "Following both arrows gives a directed path through sessions attended. There is no arrow returning to Offer, and drawing the path does not estimate an effect size.",
+      "claim_ids": [
+        "dag-terms",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.08.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. Following both arrows gives a directed path through sessions attended. There is no arrow returning to Offer, and drawing the path does not estimate an effect size.",
+      "claim_ids": [
+        "dag-terms",
+        "causal-direction-is-assumption",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.09.final.question",
+      "kind": "question",
+      "text": "A teaching simulator sets the chance of reaching a reading target to 0.40 under a one-session offer and 0.60 under a three-session offer. Some simulated people assigned three sessions still miss the target. Which interpretation is correct?\n\nEarlier observed groups:\nExisting attendance | People | Mean comprehension score\nAt least three sessions | 20 | 74\nFewer than three sessions | 20 | 62",
+      "claim_ids": [
+        "causes-can-change-probability",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.09.final.explanation",
+      "kind": "explanation",
+      "text": "The stipulated chance increases by 0.20, or 20 percentage points. A probability of 0.60 still permits failures; these simulator rules are not a real-world effect estimate.",
+      "claim_ids": [
+        "causes-can-change-probability",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.09.final.hint",
+      "kind": "hint",
+      "text": "Separate the recorded information, the proposed explanation and the deliberately assigned action.",
+      "claim_ids": [
+        "causes-can-change-probability",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.09.final.accepted",
+      "kind": "consequence",
+      "text": "The stipulated chance increases by 0.20, or 20 percentage points. A probability of 0.60 still permits failures; these simulator rules are not a real-world effect estimate.",
+      "claim_ids": [
+        "causes-can-change-probability",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m0-final-quiz.09.final.rejected",
+      "kind": "consequence",
+      "text": "Reconsider the distinction in this question. The stipulated chance increases by 0.20, or 20 percentage points. A probability of 0.60 still permits failures; these simulator rules are not a real-world effect estimate.",
+      "claim_ids": [
+        "causes-can-change-probability",
+        "foundation.final-case"
+      ],
+      "release_status": "released"
+    }
+  ],
+  "activities": [
+    {
+      "activity_id": "variables-and-values.practice",
+      "concept_id": "variables-and-values",
+      "activity_type": "classification",
+      "question_resource_id": "variables.question.practice",
+      "choices": [
+        {
+          "option_id": "variables.practice.variable",
+          "text": "Variable",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "variables.consequence.accepted"
+        },
+        {
+          "option_id": "variables.practice.fixed",
+          "text": "Fixed story detail",
+          "correct": false,
+          "misconception_id": "variable-is-fixed",
+          "hint_resource_ids": [
+            "variables.hint"
+          ],
+          "consequence_resource_id": "variables.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "variables.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/variables-and-values-clinic.png",
+        "alt_text": "A clinician reviews three anonymised heart-rate records while patients rest in a clinic."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "variables-and-values.transfer",
+      "concept_id": "variables-and-values",
+      "activity_type": "classification",
+      "question_resource_id": "variables.question.transfer",
+      "choices": [
+        {
+          "option_id": "variables.transfer.variable",
+          "text": "Variable",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "variables.consequence.accepted"
+        },
+        {
+          "option_id": "variables.transfer.fixed",
+          "text": "Fixed story detail",
+          "correct": false,
+          "misconception_id": "variable-is-fixed",
+          "hint_resource_ids": [
+            "variables.hint"
+          ],
+          "consequence_resource_id": "variables.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "variables.explanation",
+      "scenario_image": null,
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "observed-association.practice",
+      "concept_id": "observed-association",
+      "activity_type": "classification",
+      "question_resource_id": "association.question.practice",
+      "choices": [
+        {
+          "option_id": "association.practice.yes",
+          "text": "Observed association",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "association.consequence.accepted"
+        },
+        {
+          "option_id": "association.practice.no",
+          "text": "Established causal effect",
+          "correct": false,
+          "misconception_id": "association-needs-cause",
+          "hint_resource_ids": [
+            "association.hint"
+          ],
+          "consequence_resource_id": "association.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "association.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/observed-association-park.png",
+        "alt_text": "Adults gather after casual exercise in a park while a health researcher reviews anonymous wellbeing records."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "observed-association.transfer",
+      "concept_id": "observed-association",
+      "activity_type": "classification",
+      "question_resource_id": "association.question.transfer",
+      "choices": [
+        {
+          "option_id": "association.transfer.yes",
+          "text": "Observed association",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "association.consequence.accepted"
+        },
+        {
+          "option_id": "association.transfer.no",
+          "text": "Established causal effect",
+          "correct": false,
+          "misconception_id": "association-needs-cause",
+          "hint_resource_ids": [
+            "association.hint"
+          ],
+          "consequence_resource_id": "association.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "association.explanation",
+      "scenario_image": null,
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "association-is-not-causation.practice",
+      "concept_id": "association-is-not-causation",
+      "activity_type": "classification",
+      "question_resource_id": "not-causation.question.practice",
+      "choices": [
+        {
+          "option_id": "not-causation.practice.no",
+          "text": "Association only",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "not-causation.consequence.accepted"
+        },
+        {
+          "option_id": "not-causation.practice.yes",
+          "text": "Established causal direction",
+          "correct": false,
+          "misconception_id": "association-proves-cause",
+          "hint_resource_ids": [
+            "not-causation.hint"
+          ],
+          "consequence_resource_id": "not-causation.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "not-causation.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/association-not-causation-market.png",
+        "alt_text": "A sunny city market has an ice-cream stand beside a sunglasses display, with people browsing both."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "association-is-not-causation.transfer",
+      "concept_id": "association-is-not-causation",
+      "activity_type": "causal_scene",
+      "question_resource_id": "not-causation.question.transfer",
+      "choices": [],
+      "explanation_resource_id": "scene.rain-umbrella.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/rain-umbrella-assumption.png",
+        "alt_text": "A researcher reviews neutral umbrella and wet-pavement records before proposing a causal model."
+      },
+      "workbench": null,
+      "causal_scene_id": "causality.rain-umbrella",
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "treatment-and-outcome.practice",
+      "concept_id": "treatment-and-outcome",
+      "activity_type": "classification",
+      "question_resource_id": "treatment.question.practice",
+      "choices": [
+        {
+          "option_id": "treatment.practice.yes",
+          "text": "Treatment-and-outcome question",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "treatment.consequence.accepted"
+        },
+        {
+          "option_id": "treatment.practice.no",
+          "text": "Only an observed association",
+          "correct": false,
+          "misconception_id": "treatment-is-observation",
+          "hint_resource_ids": [
+            "treatment.hint"
+          ],
+          "consequence_resource_id": "treatment.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "treatment.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/treatment-and-outcome-consultation.png",
+        "alt_text": "A clinician and patient discuss an unlabeled medicine dose card and an open recovery journal."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "treatment-and-outcome.transfer",
+      "concept_id": "treatment-and-outcome",
+      "activity_type": "classification",
+      "question_resource_id": "treatment.question.transfer",
+      "choices": [
+        {
+          "option_id": "treatment.transfer.yes",
+          "text": "Treatment-and-outcome question",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "treatment.consequence.accepted"
+        },
+        {
+          "option_id": "treatment.transfer.no",
+          "text": "Only an observed association",
+          "correct": false,
+          "misconception_id": "treatment-is-observation",
+          "hint_resource_ids": [
+            "treatment.hint"
+          ],
+          "consequence_resource_id": "treatment.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "treatment.explanation",
+      "scenario_image": null,
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "observation-vs-intervention.practice",
+      "concept_id": "observation-vs-intervention",
+      "activity_type": "classification",
+      "question_resource_id": "intervention.question.practice",
+      "choices": [
+        {
+          "option_id": "intervention.practice.observation",
+          "text": "Observation",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "intervention.consequence.accepted"
+        },
+        {
+          "option_id": "intervention.practice.intervention",
+          "text": "Intervention",
+          "correct": false,
+          "misconception_id": "recording-is-intervention",
+          "hint_resource_ids": [
+            "intervention.hint"
+          ],
+          "consequence_resource_id": "intervention.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "intervention.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/observation-sleep-recording.png",
+        "alt_text": "A person sleeps normally while wearing a plain wristband that passively records sleep."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "observation-vs-intervention.transfer",
+      "concept_id": "observation-vs-intervention",
+      "activity_type": "classification",
+      "question_resource_id": "intervention.question.transfer",
+      "choices": [
+        {
+          "option_id": "intervention.transfer.observation",
+          "text": "Observation",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "intervention.consequence.accepted"
+        },
+        {
+          "option_id": "intervention.transfer.intervention",
+          "text": "Intervention",
+          "correct": false,
+          "misconception_id": "recording-is-intervention",
+          "hint_resource_ids": [
+            "intervention.hint"
+          ],
+          "consequence_resource_id": "intervention.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "intervention.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/focus-mode-observation.png",
+        "alt_text": "A researcher compares coworkers' existing focus-mode choices and anonymous typing summaries without assigning settings."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "world-data-model.practice",
+      "concept_id": "world-data-model",
+      "activity_type": "classification",
+      "question_resource_id": "world-data-model.question.practice",
+      "choices": [
+        {
+          "option_id": "world-data-model.practice.model",
+          "text": "Model",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "world-data-model.consequence.accepted"
+        },
+        {
+          "option_id": "world-data-model.practice.data",
+          "text": "Data",
+          "correct": false,
+          "misconception_id": "model-is-data",
+          "hint_resource_ids": [
+            "world-data-model.hint"
+          ],
+          "consequence_resource_id": "world-data-model.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "world-data-model.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/research-notebook-scenario.png",
+        "alt_text": "A researcher compares a street scene, observations, and a conceptual notebook sketch."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "world-data-model.transfer",
+      "concept_id": "world-data-model",
+      "activity_type": "classification",
+      "question_resource_id": "world-data-model.question.transfer",
+      "choices": [
+        {
+          "option_id": "world-data-model.transfer.model",
+          "text": "Model",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "world-data-model.consequence.accepted"
+        },
+        {
+          "option_id": "world-data-model.transfer.data",
+          "text": "Data",
+          "correct": false,
+          "misconception_id": "model-is-data",
+          "hint_resource_ids": [
+            "world-data-model.hint"
+          ],
+          "consequence_resource_id": "world-data-model.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "world-data-model.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/research-notebook-scenario.png",
+        "alt_text": "A researcher compares a street scene, observations, and a conceptual notebook sketch."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "data-vs-assumptions.practice",
+      "concept_id": "data-vs-assumptions",
+      "activity_type": "classification",
+      "question_resource_id": "assumptions.question.practice",
+      "choices": [
+        {
+          "option_id": "assumptions.practice.assumption",
+          "text": "Causal assumption",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "assumptions.consequence.accepted"
+        },
+        {
+          "option_id": "assumptions.practice.data",
+          "text": "Observed data",
+          "correct": false,
+          "misconception_id": "assumption-is-data",
+          "hint_resource_ids": [
+            "assumptions.hint"
+          ],
+          "consequence_resource_id": "assumptions.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "assumptions.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/rain-umbrella-assumption.png",
+        "alt_text": "A researcher reviews neutral records of umbrellas near wet streets while considering whether a causal claim is an assumption."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "data-vs-assumptions.transfer",
+      "concept_id": "data-vs-assumptions",
+      "activity_type": "classification",
+      "question_resource_id": "assumptions.question.transfer",
+      "choices": [
+        {
+          "option_id": "assumptions.transfer.assumption",
+          "text": "Causal assumption",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "assumptions.consequence.accepted"
+        },
+        {
+          "option_id": "assumptions.transfer.data",
+          "text": "Observed data",
+          "correct": false,
+          "misconception_id": "assumption-is-data",
+          "hint_resource_ids": [
+            "assumptions.hint"
+          ],
+          "consequence_resource_id": "assumptions.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "assumptions.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/help-pages-bug-reports.png",
+        "alt_text": "A researcher reviews neutral usage records while people use help pages and submit software reports."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "basic-dag-language.practice",
+      "concept_id": "basic-dag-language",
+      "activity_type": "classification",
+      "question_resource_id": "dag.question.practice",
+      "choices": [
+        {
+          "option_id": "dag.practice.arrow",
+          "text": "Proposed causal direction",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "dag.consequence.accepted"
+        },
+        {
+          "option_id": "dag.practice.value",
+          "text": "Measured value",
+          "correct": false,
+          "misconception_id": "arrow-is-value",
+          "hint_resource_ids": [
+            "dag.hint"
+          ],
+          "consequence_resource_id": "dag.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "dag.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/research-notebook-scenario.png",
+        "alt_text": "A researcher studies a conceptual notebook sketch beside observational material."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "basic-dag-language.transfer",
+      "concept_id": "basic-dag-language",
+      "activity_type": "classification",
+      "question_resource_id": "dag.question.transfer",
+      "choices": [
+        {
+          "option_id": "dag.transfer.path",
+          "text": "Path",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "dag.consequence.accepted"
+        },
+        {
+          "option_id": "dag.transfer.node",
+          "text": "Node",
+          "correct": false,
+          "misconception_id": "path-is-node",
+          "hint_resource_ids": [
+            "dag.hint"
+          ],
+          "consequence_resource_id": "dag.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "dag.explanation",
+      "scenario_image": null,
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "probabilistic-effects.practice",
+      "concept_id": "probabilistic-effects",
+      "activity_type": "classification",
+      "question_resource_id": "probability.question.practice",
+      "choices": [
+        {
+          "option_id": "probability.practice.probabilistic",
+          "text": "Probabilistic effect",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "probability.consequence.accepted"
+        },
+        {
+          "option_id": "probability.practice.deterministic",
+          "text": "Deterministic guarantee",
+          "correct": false,
+          "misconception_id": "probability-is-guarantee",
+          "hint_resource_ids": [
+            "probability.hint"
+          ],
+          "consequence_resource_id": "probability.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "probability.explanation",
+      "scenario_image": {
+        "path": "media/causality-m0/research-notebook-scenario.png",
+        "alt_text": "A researcher studies observations and a conceptual notebook sketch."
+      },
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": true,
+      "is_transfer": false,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "probabilistic-effects.transfer",
+      "concept_id": "probabilistic-effects",
+      "activity_type": "classification",
+      "question_resource_id": "probability.question.transfer",
+      "choices": [
+        {
+          "option_id": "probability.transfer.probabilistic",
+          "text": "Probabilistic effect",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "probability.consequence.accepted"
+        },
+        {
+          "option_id": "probability.transfer.deterministic",
+          "text": "Deterministic guarantee",
+          "correct": false,
+          "misconception_id": "probability-is-guarantee",
+          "hint_resource_ids": [
+            "probability.hint"
+          ],
+          "consequence_resource_id": "probability.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "probability.explanation",
+      "scenario_image": null,
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-integrated-transfer.01",
+      "concept_id": "association-is-not-causation",
+      "activity_type": "classification",
+      "question_resource_id": "integrated.question",
+      "choices": [
+        {
+          "option_id": "integrated.association-only",
+          "text": "The records support an association; causal direction and an intervention effect still require explicit assumptions or intervention evidence.",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "integrated.consequence.accepted"
+        },
+        {
+          "option_id": "integrated.proves-intervention",
+          "text": "Because people with more sleep recovered better, deliberately assigning more sleep would improve recovery.",
+          "correct": false,
+          "misconception_id": "model-proves-intervention",
+          "hint_resource_ids": [
+            "integrated.hint"
+          ],
+          "consequence_resource_id": "integrated.consequence.rejected"
+        }
+      ],
+      "explanation_resource_id": "integrated.explanation",
+      "scenario_image": null,
+      "workbench": null,
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.01",
+      "concept_id": "variables-and-values",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.01.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.01.final.option.1",
+          "text": "Number of sessions attended",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.01.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.01.final.option.2",
+          "text": "4 sessions",
+          "correct": false,
+          "misconception_id": "variables-and-values.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.01.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.01.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.01.final.option.3",
+          "text": "2 sessions",
+          "correct": false,
+          "misconception_id": "variables-and-values.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.01.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.01.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.01.final.option.4",
+          "text": "0 sessions",
+          "correct": false,
+          "misconception_id": "variables-and-values.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.01.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.01.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.01.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 1 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "A community reading programme records 0, 2 or 4 sessions attended for each participant. Which answer names the variable rather than one recorded value?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.02",
+      "concept_id": "observed-association",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.02.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.02.final.option.2",
+          "text": "Assigning more sessions necessarily raises the score",
+          "correct": false,
+          "misconception_id": "observed-association.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.02.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.02.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.02.final.option.3",
+          "text": "A higher score causes attendance",
+          "correct": false,
+          "misconception_id": "observed-association.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.02.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.02.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.02.final.option.4",
+          "text": "The groups were randomly assigned",
+          "correct": false,
+          "misconception_id": "observed-association.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.02.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.02.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.02.final.option.1",
+          "text": "Attendance and the recorded score are associated",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.02.final.accepted"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.02.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 2 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "In programme records, 20 people attending at least three reading sessions have a mean comprehension score of 74; 20 attending fewer sessions have a mean of 62. What do these records show directly?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.03",
+      "concept_id": "association-is-not-causation",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.03.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.03.final.option.3",
+          "text": "Attendance cannot possibly affect the score",
+          "correct": false,
+          "misconception_id": "association-is-not-causation.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.03.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.03.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.03.final.option.4",
+          "text": "A larger observational table would automatically remove all alternative explanations",
+          "correct": false,
+          "misconception_id": "association-is-not-causation.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.03.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.03.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.03.final.option.1",
+          "text": "The group difference alone does not establish the effect of assigning sessions",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.03.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.03.final.option.2",
+          "text": "Every person will improve by the observed group difference",
+          "correct": false,
+          "misconception_id": "association-is-not-causation.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.03.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.03.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.03.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 3 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "The programme team says that higher scores among frequent attendees prove that offering more reading sessions will help everyone. Participants chose whether to attend. Which response is justified?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.04",
+      "concept_id": "treatment-and-outcome",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.04.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.04.final.option.4",
+          "text": "Which two recorded columns are associated?",
+          "correct": false,
+          "misconception_id": "treatment-and-outcome.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.04.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.04.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.04.final.option.1",
+          "text": "How would mean follow-up scores differ if comparable people were assigned different session offers?",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.04.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.04.final.option.2",
+          "text": "Who attended most sessions last month?",
+          "correct": false,
+          "misconception_id": "treatment-and-outcome.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.04.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.04.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.04.final.option.3",
+          "text": "What was the largest recorded score?",
+          "correct": false,
+          "misconception_id": "treatment-and-outcome.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.04.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.04.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.04.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 4 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "Which question directly asks about the effect of an intervention in this reading programme?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.05",
+      "concept_id": "observation-vs-intervention",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.05.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.05.final.option.1",
+          "text": "The offer is deliberately assigned rather than only observed",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.05.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.05.final.option.2",
+          "text": "Recording an outcome guarantees that everyone receives the same value",
+          "correct": false,
+          "misconception_id": "observation-vs-intervention.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.05.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.05.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.05.final.option.3",
+          "text": "Random assignment proves the intervention helps every individual",
+          "correct": false,
+          "misconception_id": "observation-vs-intervention.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.05.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.05.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.05.final.option.4",
+          "text": "Both approaches merely observe an existing offer",
+          "correct": false,
+          "misconception_id": "observation-vs-intervention.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.05.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.05.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.05.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 5 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "The coordinator uses random numbers to assign participants to a three-session offer or a one-session offer, then records scores. What makes this different from grouping people by their existing attendance?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.06",
+      "concept_id": "world-data-model",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.06.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.06.final.option.2",
+          "text": "A measured value in the attendance column",
+          "correct": false,
+          "misconception_id": "world-data-model.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.06.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.06.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.06.final.option.3",
+          "text": "The complete underlying world itself",
+          "correct": false,
+          "misconception_id": "world-data-model.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.06.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.06.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.06.final.option.4",
+          "text": "A directly observed effect of random assignment",
+          "correct": false,
+          "misconception_id": "world-data-model.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.06.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.06.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.06.final.option.1",
+          "text": "A model of how the system may work",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.06.final.accepted"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.06.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 6 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "A researcher proposes that family encouragement influences both attendance and reading progress, although encouragement was not measured. In the world/data/model distinction, what is this proposed explanation?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.07",
+      "concept_id": "data-vs-assumptions",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.07.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.07.final.option.3",
+          "text": "The high-attendance group has the larger recorded mean",
+          "correct": false,
+          "misconception_id": "data-vs-assumptions.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.07.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.07.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.07.final.option.4",
+          "text": "Each row contains an attendance count and a score",
+          "correct": false,
+          "misconception_id": "data-vs-assumptions.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.07.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.07.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.07.final.option.1",
+          "text": "Initial motivation affects both attendance and later scores",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.07.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.07.final.option.2",
+          "text": "The high-attendance group contains 20 records",
+          "correct": false,
+          "misconception_id": "data-vs-assumptions.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.07.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.07.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.07.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 7 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "The attendance table contains only session counts and follow-up scores. Which statement adds a causal assumption beyond those recorded columns?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.08",
+      "concept_id": "basic-dag-language",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.08.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.08.final.option.4",
+          "text": "A numerical estimate of the intervention effect",
+          "correct": false,
+          "misconception_id": "basic-dag-language.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.08.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.08.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.08.final.option.1",
+          "text": "A directed path through an intermediate variable",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.08.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.08.final.option.2",
+          "text": "One measured value",
+          "correct": false,
+          "misconception_id": "basic-dag-language.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.08.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.08.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.08.final.option.3",
+          "text": "A directed cycle returning to Offer",
+          "correct": false,
+          "misconception_id": "basic-dag-language.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.08.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.08.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.08.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 8 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "A proposed diagram contains Offer → Sessions attended → Comprehension score. What is the connected route from Offer to Comprehension score?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    },
+    {
+      "activity_id": "m0-final-quiz.09",
+      "concept_id": "probabilistic-effects",
+      "activity_type": "choice",
+      "question_resource_id": "m0-final-quiz.09.final.question",
+      "choices": [
+        {
+          "option_id": "m0-final-quiz.09.final.option.1",
+          "text": "The model changes the target's probability without guaranteeing each person's outcome",
+          "correct": true,
+          "misconception_id": null,
+          "hint_resource_ids": [],
+          "consequence_resource_id": "m0-final-quiz.09.final.accepted"
+        },
+        {
+          "option_id": "m0-final-quiz.09.final.option.2",
+          "text": "The model guarantees success for every person offered three sessions",
+          "correct": false,
+          "misconception_id": "probabilistic-effects.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.09.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.09.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.09.final.option.3",
+          "text": "One failure disproves the stipulated probability difference",
+          "correct": false,
+          "misconception_id": "probabilistic-effects.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.09.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.09.final.rejected"
+        },
+        {
+          "option_id": "m0-final-quiz.09.final.option.4",
+          "text": "The numbers prove a real-world treatment benefit",
+          "correct": false,
+          "misconception_id": "probabilistic-effects.final-gap",
+          "hint_resource_ids": [
+            "m0-final-quiz.09.final.hint"
+          ],
+          "consequence_resource_id": "m0-final-quiz.09.final.rejected"
+        }
+      ],
+      "explanation_resource_id": "m0-final-quiz.09.final.explanation",
+      "scenario_image": null,
+      "workbench": {
+        "title": "Foundations final check · Question 9 of 9",
+        "introduction": "Use the programme case to bring together the ideas from this course.",
+        "scenario_id": "foundation.programme.final",
+        "stage": "capstone",
+        "prompt": "A teaching simulator sets the chance of reaching a reading target to 0.40 under a one-session offer and 0.60 under a three-session offer. Some simulated people assigned three sessions still miss the target. Which interpretation is correct?",
+        "tables": [
+          {
+            "table_id": "earlier-records",
+            "label": "Earlier observed groups",
+            "columns": [
+              "Existing attendance",
+              "People",
+              "Mean comprehension score"
+            ],
+            "rows": [
+              [
+                "At least three sessions",
+                "20",
+                "74"
+              ],
+              [
+                "Fewer than three sessions",
+                "20",
+                "62"
+              ]
+            ],
+            "note": "People chose their attendance; these rows do not describe a randomized assignment."
+          }
+        ]
+      },
+      "causal_scene_id": null,
+      "requires_revision": false,
+      "is_transfer": true,
+      "covered_concept_ids": []
+    }
+  ],
+  "causal_scenes": [
+    {
+      "scene_id": "causality.rain-umbrella",
+      "title": "Mission: would handing out umbrellas make pavement wet?",
+      "claim_ids": [
+        "scene.rain-umbrella.synthetic-world"
+      ],
+      "hook_resource_id": "scene.rain-umbrella.hook",
+      "records_resource_id": "scene.rain-umbrella.records",
+      "model_resource_id": "scene.rain-umbrella.model",
+      "prediction_resource_id": "scene.rain-umbrella.prediction",
+      "intervention_resource_id": "scene.rain-umbrella.intervention",
+      "result_resource_id": "scene.rain-umbrella.result",
+      "reflection_resource_id": "scene.rain-umbrella.reflection",
+      "direct_explanation_resource_id": "scene.rain-umbrella.explanation",
+      "nodes": [
+        {
+          "node_id": "rain",
+          "label": "Rain",
+          "initially_visible": false
+        },
+        {
+          "node_id": "umbrella-carried",
+          "label": "Umbrella carried",
+          "initially_visible": true
+        },
+        {
+          "node_id": "pavement-wet",
+          "label": "Pavement wet",
+          "initially_visible": true
+        }
+      ],
+      "permitted_edges": [
+        {
+          "parent_id": "umbrella-carried",
+          "child_id": "pavement-wet"
+        },
+        {
+          "parent_id": "pavement-wet",
+          "child_id": "umbrella-carried"
+        },
+        {
+          "parent_id": "rain",
+          "child_id": "umbrella-carried"
+        },
+        {
+          "parent_id": "rain",
+          "child_id": "pavement-wet"
+        }
+      ],
+      "observed_records": [
+        {
+          "umbrella_carried": "yes",
+          "pavement_wet": "yes",
+          "arrivals": 96
+        },
+        {
+          "umbrella_carried": "yes",
+          "pavement_wet": "no",
+          "arrivals": 0
+        },
+        {
+          "umbrella_carried": "no",
+          "pavement_wet": "yes",
+          "arrivals": 0
+        },
+        {
+          "umbrella_carried": "no",
+          "pavement_wet": "no",
+          "arrivals": 144
+        }
+      ],
+      "intervention": {
+        "action_id": "intervention.umbrella-yes",
+        "variable_id": "umbrella-carried",
+        "value": "yes",
+        "result_records": [
+          {
+            "umbrella_carried": "yes",
+            "pavement_wet": "yes",
+            "arrivals": 96
+          },
+          {
+            "umbrella_carried": "yes",
+            "pavement_wet": "no",
+            "arrivals": 144
+          }
+        ]
+      },
+      "predictions": [
+        {
+          "prediction_id": "wet-pavement-more-often",
+          "label": "Wet pavement would be more common if everyone carried an umbrella."
+        },
+        {
+          "prediction_id": "wet-pavement-unchanged",
+          "label": "Wet pavement would be just as common if everyone carried an umbrella."
+        },
+        {
+          "prediction_id": "wet-pavement-less-often",
+          "label": "Wet pavement would be less common if everyone carried an umbrella."
+        }
+      ],
+      "assessment": {
+        "accepted_edges": [
+          {
+            "parent_id": "rain",
+            "child_id": "umbrella-carried"
+          },
+          {
+            "parent_id": "rain",
+            "child_id": "pavement-wet"
+          }
+        ],
+        "hint_resource_ids": [
+          "scene.rain-umbrella.hint"
+        ],
+        "accepted_consequence_resource_id": "scene.rain-umbrella.consequence.accepted",
+        "rejected_consequence_resource_id": "scene.rain-umbrella.consequence.rejected",
+        "rejected_misconception_id": "scene-supplied-assumptions-mismatch"
+      }
+    }
+  ],
+  "lesson": null,
+  "lessons": [
+    {
+      "profile_id": "general",
+      "concept_id": "variables-and-values",
+      "title": "Name the feature, then read its value",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.variables-and-values.hook",
+      "example_label_resource_id": "foundation.general.variables-and-values.example-label",
+      "worked_steps": [
+        {
+          "title": "Choose a feature",
+          "resource_id": "foundation.general.variables-and-values.worked-step.1"
+        },
+        {
+          "title": "Read a value",
+          "resource_id": "foundation.general.variables-and-values.worked-step.2"
+        },
+        {
+          "title": "Compare records",
+          "resource_id": "foundation.general.variables-and-values.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.variables-and-values.definition",
+      "pitfall_resource_id": "foundation.general.variables-and-values.pitfall",
+      "takeaway_resource_id": "foundation.general.variables-and-values.takeaway",
+      "practice_activity_id": "variables-and-values.practice",
+      "challenge_activity_id": "variables-and-values.transfer",
+      "challenge_title": "Fresh case: a count in a dashboard",
+      "scenario_image": {
+        "path": "media/causality-m0/variables-and-values-clinic.png",
+        "alt_text": "A clinician reviews anonymised heart-rate records while patients rest in a clinic; the illustration is context, not the example data."
+      }
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "observed-association",
+      "title": "Notice a pattern across records",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.observed-association.hook",
+      "example_label_resource_id": "foundation.general.observed-association.example-label",
+      "worked_steps": [
+        {
+          "title": "Find two variables",
+          "resource_id": "foundation.general.observed-association.worked-step.1"
+        },
+        {
+          "title": "Describe how they vary",
+          "resource_id": "foundation.general.observed-association.worked-step.2"
+        },
+        {
+          "title": "Report the pattern carefully",
+          "resource_id": "foundation.general.observed-association.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.observed-association.definition",
+      "pitfall_resource_id": "foundation.general.observed-association.pitfall",
+      "takeaway_resource_id": "foundation.general.observed-association.takeaway",
+      "practice_activity_id": "observed-association.practice",
+      "challenge_activity_id": "observed-association.transfer",
+      "challenge_title": "Fresh case: a pattern in a product log",
+      "scenario_image": {
+        "path": "media/causality-m0/observed-association-park.png",
+        "alt_text": "People gather after casual exercise while a researcher reviews anonymous records; the picture does not supply the association data."
+      }
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "association-is-not-causation",
+      "title": "A shared pattern is not yet a cause",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.association-is-not-causation.hook",
+      "example_label_resource_id": "foundation.general.association-is-not-causation.example-label",
+      "worked_steps": [
+        {
+          "title": "Separate the observation",
+          "resource_id": "foundation.general.association-is-not-causation.worked-step.1"
+        },
+        {
+          "title": "Consider an alternative",
+          "resource_id": "foundation.general.association-is-not-causation.worked-step.2"
+        },
+        {
+          "title": "Ask the action question",
+          "resource_id": "foundation.general.association-is-not-causation.worked-step.3"
+        }
+      ],
+      "worked_graph": {
+        "label": "One possible explanation, not established by the sales records",
+        "nodes": [
+          {
+            "node_id": "weather",
+            "label": "Sunny weather"
+          },
+          {
+            "node_id": "ice-cream",
+            "label": "Ice-cream sales"
+          },
+          {
+            "node_id": "sunglasses",
+            "label": "Sunglasses sales"
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "weather",
+            "child_id": "ice-cream"
+          },
+          {
+            "parent_id": "weather",
+            "child_id": "sunglasses"
+          }
+        ],
+        "note_resource_id": "foundation.general.association-is-not-causation.graph-note"
+      },
+      "definition_resource_id": "foundation.general.association-is-not-causation.definition",
+      "pitfall_resource_id": "foundation.general.association-is-not-causation.pitfall",
+      "takeaway_resource_id": "foundation.general.association-is-not-causation.takeaway",
+      "practice_activity_id": "association-is-not-causation.practice",
+      "challenge_activity_id": "association-is-not-causation.transfer",
+      "challenge_title": "Shared practical investigation: a different everyday claim",
+      "scenario_image": {
+        "path": "media/causality-m0/association-not-causation-market.png",
+        "alt_text": "A sunny market has an ice-cream stall beside a sunglasses display; it illustrates the setting without establishing a causal direction."
+      }
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "treatment-and-outcome",
+      "title": "Say what changes and what you will observe",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.treatment-and-outcome.hook",
+      "example_label_resource_id": "foundation.general.treatment-and-outcome.example-label",
+      "worked_steps": [
+        {
+          "title": "Identify the change",
+          "resource_id": "foundation.general.treatment-and-outcome.worked-step.1"
+        },
+        {
+          "title": "Identify the outcome",
+          "resource_id": "foundation.general.treatment-and-outcome.worked-step.2"
+        },
+        {
+          "title": "Write the question",
+          "resource_id": "foundation.general.treatment-and-outcome.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.treatment-and-outcome.definition",
+      "pitfall_resource_id": "foundation.general.treatment-and-outcome.pitfall",
+      "takeaway_resource_id": "foundation.general.treatment-and-outcome.takeaway",
+      "practice_activity_id": "treatment-and-outcome.practice",
+      "challenge_activity_id": "treatment-and-outcome.transfer",
+      "challenge_title": "Fresh case: changing a service process",
+      "scenario_image": {
+        "path": "media/causality-m0/treatment-and-outcome-consultation.png",
+        "alt_text": "A clinician and patient discuss an unlabeled dose card and recovery journal; neither gives a recommended treatment."
+      }
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "observation-vs-intervention",
+      "title": "Recording a choice is different from assigning it",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.observation-vs-intervention.hook",
+      "example_label_resource_id": "foundation.general.observation-vs-intervention.example-label",
+      "worked_steps": [
+        {
+          "title": "Describe the record",
+          "resource_id": "foundation.general.observation-vs-intervention.worked-step.1"
+        },
+        {
+          "title": "Contrast an assignment",
+          "resource_id": "foundation.general.observation-vs-intervention.worked-step.2"
+        },
+        {
+          "title": "Check how the value arose",
+          "resource_id": "foundation.general.observation-vs-intervention.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.observation-vs-intervention.definition",
+      "pitfall_resource_id": "foundation.general.observation-vs-intervention.pitfall",
+      "takeaway_resource_id": "foundation.general.observation-vs-intervention.takeaway",
+      "practice_activity_id": "observation-vs-intervention.practice",
+      "challenge_activity_id": "observation-vs-intervention.transfer",
+      "challenge_title": "Fresh case: observing people's existing choices",
+      "scenario_image": {
+        "path": "media/causality-m0/observation-sleep-recording.png",
+        "alt_text": "A person sleeps while a plain wristband passively records sleep; it is not shown assigning a sleep duration."
+      }
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "world-data-model",
+      "title": "Keep the system, its records and an explanation apart",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.world-data-model.hook",
+      "example_label_resource_id": "foundation.general.world-data-model.example-label",
+      "worked_steps": [
+        {
+          "title": "Name the world",
+          "resource_id": "foundation.general.world-data-model.worked-step.1"
+        },
+        {
+          "title": "Name the data",
+          "resource_id": "foundation.general.world-data-model.worked-step.2"
+        },
+        {
+          "title": "Name the model",
+          "resource_id": "foundation.general.world-data-model.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.world-data-model.definition",
+      "pitfall_resource_id": "foundation.general.world-data-model.pitfall",
+      "takeaway_resource_id": "foundation.general.world-data-model.takeaway",
+      "practice_activity_id": "world-data-model.practice",
+      "challenge_activity_id": "world-data-model.transfer",
+      "challenge_title": "Fresh case: explaining a different hidden system",
+      "scenario_image": null
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "data-vs-assumptions",
+      "title": "Distinguish a recorded pattern from a proposed reason",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.data-vs-assumptions.hook",
+      "example_label_resource_id": "foundation.general.data-vs-assumptions.example-label",
+      "worked_steps": [
+        {
+          "title": "State what the records support",
+          "resource_id": "foundation.general.data-vs-assumptions.worked-step.1"
+        },
+        {
+          "title": "Identify the extra claim",
+          "resource_id": "foundation.general.data-vs-assumptions.worked-step.2"
+        },
+        {
+          "title": "Make the assumption visible",
+          "resource_id": "foundation.general.data-vs-assumptions.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.data-vs-assumptions.definition",
+      "pitfall_resource_id": "foundation.general.data-vs-assumptions.pitfall",
+      "takeaway_resource_id": "foundation.general.data-vs-assumptions.takeaway",
+      "practice_activity_id": "data-vs-assumptions.practice",
+      "challenge_activity_id": "data-vs-assumptions.transfer",
+      "challenge_title": "Fresh case: data or an additional causal assumption?",
+      "scenario_image": null
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "basic-dag-language",
+      "title": "Return to the umbrella case as a DAG",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.basic-dag-language.hook",
+      "example_label_resource_id": "foundation.general.basic-dag-language.example-label",
+      "worked_steps": [
+        {
+          "title": "Name the three nodes",
+          "resource_id": "foundation.general.basic-dag-language.worked-step.1"
+        },
+        {
+          "title": "Read the two arrows",
+          "resource_id": "foundation.general.basic-dag-language.worked-step.2"
+        },
+        {
+          "title": "Trace a path without inventing a cause",
+          "resource_id": "foundation.general.basic-dag-language.worked-step.3"
+        }
+      ],
+      "worked_graph": {
+        "label": "The umbrella simulator's supplied causal model",
+        "nodes": [
+          {
+            "node_id": "rain",
+            "label": "Rain"
+          },
+          {
+            "node_id": "umbrella",
+            "label": "Umbrella carrying"
+          },
+          {
+            "node_id": "wet",
+            "label": "Pavement wetness"
+          }
+        ],
+        "edges": [
+          {
+            "parent_id": "rain",
+            "child_id": "umbrella"
+          },
+          {
+            "parent_id": "rain",
+            "child_id": "wet"
+          }
+        ],
+        "note_resource_id": "foundation.general.basic-dag-language.graph-note"
+      },
+      "definition_resource_id": "foundation.general.basic-dag-language.definition",
+      "pitfall_resource_id": "foundation.general.basic-dag-language.pitfall",
+      "takeaway_resource_id": "foundation.general.basic-dag-language.takeaway",
+      "practice_activity_id": "basic-dag-language.practice",
+      "challenge_activity_id": "basic-dag-language.transfer",
+      "challenge_title": "Fresh case: a route through another proposed diagram",
+      "scenario_image": null
+    },
+    {
+      "profile_id": "general",
+      "concept_id": "probabilistic-effects",
+      "title": "A changed chance is not a guarantee",
+      "review_status": "author_draft",
+      "hook_resource_id": "foundation.general.probabilistic-effects.hook",
+      "example_label_resource_id": "foundation.general.probabilistic-effects.example-label",
+      "worked_steps": [
+        {
+          "title": "Read the supplied assumption",
+          "resource_id": "foundation.general.probabilistic-effects.worked-step.1"
+        },
+        {
+          "title": "Allow different outcomes",
+          "resource_id": "foundation.general.probabilistic-effects.worked-step.2"
+        },
+        {
+          "title": "Separate probability from certainty",
+          "resource_id": "foundation.general.probabilistic-effects.worked-step.3"
+        }
+      ],
+      "worked_graph": null,
+      "definition_resource_id": "foundation.general.probabilistic-effects.definition",
+      "pitfall_resource_id": "foundation.general.probabilistic-effects.pitfall",
+      "takeaway_resource_id": "foundation.general.probabilistic-effects.takeaway",
+      "practice_activity_id": "probabilistic-effects.practice",
+      "challenge_activity_id": "probabilistic-effects.transfer",
+      "challenge_title": "Fresh case: a probabilistic onboarding effect",
+      "scenario_image": null
+    }
+  ]
+}

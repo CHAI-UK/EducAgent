@@ -1,0 +1,2430 @@
+{
+  "schema_version": "3.0",
+  "pack_id": "causality.m1.effect.medical",
+  "version": "1.4.0",
+  "title": "Effect of an intervention",
+  "concepts": [
+    {
+      "concept_id": "defining-an-intervention",
+      "objective": "Specify a treatment, comparison, population and outcome, and distinguish setting a treatment from observing its value.",
+      "completion_activity_ids": [
+        "defining-an-intervention.quiz",
+        "defining-an-intervention.challenge",
+        "m1-effect-investigation.02",
+        "m1-effect-final.01"
+      ]
+    },
+    {
+      "concept_id": "average-treatment-effect",
+      "objective": "Calculate a population-average contrast between two intervention values, stating direction, units and target population without assigning it to each individual.",
+      "completion_activity_ids": [
+        "average-treatment-effect.quiz",
+        "average-treatment-effect.challenge",
+        "m1-effect-investigation.03",
+        "m1-effect-final.02"
+      ]
+    },
+    {
+      "concept_id": "confounding-and-adjustment",
+      "objective": "Explain confounding and standardize stratum-specific outcomes to a common population only under an adequate pre-treatment adjustment set, overlap and consistency.",
+      "completion_activity_ids": [
+        "confounding-and-adjustment.quiz",
+        "confounding-and-adjustment.challenge",
+        "m1-effect-investigation.01",
+        "m1-effect-final.03"
+      ]
+    },
+    {
+      "concept_id": "identifiability-of-effects",
+      "objective": "Distinguish effect identification under explicit causal and design assumptions from estimation with finite data and from generalization to another population.",
+      "completion_activity_ids": [
+        "identifiability-of-effects.quiz",
+        "identifiability-of-effects.challenge",
+        "m1-effect-investigation.04",
+        "m1-effect-final.04"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source_id": "peters-janzing-scholkopf-2017",
+      "citation": "Peters, Jonas; Janzing, Dominik; Schölkopf, Bernhard. Elements of Causal Inference: Foundations and Learning Algorithms. MIT Press, 2017.",
+      "rights": "Reference source: CC BY-NC-ND 4.0 (https://creativecommons.org/licenses/by-nc-nd/4.0/). This pack contains independently authored explanations and invented teaching data, not textbook excerpts or figures. Source metadata checked locally; subject-matter expert approval is separate.",
+      "review_status": "reviewed"
+    }
+  ],
+  "claims": [
+    {
+      "claim_id": "m1.effect.intervention",
+      "proposition": "An intervention replaces the assignment mechanism of the selected variable; observing a value generally leaves its causes and selection process in place.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Sections 3.2 and 6.3, intervention definitions and Example 6.10"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.effect.average",
+      "proposition": "An average causal effect contrasts expected outcomes under two specified interventions in a specified population; for a binary outcome a risk difference is expressed in probability or percentage points.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.6, Example 6.37, equations (6.11)-(6.12)"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.effect.adjustment",
+      "proposition": "A valid adjustment formula combines conditional outcome distributions with the same pre-intervention covariate distribution for each treatment. Validity depends on the causal structure, not merely on including many variables.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.6, Definition 6.38, equations (6.13)-(6.15), and the warning following Definition 6.39"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.effect.identification",
+      "proposition": "An intervention distribution may be determined by observational data together with a causal model and valid adjustment assumptions; an observational association alone need not determine it.",
+      "source_refs": [
+        {
+          "source_id": "peters-janzing-scholkopf-2017",
+          "locator": "Section 6.6, truncated factorization (6.8)-(6.9), Example 6.37 and Definition 6.38; Sections 9.1-9.2, interventional sufficiency and Simpson's paradox"
+        }
+      ],
+      "release_status": "released"
+    },
+    {
+      "claim_id": "m1.effect.authored-case",
+      "proposition": "Reference counts and assessment cases in this pack are authored teaching data. Interactive experiment outcomes are deterministically recomputed from the released model and learner settings. Ratios, differences and weighted sums use declared denominators and target weights. Generation fidelity and withholding criteria are declared teaching-model rules, not empirical guarantees or textbook claims about a particular generator.",
+      "deterministic_derivation": {
+        "method_id": "m1.authored-case",
+        "method_version": "1.1.0"
+      },
+      "release_status": "released"
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.hook",
+      "kind": "question",
+      "text": "For eligible rehabilitation patients, compare assignment to programme A with assignment to programme B. Success means reach the mobility target at six weeks; choosing a programme is not the same as being assigned one.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.step-1",
+      "kind": "explanation",
+      "text": "For eligible rehabilitation patients, let A=1 mean assignment to the specified six-week programme and A=0 mean assignment to its stated comparison. Define success and the follow-up time. The notation do(A=1) means actively setting assignment to 1, not selecting existing records with A=1.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.step-2",
+      "kind": "explanation",
+      "text": "People choosing a programme may differ in motivation, access or baseline mobility limitation. Those factors can also affect success. Filtering existing programme users leaves that selection process in place.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.step-3",
+      "kind": "explanation",
+      "text": "Randomizing the offer can help estimate its effect under the study conditions. If some people do not take up the offer, the effect of actual use is a different question. A new programme version or population also needs separate evidence and assumptions.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.definition",
+      "kind": "explanation",
+      "text": "An intervention actively sets a treatment. Selecting records of people who already received it leaves their original assignment process in place. Specify the treatment, alternative, target population, outcome and follow-up. Assignment and actual use can differ: some people may not take up their assigned option. Randomization applies to assignment; comparing actual users may bring their own choices back into the comparison.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.pitfall",
+      "kind": "explanation",
+      "text": "A historical or before-and-after comparison does not automatically reproduce random assignment; time and the people included may also differ.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Name the assigned change, its alternative, the people and the outcome time.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.quiz.accepted",
+      "kind": "consequence",
+      "text": "Random assignment changes how the specified reminder is assigned. The other plans compare existing choices or different time periods; neither sets a new assignment rule.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.quiz.rejected",
+      "kind": "consequence",
+      "text": "Sorting existing users or comparing years does not change their original assignment process. Which plan does?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.quiz.hint",
+      "kind": "hint",
+      "text": "Which plan decides how reminders are assigned, rather than sorting people by an earlier choice?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.quiz.question",
+      "kind": "question",
+      "text": "A clinic has records of patients who chose to turn on appointment reminders. Which plan would actively assign reminders?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.quiz.explanation",
+      "kind": "explanation",
+      "text": "Random assignment changes how the specified reminder is assigned. The other plans compare existing choices or different time periods; neither sets a new assignment rule.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.challenge.accepted",
+      "kind": "consequence",
+      "text": "The study randomizes who receives the offer, not who takes it up. People decide whether to use the support, so comparing actual users can answer a different question. A future policy or population would also define a different target.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.challenge.rejected",
+      "kind": "consequence",
+      "text": "The assigned offer, later use and a future policy are different targets. Which one did this study randomize?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.challenge.hint",
+      "kind": "hint",
+      "text": "Was the offer randomized, or was later use randomized?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.challenge.question",
+      "kind": "question",
+      "text": "A hospital offers transport support at random. Some patients who receive the offer do not use it. The study measures attendance over 30 days. Which effect is the randomized comparison designed to estimate?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.defining-an-intervention.challenge.explanation",
+      "kind": "explanation",
+      "text": "The study randomizes who receives the offer, not who takes it up. People decide whether to use the support, so comparing actual users can answer a different question. A future policy or population would also define a different target.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.hook",
+      "kind": "question",
+      "text": "Consider two hypothetical people on a score where higher is better. Compared with B, A would raise one person's score by 10 points and lower the other's by 2 points. Their average effect is +4 points, even though one person is harmed. These individual effects are given for the example; group averages alone would not reveal them.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.step-1",
+      "kind": "explanation",
+      "text": "Define the mean outcome if the same target population were assigned A and if it were assigned B. This is different from comparing whichever people happened to choose each programme.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.step-2",
+      "kind": "explanation",
+      "text": "For the score example, 68 - 62 = +6 mobility-score points. For a binary outcome, 75% - 60% = +15 percentage points. The relative increase is 15/60 = 25%; these are different summaries.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.step-3",
+      "kind": "explanation",
+      "text": "A positive average can include people who benefit by different amounts, people who do not benefit and people who are harmed. A study based on a finite sample estimates that population contrast with uncertainty. Subtracting the sample means does not remove the uncertainty.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.definition",
+      "kind": "explanation",
+      "text": "An average treatment effect compares mean outcomes under two interventions for the same target population. Subtract the comparison from the treatment and state the units. For a binary (yes/no) outcome, a probability difference uses percentage points, not a relative percentage. An individual's effect compares that person's outcome under A with their outcome under B. Group averages do not reveal that pair for each person. Even with a positive average, some people may see no benefit or be harmed. Sampling uncertainty means another sample could give a different estimate.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.pitfall",
+      "kind": "explanation",
+      "text": "A percentage-point difference is not a relative percentage, and an average does not identify each person's response.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Report A minus B, its units, the target population and the follow-up.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.quiz.accepted",
+      "kind": "consequence",
+      "text": "68 - 62 = +6 mobility-score points. This is the average six-week score difference for the eligible study population. It is neither a relative percentage nor an individual effect.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.quiz.rejected",
+      "kind": "consequence",
+      "text": "Check the subtraction and keep the units as score points. A group average does not tell you each participant's response.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.quiz.hint",
+      "kind": "hint",
+      "text": "Calculate the difference between the two means. Does that number describe the group average or every participant?",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.quiz.question",
+      "kind": "question",
+      "text": "Eligible participants are randomly assigned A or B. Their mean scores at six weeks are 68 and 62 mobility-score points, respectively. For this calculation, ignore sampling uncertainty. What is A minus B?",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.quiz.explanation",
+      "kind": "explanation",
+      "text": "68 - 62 = +6 mobility-score points. This is the average six-week score difference for the eligible study population. It is neither a relative percentage nor an individual effect.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.challenge.accepted",
+      "kind": "consequence",
+      "text": "Each participant was assigned one programme. These results do not show how that same person would have done under the other programme. The group rates estimate an average difference with uncertainty; they do not identify who benefited, saw no benefit or was harmed.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.challenge.rejected",
+      "kind": "consequence",
+      "text": "A difference between groups does not reveal each person's two possible outcomes. Check whether the answer claims to know everyone's response or the identities of those who benefited.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.challenge.hint",
+      "kind": "hint",
+      "text": "Do the two group rates show how the same person would have done under both assignments?",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.challenge.question",
+      "kind": "question",
+      "text": "A randomized study records recovery by day 30 in 54/100 people assigned A and 40/100 assigned B. A has the higher group recovery rate. What can these results tell us about any one patient's benefit from A rather than B?",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.average-treatment-effect.challenge.explanation",
+      "kind": "explanation",
+      "text": "Each participant was assigned one programme. These results do not show how that same person would have done under the other programme. The group rates estimate an average difference with uncertainty; they do not identify who benefited, saw no benefit or was harmed.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.hook",
+      "kind": "question",
+      "text": "Baseline mobility limitation can influence both programme choice and later success. The overall A and B groups may therefore contain different starting conditions. Suppose a programme changes practice time, which then affects success. Practice time is a mediator in this model. The programme's total effect includes this pathway. Adjusting for practice time would block it.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.step-1",
+      "kind": "explanation",
+      "text": "If baseline mobility limitation affects choice and success, pooling all A records and all B records can mix programme differences with differences in who chose each programme. A stratum is a group with the same specified baseline category.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.step-2",
+      "kind": "explanation",
+      "text": "In a separate worked example, A/B success rates are 80%/70% in the lower-baseline group and 50%/40% in the higher-baseline group. With a half-and-half target, A is 0.5 x 80% + 0.5 x 50% = 65%; B is 55%. The contrast is +10 percentage points.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.step-3",
+      "kind": "explanation",
+      "text": "The pre-treatment variables must remove confounding; both treatments must occur in each relevant group; treatment versions must be consistent. Do not add every predictor. A mediator carries part of the treatment's effect; adjusting for it can remove that part. A collider is a common effect; conditioning on it can introduce bias.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.definition",
+      "kind": "explanation",
+      "text": "Baseline means measured before treatment. Confounding occurs when a common cause affects treatment and outcome. Standardization compares rates within pre-treatment groups using the same target weights for both treatments; pooling keeps each selected group's own mixture. Causal interpretation requires no remaining confounding, overlap (both treatments possible) and consistency (well-defined treatment versions).",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.pitfall",
+      "kind": "explanation",
+      "text": "Weighting does not repair an omitted common cause or a group with no comparison treatment. A good outcome predictor is not automatically safe to adjust for.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.lecture.takeaway",
+      "kind": "explanation",
+      "text": "Justify the baseline groups and use one target mixture for both alternatives.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.quiz.accepted",
+      "kind": "consequence",
+      "text": "Use each treatment's outcome rates within the pre-treatment groups and apply the same target weights to both. The causal interpretation requires adequate adjustment, overlap and consistency; calculating weights does not establish those assumptions.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.quiz.rejected",
+      "kind": "consequence",
+      "text": "Each selected group's own weights represent its own mixture, not one common target. Adding predictors also requires a causal reason; having more variables does not establish the assumptions.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.quiz.hint",
+      "kind": "hint",
+      "text": "Both treatment alternatives must describe the same target population, under the stated adjustment assumptions.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.quiz.question",
+      "kind": "question",
+      "text": "Baseline severity affects both treatment choice and recovery. Assume that adjusting for severity removes all confounding, that both treatments occur at each severity, and that treatment versions are consistent. How should we calculate the target-population comparison?",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.quiz.explanation",
+      "kind": "explanation",
+      "text": "Use each treatment's outcome rates within the pre-treatment groups and apply the same target weights to both. The causal interpretation requires adequate adjustment, overlap and consistency; calculating weights does not establish those assumptions.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.challenge.accepted",
+      "kind": "consequence",
+      "text": "In this model, the later variable is a mediator through which part of the treatment's effect passes. Adjusting for it can block that part. This does not invalidate the stated adequate baseline set or make observational inference impossible.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.challenge.rejected",
+      "kind": "consequence",
+      "text": "A useful prediction does not by itself tell us what to adjust for. Check the effect being estimated and whether this variable carries part of it.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.challenge.hint",
+      "kind": "hint",
+      "text": "A mediator carries an effect from treatment to outcome. Check whether the proposed variable lies on that route.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.challenge.question",
+      "kind": "question",
+      "text": "We want the total effect of operation type on recovery. Assume baseline risk already controls confounding. In the proposed model, operation type affects infection, which affects recovery. Should we also adjust for infection just because it predicts recovery?",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.confounding-and-adjustment.challenge.explanation",
+      "kind": "explanation",
+      "text": "In this model, the later variable is a mediator through which part of the treatment's effect passes. Adjusting for it can block that part. This does not invalidate the stated adequate baseline set or make observational inference impossible.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.hook",
+      "kind": "question",
+      "text": "A large registry can describe a group difference precisely while leaving its cause unresolved. A trial result can also be specific to the people, programme and follow-up studied.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.example-label",
+      "kind": "explanation",
+      "text": "Worked example",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.step-1",
+      "kind": "explanation",
+      "text": "An effect is identified relative to a set of data and assumptions if every causal model compatible with them gives the same effect. Different models fitting the observations can otherwise imply different intervention effects.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.step-2",
+      "kind": "explanation",
+      "text": "Adjustment by baseline mobility limitation assumes no remaining confounding, both programmes possible in the relevant groups, and consistent versions. Random assignment can support an assignment-effect argument under its design and follow-up conditions. More records can reduce sampling error without repairing missing causal assumptions.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.step-3",
+      "kind": "explanation",
+      "text": "A different population, programme version or outcome time is a different target. Assess the evidence and assumptions for that target separately. Agreement between an adjusted estimate and a trial estimate does not prove every assumption, and missing follow-up can create another problem.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.definition",
+      "kind": "explanation",
+      "text": "Identification asks whether the data and stated causal assumptions determine an effect. Estimation calculates it from a finite sample, with uncertainty. Transport asks whether the result applies to another population, treatment version or follow-up time, using evidence and assumptions for that new target. A precise estimate alone does not settle the other questions.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.pitfall",
+      "kind": "explanation",
+      "text": "A narrow uncertainty interval is not proof that confounding is absent or that the effect transfers to a different setting.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.lecture.takeaway",
+      "kind": "explanation",
+      "text": "State why the effect is identifiable, how uncertain its estimate is, and where it applies.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.quiz.accepted",
+      "kind": "consequence",
+      "text": "A large sample can reduce sampling error for the observed association. Without a design or assumptions that address the missing common cause, different intervention effects can still fit those records.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.quiz.rejected",
+      "kind": "consequence",
+      "text": "Precision and identification are different. Ask what assumption or design addresses the missing common cause, rather than how many rows are available.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.quiz.hint",
+      "kind": "hint",
+      "text": "More records can improve precision without resolving which causal explanation is right.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.quiz.question",
+      "kind": "question",
+      "text": "A registry has a million records of treatment and recovery. A missing factor may cause both. No other design for identifying the causal effect is given. What can the large sample tell us?",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.quiz.explanation",
+      "kind": "explanation",
+      "text": "A large sample can reduce sampling error for the observed association. Without a design or assumptions that address the missing common cause, different intervention effects can still fit those records.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.challenge.accepted",
+      "kind": "consequence",
+      "text": "The trial supports its specified assignment comparison under the study's design conditions. Applying it to different people, treatment versions or follow-up times needs a separate argument and often more evidence.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.challenge.rejected",
+      "kind": "consequence",
+      "text": "A randomized result does not automatically cover a different target. Compare the new population, treatment and follow-up with those in the study.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.challenge.hint",
+      "kind": "hint",
+      "text": "Compare the proposed use with the population, treatment and follow-up actually studied.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.challenge.question",
+      "kind": "question",
+      "text": "A well-run randomized trial identifies the effect of assignment for eligible adults with complete follow-up. A team applies the result to children receiving a different dose and assessed later. What needs more evidence or assumptions?",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.identifiability-of-effects.challenge.explanation",
+      "kind": "explanation",
+      "text": "The trial supports its specified assignment comparison under the study's design conditions. Applying it to different people, treatment versions or follow-up times needs a separate argument and often more evidence.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.01.accepted",
+      "kind": "consequence",
+      "text": "Each pooled average uses its programme group's own baseline mixture. Standardization applies the same target weights to both programmes. A causal interpretation still requires adequate pre-treatment adjustment, overlap and consistency. Read the numerical results from your saved runs.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.01.rejected",
+      "kind": "consequence",
+      "text": "Pooled rates can combine programme outcome differences with differences in who chose each programme. Weighting still relies on the causal assumptions; the calculation does not check whether they hold.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.01.hint",
+      "kind": "hint",
+      "text": "Compare how much each baseline group contributes to each programme's average in both calculations.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.01.question",
+      "kind": "question",
+      "text": "You compared the pooled result with the common-target result. Why can the A-minus-B contrast change?\n\nRecords available in this step:\nSelf-selected programme records\nBaseline | A successes / total | B successes / total\nLower limitation | 18 / 20 (90%) | 64 / 80 (80%)\nHigher limitation | 48 / 80 (60%) | 8 / 20 (40%)\nAll records | 66 / 100 (66%) | 72 / 100 (72%)\nEarlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.01.explanation",
+      "kind": "explanation",
+      "text": "Each pooled average uses its programme group's own baseline mixture. Standardization applies the same target weights to both programmes. A causal interpretation still requires adequate pre-treatment adjustment, overlap and consistency. Read the numerical results from your saved runs.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.01.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict and run using the pooled comparison. Change only the averaging rule to the same target weights for A and B, predict again and rerun. Compare the displayed differences, then select Record my comparison.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.02.accepted",
+      "kind": "consequence",
+      "text": "The control changes the assignment rule in this teaching model. A filter only selects rows that already exist. A model run does not establish an individual benefit or show how a real programme would be implemented.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.02.rejected",
+      "kind": "consequence",
+      "text": "Check which process the control changes. Labels, baseline conditions and individual outcomes are not automatically changed by replacing assignment.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.02.hint",
+      "kind": "hint",
+      "text": "Did you change how people enter each programme, or only select records with a particular programme value?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.02.question",
+      "kind": "question",
+      "text": "After changing only how programmes are assigned, how is this different from sorting the existing records into A and B?\n\nRecords available in this step:\nSelf-selected programme records\nBaseline | A successes / total | B successes / total\nLower limitation | 18 / 20 (90%) | 64 / 80 (80%)\nHigher limitation | 48 / 80 (60%) | 8 / 20 (40%)\nAll records | 66 / 100 (66%) | 72 / 100 (72%)\nEarlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.02.explanation",
+      "kind": "explanation",
+      "text": "The control changes the assignment rule in this teaching model. A filter only selects rows that already exist. A model run does not establish an individual benefit or show how a real programme would be implemented.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.02.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict and run with balanced random assignment. Change only to people choosing their programme, predict again and rerun. Keep the target and overall averaging rule fixed. Compare group mixtures and the overall difference, then select Record my comparison.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.03.accepted",
+      "kind": "consequence",
+      "text": "The target average applies the same population mixture to both programme alternatives. Changing that mixture can change the average even though within-group rates and source records stay fixed. The probability difference is measured in percentage points; it does not give each person's effect.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.03.rejected",
+      "kind": "consequence",
+      "text": "An average describes a particular population on a particular outcome scale. It is not a relative percentage or the effect for every person.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.03.hint",
+      "kind": "hint",
+      "text": "Report the probability difference in percentage points, using the same target weights for A and B.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.03.question",
+      "kind": "question",
+      "text": "You changed the target mixture while keeping the outcome rates fixed. What does the average A-minus-B difference describe?\n\nRecords available in this step:\nSelf-selected programme records\nBaseline | A successes / total | B successes / total\nLower limitation | 18 / 20 (90%) | 64 / 80 (80%)\nHigher limitation | 48 / 80 (60%) | 8 / 20 (40%)\nAll records | 66 / 100 (66%) | 72 / 100 (72%)\nEarlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.03.explanation",
+      "kind": "explanation",
+      "text": "The target average applies the same population mixture to both programme alternatives. Changing that mixture can change the average even though within-group rates and source records stay fixed. The probability difference is measured in percentage points; it does not give each person's effect.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.03.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict and run with 20% of the target population having higher mobility limitation. Change only that percentage to 80%, predict again and rerun. Keep assignment and the common-target averaging rule fixed. Compare the target differences, then select Record my comparison.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.04.accepted",
+      "kind": "consequence",
+      "text": "The teaching model specifies its causal and design assumptions. Matching adjusted results do not verify those assumptions in another study. Check uncertainty from finite data and whether the result applies to a new population or programme version.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.04.rejected",
+      "kind": "consequence",
+      "text": "Two calculations can agree even when the assumptions have not been checked in a real study. Separate what the model assumes from what these runs tested.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.04.hint",
+      "kind": "hint",
+      "text": "Which assumptions are built into the teaching model, and what evidence would support them in an external study?",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.04.question",
+      "kind": "question",
+      "text": "You compared two assignment rules using the same target mixture. What would justify interpreting the adjusted contrast causally?\n\nRecords available in this step:\nSelf-selected programme records\nBaseline | A successes / total | B successes / total\nLower limitation | 18 / 20 (90%) | 64 / 80 (80%)\nHigher limitation | 48 / 80 (60%) | 8 / 20 (40%)\nAll records | 66 / 100 (66%) | 72 / 100 (72%)\nEarlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.04.explanation",
+      "kind": "explanation",
+      "text": "The teaching model specifies its causal and design assumptions. Matching adjusted results do not verify those assumptions in another study. Check uncertainty from finite data and whether the result applies to a new population or programme version.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-investigation.04.experiment-instructions",
+      "kind": "explanation",
+      "text": "Predict and run with people choosing their programme. Change only to balanced random assignment, predict again and rerun. Keep target weights and analysis fixed. Compare overall and target-population differences, then select Record my comparison. State what a real study would still need to justify.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.01.accepted",
+      "kind": "consequence",
+      "text": "The study randomizes assignment to the specified reminder in the eligible population. Reading a reminder happens later. Different reminder versions, populations or follow-up times define other effects.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.01.rejected",
+      "kind": "consequence",
+      "text": "Match the assigned variable, eligible population and 30-day outcome. Later use or a broader service would answer a different question.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.01.hint",
+      "kind": "hint",
+      "text": "Which variable was assigned, and which outcome did the study follow?",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.01.question",
+      "kind": "question",
+      "text": "A study assigns the specified reminder or no reminder to eligible clinic patients. It measures whether people attend the next appointment within 30 days. Which effect matches that design?\n\nRecords available in this step:\nCompleted randomized assignment\nAssignment | Endpoint reached / assigned | Rate\nSpecified reminder | 82 / 100 | 82%\nNo reminder | 74 / 100 | 74%\nAssume random assignment, complete follow-up, consistent reminder versions and no interference. These are the study conditions, not a statement about other populations.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.01.explanation",
+      "kind": "explanation",
+      "text": "The study randomizes assignment to the specified reminder in the eligible population. Reading a reminder happens later. Different reminder versions, populations or follow-up times define other effects.",
+      "claim_ids": [
+        "m1.effect.intervention",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.02.accepted",
+      "kind": "consequence",
+      "text": "82% - 74% = +8 percentage points. The relative increase is 8/74, about 10.8%. Both are summaries for this study population and have sampling uncertainty. Neither identifies every individual's response.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.02.rejected",
+      "kind": "consequence",
+      "text": "Check which quantity the answer reports. Keep the denominators and units clear, and do not treat a study-population average as the benefit for each participant.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.02.hint",
+      "kind": "hint",
+      "text": "Subtract the proportions. Then distinguish percentage points from a relative percentage and from an individual effect.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.02.question",
+      "kind": "question",
+      "text": "Among people assigned a reminder, 82/100 reach the outcome; among those assigned no reminder, 74/100 do. Ignore sampling uncertainty for this arithmetic. How should we report A minus B?\n\nRecords available in this step:\nCompleted randomized assignment\nAssignment | Endpoint reached / assigned | Rate\nSpecified reminder | 82 / 100 | 82%\nNo reminder | 74 / 100 | 74%\nAssume random assignment, complete follow-up, consistent reminder versions and no interference. These are the study conditions, not a statement about other populations.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.02.explanation",
+      "kind": "explanation",
+      "text": "82% - 74% = +8 percentage points. The relative increase is 8/74, about 10.8%. Both are summaries for this study population and have sampling uncertainty. Neither identifies every individual's response.",
+      "claim_ids": [
+        "m1.effect.average",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.03.accepted",
+      "kind": "consequence",
+      "text": "This separate registry assumes adequate baseline adjustment, overlap and consistency. Applying the eligible population's same weights to both reminder groups removes differences in their measured baseline composition. The separate randomized study does not supply the registry's adjustment weights.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.03.rejected",
+      "kind": "consequence",
+      "text": "The two reminder groups need the same target weights, rather than their different selected-group mixtures. Adjusting for a variable measured after treatment also needs a causal justification.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.03.hint",
+      "kind": "hint",
+      "text": "The two alternatives should represent the same people before reminder assignment.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.03.question",
+      "kind": "question",
+      "text": "A separate observational registry records reminder choice and attendance. Baseline travel difficulty causes both. Assume adequate adjustment, overlap and consistent versions. Which comparison represents one eligible population?\n\nRecords available in this step:\nRegistry assumptions for this question\nItem | Given information\nDataset | Separate observational reminder registry\nBaseline variable | Travel difficulty before reminder choice\nAdjustment | Assume travel difficulty removes confounding\nOverlap | Both reminder choices occur in each relevant baseline group\nConsistency | Assume consistent reminder versions and outcome definitions\nThese are assumptions given for this question, not conclusions proved by the earlier randomized trial.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.03.explanation",
+      "kind": "explanation",
+      "text": "This separate registry assumes adequate baseline adjustment, overlap and consistency. Applying the eligible population's same weights to both reminder groups removes differences in their measured baseline composition. The separate randomized study does not supply the registry's adjustment weights.",
+      "claim_ids": [
+        "m1.effect.adjustment",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.04.accepted",
+      "kind": "consequence",
+      "text": "Identification depends on the original study's causal and design assumptions. The estimate also has finite-sample uncertainty. A new population, reminder version or follow-up process needs its own assessment; it cannot simply inherit the original result.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.04.rejected",
+      "kind": "consequence",
+      "text": "Check the new population, reminder version and missing-outcome process on their own. The original study's design does not automatically apply to a changed service.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.04.hint",
+      "kind": "hint",
+      "text": "Separate identification in the original study, estimation uncertainty and the evidence needed for the proposed new use.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.04.question",
+      "kind": "question",
+      "text": "A manager applies the estimated eight-percentage-point reminder effect to a new population. The reminder has changed and follow-up is incomplete. What should be checked?\n\nRecords available in this step:\nCompleted randomized assignment\nAssignment | Endpoint reached / assigned | Rate\nSpecified reminder | 82 / 100 | 82%\nNo reminder | 74 / 100 | 74%\nAssume random assignment, complete follow-up, consistent reminder versions and no interference. These are the study conditions, not a statement about other populations.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    },
+    {
+      "resource_id": "m1.effect.m1-effect-final.04.explanation",
+      "kind": "explanation",
+      "text": "Identification depends on the original study's causal and design assumptions. The estimate also has finite-sample uncertainty. A new population, reminder version or follow-up process needs its own assessment; it cannot simply inherit the original result.",
+      "claim_ids": [
+        "m1.effect.identification",
+        "m1.effect.authored-case"
+      ],
+      "release_status": "released"
+    }
+  ],
+  "activities": [
+    {
+      "activity_id": "defining-an-intervention.quiz",
+      "concept_id": "defining-an-intervention",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.defining-an-intervention.quiz.question",
+      "choices": [
+        {
+          "option_id": "defining-an-intervention.quiz.supported",
+          "text": "Randomly assign this reminder or no reminder, then measure the same next-month outcome.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.defining-an-intervention.quiz.accepted"
+        },
+        {
+          "option_id": "defining-an-intervention.quiz.alternative-1",
+          "text": "Compare people who already enabled reminders with people who did not, leaving their choices unchanged.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.defining-an-intervention.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.defining-an-intervention.quiz.rejected"
+        },
+        {
+          "option_id": "defining-an-intervention.quiz.alternative-2",
+          "text": "Compare this month's reminder users with last year's users, leaving each year's assignment unchanged.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.defining-an-intervention.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.defining-an-intervention.quiz.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.defining-an-intervention.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "defining-an-intervention.challenge",
+      "concept_id": "defining-an-intervention",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.defining-an-intervention.challenge.question",
+      "choices": [
+        {
+          "option_id": "defining-an-intervention.challenge.alternative-1",
+          "text": "It targets the effect of actual support use versus non-use, without additional assumptions.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.defining-an-intervention.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.defining-an-intervention.challenge.rejected"
+        },
+        {
+          "option_id": "defining-an-intervention.challenge.supported",
+          "text": "It targets the effect of offering support versus no offer on attendance in this study population.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.defining-an-intervention.challenge.accepted"
+        },
+        {
+          "option_id": "defining-an-intervention.challenge.alternative-2",
+          "text": "It targets a future transport service using the same offer, without checking population differences.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.defining-an-intervention.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.defining-an-intervention.challenge.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.defining-an-intervention.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "average-treatment-effect.quiz",
+      "concept_id": "average-treatment-effect",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.average-treatment-effect.quiz.question",
+      "choices": [
+        {
+          "option_id": "average-treatment-effect.quiz.alternative-1",
+          "text": "It is exactly +6 mobility-score points for each individual participant.",
+          "correct": false,
+          "misconception_id": "m1.effect.average.confusion",
+          "hint_resource_ids": [
+            "m1.effect.average-treatment-effect.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.average-treatment-effect.quiz.rejected"
+        },
+        {
+          "option_id": "average-treatment-effect.quiz.alternative-2",
+          "text": "It is a relative increase of 6%, regardless of the score's units.",
+          "correct": false,
+          "misconception_id": "m1.effect.average.confusion",
+          "hint_resource_ids": [
+            "m1.effect.average-treatment-effect.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.average-treatment-effect.quiz.rejected"
+        },
+        {
+          "option_id": "average-treatment-effect.quiz.supported",
+          "text": "It is +6 mobility-score points on average in the eligible study population.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.average-treatment-effect.quiz.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.average-treatment-effect.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "average-treatment-effect.challenge",
+      "concept_id": "average-treatment-effect",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.average-treatment-effect.challenge.question",
+      "choices": [
+        {
+          "option_id": "average-treatment-effect.challenge.individual-effects.group-average",
+          "text": "They estimate a group-average difference, but do not identify which participants benefited from A.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.average-treatment-effect.challenge.accepted"
+        },
+        {
+          "option_id": "average-treatment-effect.challenge.individual-effects.all-benefit",
+          "text": "Every participant would have a better outcome under A than under B.",
+          "correct": false,
+          "misconception_id": "m1.effect.average-is-individual-guarantee",
+          "hint_resource_ids": [
+            "m1.effect.average-treatment-effect.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.average-treatment-effect.challenge.rejected"
+        },
+        {
+          "option_id": "average-treatment-effect.challenge.individual-effects.names-beneficiaries",
+          "text": "The two group rates identify exactly which participants benefited from A.",
+          "correct": false,
+          "misconception_id": "m1.effect.average-identifies-individuals",
+          "hint_resource_ids": [
+            "m1.effect.average-treatment-effect.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.average-treatment-effect.challenge.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.average-treatment-effect.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "confounding-and-adjustment.quiz",
+      "concept_id": "confounding-and-adjustment",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.confounding-and-adjustment.quiz.question",
+      "choices": [
+        {
+          "option_id": "confounding-and-adjustment.quiz.alternative-1",
+          "text": "Average each treatment using its own selected-group weights, even when those mixtures differ.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.confounding-and-adjustment.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.confounding-and-adjustment.quiz.rejected"
+        },
+        {
+          "option_id": "confounding-and-adjustment.quiz.supported",
+          "text": "Compare outcomes within each baseline group, using the same target-population weights for both treatments.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.confounding-and-adjustment.quiz.accepted"
+        },
+        {
+          "option_id": "confounding-and-adjustment.quiz.alternative-2",
+          "text": "Add all recorded predictors, including post-treatment variables, without checking their causal role.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.confounding-and-adjustment.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.confounding-and-adjustment.quiz.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.confounding-and-adjustment.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "confounding-and-adjustment.challenge",
+      "concept_id": "confounding-and-adjustment",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.confounding-and-adjustment.challenge.question",
+      "choices": [
+        {
+          "option_id": "confounding-and-adjustment.challenge.alternative-1",
+          "text": "Yes. Its predictive value is enough to justify including it in total-effect adjustment.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.confounding-and-adjustment.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.confounding-and-adjustment.challenge.rejected"
+        },
+        {
+          "option_id": "confounding-and-adjustment.challenge.alternative-2",
+          "text": "No. All baseline adjustment should also be removed because observational data cannot support a causal comparison.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.confounding-and-adjustment.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.confounding-and-adjustment.challenge.rejected"
+        },
+        {
+          "option_id": "confounding-and-adjustment.challenge.supported",
+          "text": "No. Adjusting for it can remove the effect carried along that treatment-to-outcome pathway.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.confounding-and-adjustment.challenge.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.confounding-and-adjustment.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "identifiability-of-effects.quiz",
+      "concept_id": "identifiability-of-effects",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.identifiability-of-effects.quiz.question",
+      "choices": [
+        {
+          "option_id": "identifiability-of-effects.quiz.supported",
+          "text": "It can estimate the association more precisely while leaving the intervention effect unresolved.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.identifiability-of-effects.quiz.accepted"
+        },
+        {
+          "option_id": "identifiability-of-effects.quiz.alternative-1",
+          "text": "It removes the missing factor's confounding simply by increasing the number of records.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.identifiability-of-effects.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.identifiability-of-effects.quiz.rejected"
+        },
+        {
+          "option_id": "identifiability-of-effects.quiz.alternative-2",
+          "text": "It identifies the causal effect if the association has a very precise estimate.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.identifiability-of-effects.quiz.hint"
+          ],
+          "consequence_resource_id": "m1.effect.identifiability-of-effects.quiz.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.identifiability-of-effects.quiz.explanation",
+      "is_transfer": false
+    },
+    {
+      "activity_id": "identifiability-of-effects.challenge",
+      "concept_id": "identifiability-of-effects",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.identifiability-of-effects.challenge.question",
+      "choices": [
+        {
+          "option_id": "identifiability-of-effects.challenge.alternative-1",
+          "text": "The original randomization already establishes the same effect for the changed people, treatment and time.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.identifiability-of-effects.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.identifiability-of-effects.challenge.rejected"
+        },
+        {
+          "option_id": "identifiability-of-effects.challenge.supported",
+          "text": "The new population, treatment version and outcome time need their own evidence and assumptions.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.identifiability-of-effects.challenge.accepted"
+        },
+        {
+          "option_id": "identifiability-of-effects.challenge.alternative-2",
+          "text": "Only more records are needed; the changed population and treatment cannot affect the causal argument.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.identifiability-of-effects.challenge.hint"
+          ],
+          "consequence_resource_id": "m1.effect.identifiability-of-effects.challenge.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.identifiability-of-effects.challenge.explanation",
+      "is_transfer": true
+    },
+    {
+      "activity_id": "m1-effect-investigation.01",
+      "concept_id": "confounding-and-adjustment",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-investigation.01.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-investigation.01.alternative-1",
+          "text": "The pooled difference identifies the intervention effect without considering how people selected programmes.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.01.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.01.rejected"
+        },
+        {
+          "option_id": "m1-effect-investigation.01.alternative-2",
+          "text": "Common-target weighting removes an unmeasured common cause even when the adjustment assumptions fail.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.01.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.01.rejected"
+        },
+        {
+          "option_id": "m1-effect-investigation.01.supported",
+          "text": "Pooled averages use each group's own baseline mix; standardization uses the same target-population weights for both programmes.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.01.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-investigation.01.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Programme practice 1 of 4",
+        "introduction": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time.",
+        "scenario_id": "effect.programme-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "programme-observed",
+            "label": "Self-selected programme records",
+            "columns": [
+              "Baseline",
+              "A successes / total",
+              "B successes / total"
+            ],
+            "rows": [
+              [
+                "Lower limitation",
+                "18 / 20 (90%)",
+                "64 / 80 (80%)"
+              ],
+              [
+                "Higher limitation",
+                "48 / 80 (60%)",
+                "8 / 20 (40%)"
+              ],
+              [
+                "All records",
+                "66 / 100 (66%)",
+                "72 / 100 (72%)"
+              ]
+            ],
+            "note": "Earlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls."
+          }
+        ],
+        "prompt": "You compared the pooled result with the common-target result. Why can the A-minus-B contrast change?"
+      },
+      "experiment": {
+        "experiment_id": "m1-effect-investigation.01.experiment",
+        "title": "Which people are we averaging?",
+        "instructions_resource_id": "m1.effect.m1-effect-investigation.01.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "effect",
+          "a_low": 0.9,
+          "a_high": 0.6,
+          "b_low": 0.8,
+          "b_high": 0.4,
+          "selected_high_a_pct": 80,
+          "selected_high_b_pct": 20,
+          "low_label": "Lower limitation",
+          "high_label": "Higher limitation",
+          "outcome_label": "reaching the declared mobility target at six weeks",
+          "treatment_a_label": "Programme A",
+          "treatment_b_label": "Programme B"
+        },
+        "initial_config": {
+          "kind": "effect",
+          "assignment": "self_selected",
+          "target_high_pct": 50,
+          "analysis": "pooled"
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "section": "intervention",
+          "parameter_id": "analysis",
+          "parameter_label": "How to average the programme results",
+          "parameter_description": "People still choose their programmes. Start with each programme's own mixture of lower and higher mobility limitation: the pooled comparison. Then use the same half-and-half target mixture for A and B: standardization. Only the averaging rule changes; programme choices, starting groups and success rates stay fixed.",
+          "goal": "See how comparing different starting-group mixtures can change an overall programme comparison.",
+          "story": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time.",
+          "prediction_prompt": "When both programmes use the same target mixture, do you expect the A-minus-B difference to stay the same? Why?",
+          "comparison_prompt": "Compare the two A-minus-B differences. Did within-group outcome rates change, or did the baseline mixture represented by the averages change?",
+          "metrics": [
+            {
+              "metric_label": "Selected analysis contrast",
+              "label": "Displayed difference (A minus B)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-effect-investigation.02",
+      "concept_id": "defining-an-intervention",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-investigation.02.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-investigation.02.supported",
+          "text": "It changes how programmes are allocated while keeping the model's baseline and outcome mechanisms fixed.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.02.accepted"
+        },
+        {
+          "option_id": "m1-effect-investigation.02.alternative-1",
+          "text": "It compares only existing A records with existing B records, without changing programme assignment.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.02.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.02.rejected"
+        },
+        {
+          "option_id": "m1-effect-investigation.02.alternative-2",
+          "text": "It moves people between the lower and higher baseline categories when their programme changes.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.02.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.02.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-investigation.02.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Programme practice 2 of 4",
+        "introduction": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time. This time keep the overall averaging rule and change how people enter the programmes.",
+        "scenario_id": "effect.programme-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "programme-observed",
+            "label": "Self-selected programme records",
+            "columns": [
+              "Baseline",
+              "A successes / total",
+              "B successes / total"
+            ],
+            "rows": [
+              [
+                "Lower limitation",
+                "18 / 20 (90%)",
+                "64 / 80 (80%)"
+              ],
+              [
+                "Higher limitation",
+                "48 / 80 (60%)",
+                "8 / 20 (40%)"
+              ],
+              [
+                "All records",
+                "66 / 100 (66%)",
+                "72 / 100 (72%)"
+              ]
+            ],
+            "note": "Earlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls."
+          }
+        ],
+        "prompt": "After changing only how programmes are assigned, how is this different from sorting the existing records into A and B?"
+      },
+      "experiment": {
+        "experiment_id": "m1-effect-investigation.02.experiment",
+        "title": "Who decides the programme?",
+        "instructions_resource_id": "m1.effect.m1-effect-investigation.02.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "effect",
+          "a_low": 0.9,
+          "a_high": 0.6,
+          "b_low": 0.8,
+          "b_high": 0.4,
+          "selected_high_a_pct": 80,
+          "selected_high_b_pct": 20,
+          "low_label": "Lower limitation",
+          "high_label": "Higher limitation",
+          "outcome_label": "reaching the declared mobility target at six weeks",
+          "treatment_a_label": "Programme A",
+          "treatment_b_label": "Programme B"
+        },
+        "initial_config": {
+          "kind": "effect",
+          "assignment": "randomized",
+          "target_high_pct": 50,
+          "analysis": "pooled"
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "section": "intervention",
+          "parameter_id": "assignment",
+          "parameter_label": "How people enter programmes A and B",
+          "parameter_description": "Start with balanced random assignment, which gives A and B the same starting-group mix in this model. Then let people choose, with more people who have higher mobility limitation choosing A. Only assignment changes; success rates within each starting group stay fixed. The target remains half lower and half higher mobility limitation. The overall comparison still uses each programme's own mixture.",
+          "goal": "Distinguish actively assigning a programme from comparing people who already chose one.",
+          "story": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time. This time keep the overall averaging rule and change how people enter the programmes.",
+          "prediction_prompt": "If people choose their programme instead of receiving balanced random assignments, what do you expect to happen to the overall A-minus-B difference?",
+          "comparison_prompt": "Compare the overall differences and starting-group counts. Who received A or B under each rule? Which outcome rules stayed the same?",
+          "metrics": [
+            {
+              "metric_label": "Source pooled A minus B",
+              "label": "Overall difference (A minus B)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-effect-investigation.03",
+      "concept_id": "average-treatment-effect",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-investigation.03.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-investigation.03.alternative-1",
+          "text": "It gives the same fixed benefit for every individual, regardless of the target mixture.",
+          "correct": false,
+          "misconception_id": "m1.effect.average.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.03.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.03.rejected"
+        },
+        {
+          "option_id": "m1-effect-investigation.03.supported",
+          "text": "It compares average outcomes under A and B for this target population; it does not give each person's benefit.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.03.accepted"
+        },
+        {
+          "option_id": "m1-effect-investigation.03.alternative-2",
+          "text": "It is a relative percentage that does not depend on outcome units or a target population.",
+          "correct": false,
+          "misconception_id": "m1.effect.average.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.03.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.03.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-investigation.03.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Programme practice 3 of 4",
+        "introduction": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time. Now consider a target population with a different share of people who have higher mobility limitation.",
+        "scenario_id": "effect.programme-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "programme-observed",
+            "label": "Self-selected programme records",
+            "columns": [
+              "Baseline",
+              "A successes / total",
+              "B successes / total"
+            ],
+            "rows": [
+              [
+                "Lower limitation",
+                "18 / 20 (90%)",
+                "64 / 80 (80%)"
+              ],
+              [
+                "Higher limitation",
+                "48 / 80 (60%)",
+                "8 / 20 (40%)"
+              ],
+              [
+                "All records",
+                "66 / 100 (66%)",
+                "72 / 100 (72%)"
+              ]
+            ],
+            "note": "Earlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls."
+          }
+        ],
+        "prompt": "You changed the target mixture while keeping the outcome rates fixed. What does the average A-minus-B difference describe?"
+      },
+      "experiment": {
+        "experiment_id": "m1-effect-investigation.03.experiment",
+        "title": "Which population is the decision for?",
+        "instructions_resource_id": "m1.effect.m1-effect-investigation.03.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "effect",
+          "a_low": 0.9,
+          "a_high": 0.6,
+          "b_low": 0.8,
+          "b_high": 0.4,
+          "selected_high_a_pct": 80,
+          "selected_high_b_pct": 20,
+          "low_label": "Lower limitation",
+          "high_label": "Higher limitation",
+          "outcome_label": "reaching the declared mobility target at six weeks",
+          "treatment_a_label": "Programme A",
+          "treatment_b_label": "Programme B"
+        },
+        "initial_config": {
+          "kind": "effect",
+          "assignment": "randomized",
+          "target_high_pct": 20,
+          "analysis": "standardized"
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "section": "intervention",
+          "parameter_id": "target_high_pct",
+          "parameter_label": "Target population with higher mobility limitation",
+          "parameter_description": "The target population is the group we want the programme comparison to represent. Change its share with higher mobility limitation from 20% to 80%. Both programmes use that same target mixture. Balanced random assignment, source records and within-group success rates stay fixed.",
+          "goal": "See why an average programme difference can depend on which population it describes.",
+          "story": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time. Now consider a target population with a different share of people who have higher mobility limitation.",
+          "prediction_prompt": "The share with higher mobility limitation rises from 20% to 80%. How might that change the target-population A-minus-B difference?",
+          "comparison_prompt": "Compare the target-population differences. Did you change the source records or the target weights? Why can't you read this average as each individual's effect?",
+          "metrics": [
+            {
+              "metric_label": "Target-standardized A minus B",
+              "label": "Target-population difference (A minus B)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-effect-investigation.04",
+      "concept_id": "identifiability-of-effects",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-investigation.04.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-investigation.04.alternative-1",
+          "text": "Agreement between adjusted runs verifies that the model's causal assumptions also hold in a real registry.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.04.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.04.rejected"
+        },
+        {
+          "option_id": "m1-effect-investigation.04.alternative-2",
+          "text": "The precision of a model result verifies the real-world assumptions needed for the adjusted target contrast.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-investigation.04.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.04.rejected"
+        },
+        {
+          "option_id": "m1-effect-investigation.04.supported",
+          "text": "The interpretation relies on the declared adjustment assumptions, overlap, consistency and stable within-group rates; matching results alone are not enough.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-investigation.04.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-investigation.04.explanation",
+      "is_transfer": false,
+      "workbench": {
+        "title": "Programme practice 4 of 4",
+        "introduction": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time. For the last comparison, keep one target population and inspect both the overall and common-target differences.",
+        "scenario_id": "effect.programme-investigation",
+        "stage": "investigate",
+        "tables": [
+          {
+            "table_id": "programme-observed",
+            "label": "Self-selected programme records",
+            "columns": [
+              "Baseline",
+              "A successes / total",
+              "B successes / total"
+            ],
+            "rows": [
+              [
+                "Lower limitation",
+                "18 / 20 (90%)",
+                "64 / 80 (80%)"
+              ],
+              [
+                "Higher limitation",
+                "48 / 80 (60%)",
+                "8 / 20 (40%)"
+              ],
+              [
+                "All records",
+                "66 / 100 (66%)",
+                "72 / 100 (72%)"
+              ]
+            ],
+            "note": "Earlier self-selected records; baseline is measured before programme choice. These are not current experiment runs. Each run uses the target percentage shown in its controls."
+          }
+        ],
+        "prompt": "You compared two assignment rules using the same target mixture. What would justify interpreting the adjusted contrast causally?"
+      },
+      "experiment": {
+        "experiment_id": "m1-effect-investigation.04.experiment",
+        "title": "Can matching calculations prove the assumptions?",
+        "instructions_resource_id": "m1.effect.m1-effect-investigation.04.experiment-instructions",
+        "model_version": "1.0.0",
+        "model": {
+          "kind": "effect",
+          "a_low": 0.9,
+          "a_high": 0.6,
+          "b_low": 0.8,
+          "b_high": 0.4,
+          "selected_high_a_pct": 80,
+          "selected_high_b_pct": 20,
+          "low_label": "Lower limitation",
+          "high_label": "Higher limitation",
+          "outcome_label": "reaching the declared mobility target at six weeks",
+          "treatment_a_label": "Programme A",
+          "treatment_b_label": "Programme B"
+        },
+        "initial_config": {
+          "kind": "effect",
+          "assignment": "self_selected",
+          "target_high_pct": 80,
+          "analysis": "standardized"
+        },
+        "min_distinct_runs": 2,
+        "guide": {
+          "section": "intervention",
+          "parameter_id": "assignment",
+          "parameter_label": "How people enter programmes A and B",
+          "parameter_description": "Start with people choosing, then change only to balanced random assignment. Keep a target where 80% of people have higher mobility limitation, and use common target weights for A and B. The model keeps its within-group success rules fixed. Matching adjusted results do not establish that a real study has measured every relevant common cause.",
+          "goal": "Separate a calculation under supplied assumptions from evidence that those assumptions hold.",
+          "story": "A rehabilitation service is comparing six-week programmes A and B for eligible rehabilitation patients. Success means reaching the declared mobility target at six weeks. Before the programme, people have lower or higher mobility limitation. People who choose A can differ from people who choose B before either programme starts. In this teaching model, success rates within those starting groups stay fixed while you change one part of the comparison at a time. For the last comparison, keep one target population and inspect both the overall and common-target differences.",
+          "prediction_prompt": "When you change assignment and keep the target weights fixed, which difference do you expect to change: the overall comparison, the target comparison, or both?",
+          "comparison_prompt": "Compare both differences under the two assignment rules. Why doesn't agreement in this teaching model show that a real study has no remaining confounding?",
+          "metrics": [
+            {
+              "metric_label": "Source pooled A minus B",
+              "label": "Overall difference (A minus B)"
+            },
+            {
+              "metric_label": "Target-standardized A minus B",
+              "label": "Target-population difference (A minus B)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "activity_id": "m1-effect-final.01",
+      "concept_id": "defining-an-intervention",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-final.01.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-final.01.supported",
+          "text": "It targets reminder assignment versus no reminder in the eligible population at 30 days.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-final.01.accepted"
+        },
+        {
+          "option_id": "m1-effect-final.01.alternative-1",
+          "text": "It is the effect of choosing to read the reminder, even though reading was not randomized.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.01.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.01.rejected"
+        },
+        {
+          "option_id": "m1-effect-final.01.alternative-2",
+          "text": "It is the effect of any reminder technology in other populations and time periods.",
+          "correct": false,
+          "misconception_id": "m1.effect.intervention.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.01.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.01.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-final.01.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Course final check",
+        "introduction": "For eligible clinic patients, assignment is this reminder versus none. The outcome is whether people attend the next appointment within 30 days. The table summarizes the completed randomized study; question 3 describes a separate observational registry.",
+        "scenario_id": "effect.reminder-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "reminder-final",
+            "label": "Completed randomized assignment",
+            "columns": [
+              "Assignment",
+              "Endpoint reached / assigned",
+              "Rate"
+            ],
+            "rows": [
+              [
+                "Specified reminder",
+                "82 / 100",
+                "82%"
+              ],
+              [
+                "No reminder",
+                "74 / 100",
+                "74%"
+              ]
+            ],
+            "note": "Assume random assignment, complete follow-up, consistent reminder versions and no interference. These are the study conditions, not a statement about other populations."
+          }
+        ],
+        "prompt": "A study assigns the specified reminder or no reminder to eligible clinic patients. It measures whether people attend the next appointment within 30 days. Which effect matches that design?"
+      }
+    },
+    {
+      "activity_id": "m1-effect-final.02",
+      "concept_id": "average-treatment-effect",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-final.02.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-final.02.alternative-1",
+          "text": "The estimate is an 8% relative increase for reminder assignment in the same study population.",
+          "correct": false,
+          "misconception_id": "m1.effect.average.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.02.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.02.rejected"
+        },
+        {
+          "option_id": "m1-effect-final.02.supported",
+          "text": "The estimate is +8 percentage points for reminder assignment in this study population.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-final.02.accepted"
+        },
+        {
+          "option_id": "m1-effect-final.02.alternative-2",
+          "text": "The estimate is an eight-percentage-point improvement for each participant who was assigned the reminder.",
+          "correct": false,
+          "misconception_id": "m1.effect.average.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.02.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.02.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-final.02.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Course final check",
+        "introduction": "For eligible clinic patients, assignment is this reminder versus none. The outcome is whether people attend the next appointment within 30 days. The table summarizes the completed randomized study; question 3 describes a separate observational registry.",
+        "scenario_id": "effect.reminder-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "reminder-final",
+            "label": "Completed randomized assignment",
+            "columns": [
+              "Assignment",
+              "Endpoint reached / assigned",
+              "Rate"
+            ],
+            "rows": [
+              [
+                "Specified reminder",
+                "82 / 100",
+                "82%"
+              ],
+              [
+                "No reminder",
+                "74 / 100",
+                "74%"
+              ]
+            ],
+            "note": "Assume random assignment, complete follow-up, consistent reminder versions and no interference. These are the study conditions, not a statement about other populations."
+          }
+        ],
+        "prompt": "Among people assigned a reminder, 82/100 reach the outcome; among those assigned no reminder, 74/100 do. Ignore sampling uncertainty for this arithmetic. How should we report A minus B?"
+      }
+    },
+    {
+      "activity_id": "m1-effect-final.03",
+      "concept_id": "confounding-and-adjustment",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-final.03.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-final.03.alternative-1",
+          "text": "Use each selected reminder group's own travel-difficulty weights, even if their mixtures differ.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.03.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.03.rejected"
+        },
+        {
+          "option_id": "m1-effect-final.03.alternative-2",
+          "text": "Adjust for later reminder reading as if compliance were a pre-treatment common cause.",
+          "correct": false,
+          "misconception_id": "m1.effect.adjustment.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.03.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.03.rejected"
+        },
+        {
+          "option_id": "m1-effect-final.03.supported",
+          "text": "Use the eligible population's travel-difficulty weights for both reminder groups under those assumptions.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-final.03.accepted"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-final.03.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Course final check",
+        "introduction": "This question concerns a separate observational reminder registry for eligible clinic patients, not the randomized trial. Its supplied assumptions are listed below; no registry outcome counts are supplied.",
+        "scenario_id": "effect.reminder-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "registry-assumptions",
+            "label": "Registry assumptions for this question",
+            "columns": [
+              "Item",
+              "Given information"
+            ],
+            "rows": [
+              [
+                "Dataset",
+                "Separate observational reminder registry"
+              ],
+              [
+                "Baseline variable",
+                "Travel difficulty before reminder choice"
+              ],
+              [
+                "Adjustment",
+                "Assume travel difficulty removes confounding"
+              ],
+              [
+                "Overlap",
+                "Both reminder choices occur in each relevant baseline group"
+              ],
+              [
+                "Consistency",
+                "Assume consistent reminder versions and outcome definitions"
+              ]
+            ],
+            "note": "These are assumptions given for this question, not conclusions proved by the earlier randomized trial."
+          }
+        ],
+        "prompt": "A separate observational registry records reminder choice and attendance. Baseline travel difficulty causes both. Assume adequate adjustment, overlap and consistent versions. Which comparison represents one eligible population?"
+      }
+    },
+    {
+      "activity_id": "m1-effect-final.04",
+      "concept_id": "identifiability-of-effects",
+      "activity_type": "classification",
+      "question_resource_id": "m1.effect.m1-effect-final.04.question",
+      "choices": [
+        {
+          "option_id": "m1-effect-final.04.supported",
+          "text": "Assess uncertainty, missing outcomes and transfer to the changed population and reminder separately.",
+          "correct": true,
+          "consequence_resource_id": "m1.effect.m1-effect-final.04.accepted"
+        },
+        {
+          "option_id": "m1-effect-final.04.alternative-1",
+          "text": "The original eight-percentage-point estimate identifies the true effect for the changed service population.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.04.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.04.rejected"
+        },
+        {
+          "option_id": "m1-effect-final.04.alternative-2",
+          "text": "The original randomization resolves missing outcomes and changed reminder versions in the new service.",
+          "correct": false,
+          "misconception_id": "m1.effect.identification.confusion",
+          "hint_resource_ids": [
+            "m1.effect.m1-effect-final.04.hint"
+          ],
+          "consequence_resource_id": "m1.effect.m1-effect-final.04.rejected"
+        }
+      ],
+      "explanation_resource_id": "m1.effect.m1-effect-final.04.explanation",
+      "is_transfer": true,
+      "workbench": {
+        "title": "Course final check",
+        "introduction": "For eligible clinic patients, assignment is this reminder versus none. The outcome is whether people attend the next appointment within 30 days. The table summarizes the completed randomized study; question 3 describes a separate observational registry.",
+        "scenario_id": "effect.reminder-final",
+        "stage": "capstone",
+        "tables": [
+          {
+            "table_id": "reminder-final",
+            "label": "Completed randomized assignment",
+            "columns": [
+              "Assignment",
+              "Endpoint reached / assigned",
+              "Rate"
+            ],
+            "rows": [
+              [
+                "Specified reminder",
+                "82 / 100",
+                "82%"
+              ],
+              [
+                "No reminder",
+                "74 / 100",
+                "74%"
+              ]
+            ],
+            "note": "Assume random assignment, complete follow-up, consistent reminder versions and no interference. These are the study conditions, not a statement about other populations."
+          }
+        ],
+        "prompt": "A manager applies the estimated eight-percentage-point reminder effect to a new population. The reminder has changed and follow-up is incomplete. What should be checked?"
+      }
+    }
+  ],
+  "lessons": [
+    {
+      "profile_id": "medical",
+      "concept_id": "defining-an-intervention",
+      "title": "Specify the change and the comparison",
+      "hook_resource_id": "m1.effect.defining-an-intervention.lecture.hook",
+      "example_label_resource_id": "m1.effect.defining-an-intervention.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "Define the decision",
+          "resource_id": "m1.effect.defining-an-intervention.lecture.step-1"
+        },
+        {
+          "title": "Distinguish choosing from assignment",
+          "resource_id": "m1.effect.defining-an-intervention.lecture.step-2"
+        },
+        {
+          "title": "Keep the effect specific",
+          "resource_id": "m1.effect.defining-an-intervention.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.effect.defining-an-intervention.lecture.definition",
+      "pitfall_resource_id": "m1.effect.defining-an-intervention.lecture.pitfall",
+      "takeaway_resource_id": "m1.effect.defining-an-intervention.lecture.takeaway",
+      "practice_activity_id": "defining-an-intervention.quiz",
+      "challenge_activity_id": "defining-an-intervention.challenge",
+      "challenge_title": "Apply the idea to another case",
+      "scenario_image": {
+        "path": "media/m1-courses/effect-medical.png",
+        "alt_text": "A rehabilitation team reviewing programme records. Illustration only."
+      }
+    },
+    {
+      "profile_id": "medical",
+      "concept_id": "average-treatment-effect",
+      "title": "Average effects and individual outcomes",
+      "hook_resource_id": "m1.effect.average-treatment-effect.lecture.hook",
+      "example_label_resource_id": "m1.effect.average-treatment-effect.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "Use one population for both alternatives",
+          "resource_id": "m1.effect.average-treatment-effect.lecture.step-1"
+        },
+        {
+          "title": "Keep the outcome's scale",
+          "resource_id": "m1.effect.average-treatment-effect.lecture.step-2"
+        },
+        {
+          "title": "Distinguish an average from an individual",
+          "resource_id": "m1.effect.average-treatment-effect.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.effect.average-treatment-effect.lecture.definition",
+      "pitfall_resource_id": "m1.effect.average-treatment-effect.lecture.pitfall",
+      "takeaway_resource_id": "m1.effect.average-treatment-effect.lecture.takeaway",
+      "practice_activity_id": "average-treatment-effect.quiz",
+      "challenge_activity_id": "average-treatment-effect.challenge",
+      "challenge_title": "Apply the idea to another case",
+      "scenario_image": {
+        "path": "media/m1-courses/effect-medical.png",
+        "alt_text": "A rehabilitation team reviewing programme records. Illustration only."
+      }
+    },
+    {
+      "profile_id": "medical",
+      "concept_id": "confounding-and-adjustment",
+      "title": "Use a common population for both treatments",
+      "hook_resource_id": "m1.effect.confounding-and-adjustment.lecture.hook",
+      "example_label_resource_id": "m1.effect.confounding-and-adjustment.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "Find the pre-treatment common cause",
+          "resource_id": "m1.effect.confounding-and-adjustment.lecture.step-1"
+        },
+        {
+          "title": "Apply the same weights",
+          "resource_id": "m1.effect.confounding-and-adjustment.lecture.step-2"
+        },
+        {
+          "title": "Check the causal assumptions",
+          "resource_id": "m1.effect.confounding-and-adjustment.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.effect.confounding-and-adjustment.lecture.definition",
+      "pitfall_resource_id": "m1.effect.confounding-and-adjustment.lecture.pitfall",
+      "takeaway_resource_id": "m1.effect.confounding-and-adjustment.lecture.takeaway",
+      "practice_activity_id": "confounding-and-adjustment.quiz",
+      "challenge_activity_id": "confounding-and-adjustment.challenge",
+      "challenge_title": "Apply the idea to another case",
+      "scenario_image": {
+        "path": "media/m1-courses/effect-medical.png",
+        "alt_text": "A rehabilitation team reviewing programme records. Illustration only."
+      }
+    },
+    {
+      "profile_id": "medical",
+      "concept_id": "identifiability-of-effects",
+      "title": "Separate identification, estimation and a new use",
+      "hook_resource_id": "m1.effect.identifiability-of-effects.lecture.hook",
+      "example_label_resource_id": "m1.effect.identifiability-of-effects.lecture.example-label",
+      "worked_steps": [
+        {
+          "title": "Check what determines the effect",
+          "resource_id": "m1.effect.identifiability-of-effects.lecture.step-1"
+        },
+        {
+          "title": "Separate assumptions from sample size",
+          "resource_id": "m1.effect.identifiability-of-effects.lecture.step-2"
+        },
+        {
+          "title": "Check the proposed new use",
+          "resource_id": "m1.effect.identifiability-of-effects.lecture.step-3"
+        }
+      ],
+      "definition_resource_id": "m1.effect.identifiability-of-effects.lecture.definition",
+      "pitfall_resource_id": "m1.effect.identifiability-of-effects.lecture.pitfall",
+      "takeaway_resource_id": "m1.effect.identifiability-of-effects.lecture.takeaway",
+      "practice_activity_id": "identifiability-of-effects.quiz",
+      "challenge_activity_id": "identifiability-of-effects.challenge",
+      "challenge_title": "Apply the idea to another case",
+      "scenario_image": {
+        "path": "media/m1-courses/effect-medical.png",
+        "alt_text": "A rehabilitation team reviewing programme records. Illustration only."
+      }
+    }
+  ]
+}

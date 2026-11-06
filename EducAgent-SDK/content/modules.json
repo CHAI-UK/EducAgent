@@ -1,0 +1,50 @@
+{
+  "modules": [
+    {
+      "module_id": "causality_m0",
+      "title": "Causality foundations",
+      "kind": "foundation",
+      "pack_path": "content/foundation_general_course_1_8_0.json",
+      "diagnostic_path": "content/causality_m0_diagnostic.json",
+      "profile_pack_paths": {
+        "general": "content/foundation_general_course_1_8_0.json",
+        "medical": "content/foundation_medical_course_1_8_0.json"
+      },
+      "lesson_samples_path": "content/foundation_lesson_samples.json",
+      "prerequisite_module_ids": [],
+      "optional": false,
+      "order": 0,
+      "nirvana_task": null
+    },
+    {
+      "module_id": "m1_effect",
+      "title": "Effect of an intervention",
+      "kind": "post_requisite",
+      "pack_path": "content/m1_effect_course_general_1_4_0.json",
+      "profile_pack_paths": {
+        "general": "content/m1_effect_course_general_1_4_0.json",
+        "medical": "content/m1_effect_course_medical_1_4_0.json"
+      },
+      "diagnostic_path": null,
+      "prerequisite_module_ids": ["causality_m0"],
+      "optional": true,
+      "order": 1,
+      "nirvana_task": "effect"
+    },
+    {
+      "module_id": "m1_shift",
+      "title": "Robust prediction or generation",
+      "kind": "post_requisite",
+      "pack_path": "content/m1_shift_course_general_1_4_0.json",
+      "profile_pack_paths": {
+        "general": "content/m1_shift_course_general_1_4_0.json",
+        "medical": "content/m1_shift_course_medical_1_4_0.json"
+      },
+      "diagnostic_path": null,
+      "prerequisite_module_ids": ["causality_m0"],
+      "optional": true,
+      "order": 1,
+      "nirvana_task": "shift"
+    }
+  ]
+}
