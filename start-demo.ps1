@@ -14,7 +14,7 @@ if ($LanAddress) {
     }
 }
 $workspaceRoot = $PSScriptRoot
-$sdkRoot = Join-Path $workspaceRoot "EducAgent-SDK"
+$portalRoot = Join-Path $workspaceRoot "EducAgent-Portal"
 $nirvanaRoot = Join-Path $workspaceRoot "EducAgent-Nirvana"
 $portalOutput = Join-Path $workspaceRoot "portal"
 $nirvanaOutput = Join-Path $workspaceRoot "nirvana"
@@ -22,7 +22,7 @@ $mediaOutput = Join-Path $workspaceRoot "media"
 $siteOutput = Join-Path $workspaceRoot ".demo-site"
 $nirvanaPort = 8011
 
-Push-Location $sdkRoot
+Push-Location $portalRoot
 try {
     & npm run web:build
     if ($LASTEXITCODE -ne 0) {
@@ -34,9 +34,9 @@ finally {
 }
 
 New-Item -ItemType Directory -Force $portalOutput, $nirvanaOutput, $mediaOutput | Out-Null
-Copy-Item -Path (Join-Path $sdkRoot "web\dist\*") -Destination $portalOutput -Recurse -Force
+Copy-Item -Path (Join-Path $portalRoot "web\dist\*") -Destination $portalOutput -Recurse -Force
 Copy-Item -Path (Join-Path $nirvanaRoot "demo\*") -Destination $nirvanaOutput -Recurse -Force
-Copy-Item -Path (Join-Path $sdkRoot "web\dist\media\*") -Destination $mediaOutput -Recurse -Force
+Copy-Item -Path (Join-Path $portalRoot "web\dist\media\*") -Destination $mediaOutput -Recurse -Force
 
 # Rebuild only the dedicated public output so withdrawn assets cannot linger.
 $expectedSite = [System.IO.Path]::GetFullPath((Join-Path $workspaceRoot ".demo-site"))
@@ -58,18 +58,18 @@ if (Test-Path -LiteralPath $siteOutput) {
 }
 New-Item -ItemType Directory -Force $siteOutput | Out-Null
 Copy-Item -LiteralPath (Join-Path $workspaceRoot "index.html"), (Join-Path $workspaceRoot "styles.css") -Destination $siteOutput -Force
-Copy-Item -LiteralPath (Join-Path $sdkRoot "web\dist\sources.html") -Destination $siteOutput -Force
-Copy-Item -LiteralPath (Join-Path $sdkRoot "web\dist") -Destination (Join-Path $siteOutput "portal") -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $portalRoot "web\dist\sources.html") -Destination $siteOutput -Force
+Copy-Item -LiteralPath (Join-Path $portalRoot "web\dist") -Destination (Join-Path $siteOutput "portal") -Recurse -Force
 Copy-Item -LiteralPath (Join-Path $nirvanaRoot "demo") -Destination (Join-Path $siteOutput "nirvana") -Recurse -Force
-Copy-Item -LiteralPath (Join-Path $sdkRoot "web\dist\media") -Destination (Join-Path $siteOutput "media") -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $portalRoot "web\dist\media") -Destination (Join-Path $siteOutput "media") -Recurse -Force
 
-$env:PYTHONPATH = Join-Path $sdkRoot "src"
+$env:PYTHONPATH = Join-Path $portalRoot "src"
 $demoArguments = @(
     "run",
     "-n",
     "educagent-sdk",
     "python",
-    (Join-Path $sdkRoot "examples\playable_demo.py"),
+    (Join-Path $portalRoot "examples\playable_demo.py"),
     "--port",
     $Port,
     "--static-root",
@@ -92,7 +92,7 @@ $nirvanaArguments = @(
     "--origin-port",
     $Port,
     "--env-file",
-    (Join-Path $sdkRoot ".env")
+    (Join-Path $portalRoot ".env")
 )
 if ($LanAddress) { $nirvanaArguments += @("--lan-address", $LanAddress) }
 $nirvanaProcess = Start-Process -FilePath $pythonPath -ArgumentList $nirvanaArguments -WindowStyle Hidden -PassThru

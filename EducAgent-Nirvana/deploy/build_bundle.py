@@ -41,7 +41,7 @@ def copy_tree(source: Path, target: Path, suffixes: set[str]) -> None:
 
 def stage_bundle(destination: Path, workspace: Path = WORKSPACE, *, env_file: Path | None = None) -> dict:
     """Copy canonical runtime/public sources, never a whole working directory."""
-    sdk = workspace / "EducAgent-SDK"
+    sdk = workspace / "EducAgent-Portal"
     nirvana = workspace / "EducAgent-Nirvana"
     for name in ("LICENSE", "THIRD_PARTY_NOTICES.md"):
         copy_file(workspace / name, destination / name)
@@ -50,8 +50,8 @@ def stage_bundle(destination: Path, workspace: Path = WORKSPACE, *, env_file: Pa
                  "systemd/educagent.service"):
         copy_file(DEPLOY / name, destination / name)
     for name in ("pyproject.toml", "README.md", "examples/playable_demo.py"):
-        copy_file(sdk / name, destination / "EducAgent-SDK" / name)
-    copy_tree(sdk / "src/educagent_sdk", destination / "EducAgent-SDK/src/educagent_sdk", {".py"})
+        copy_file(sdk / name, destination / "EducAgent-Portal" / name)
+    copy_tree(sdk / "src/educagent_sdk", destination / "EducAgent-Portal/src/educagent_sdk", {".py"})
     registry = json.loads((sdk / "content/modules.json").read_text(encoding="utf-8"))
     content_paths = {"content/modules.json", "content/course_introductions.json", "content/course_illustrations.json"}
     for module in registry["modules"]:
@@ -63,7 +63,7 @@ def stage_bundle(destination: Path, workspace: Path = WORKSPACE, *, env_file: Pa
         source = (sdk / name).resolve()
         if sdk.resolve() not in source.parents or source.suffix != ".json":
             raise ValueError("module registry references an unsafe content path")
-        copy_file(source, destination / "EducAgent-SDK" / name)
+        copy_file(source, destination / "EducAgent-Portal" / name)
     copy_file(nirvana / "demo_server.py", destination / "EducAgent-Nirvana/demo_server.py")
     site = destination / "site"
     for name in ("index.html", "styles.css"):
@@ -147,11 +147,11 @@ def main() -> None:
         if npm is None:
             parser.error("npm is required on the packaging workstation, not on the server")
         for task in ("web:check", "web:build"):
-            subprocess.run([npm, "run", task], cwd=WORKSPACE / "EducAgent-SDK", check=True)
+            subprocess.run([npm, "run", task], cwd=WORKSPACE / "EducAgent-Portal", check=True)
     with tempfile.TemporaryDirectory(prefix="educagent-package-", dir=args.output) as temporary:
         staged = Path(temporary) / args.name
         staged.mkdir()
-        manifest = stage_bundle(staged, env_file=WORKSPACE / "EducAgent-SDK/.env" if args.include_env else None)
+        manifest = stage_bundle(staged, env_file=WORKSPACE / "EducAgent-Portal/.env" if args.include_env else None)
         archive_bundle(staged, archive)
     print(f"Created {archive} ({archive.stat().st_size:,} bytes, {len(manifest['files'])} files)")
     print("PRIVATE: contains server credentials; transfer only via SSH/SCP."

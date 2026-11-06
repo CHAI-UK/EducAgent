@@ -32,7 +32,7 @@ def render_nginx(template: str, *, site: Path, runtime: Path, bind: str) -> str:
 
 def commands(env_file: Path, data: Path, nginx: str, config: Path, *, secure_cookie: bool = False) -> list[list[str]]:
     result = [
-        [sys.executable, str(ROOT / "EducAgent-SDK/examples/playable_demo.py"),
+        [sys.executable, str(ROOT / "EducAgent-Portal/examples/playable_demo.py"),
          "--port", str(PORTAL_PORT), "--static-root", str(ROOT / "site"),
          "--events-root", str(data / "portal"), "--env-file", str(env_file),
          "--unguarded-tutor"],

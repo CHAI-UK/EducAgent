@@ -21,8 +21,8 @@ from pydantic_ai.models import Model
 
 
 ROOT = Path(__file__).resolve().parent
-SDK_SRC = ROOT.parent / "EducAgent-SDK" / "src"
-sys.path.insert(0, str(SDK_SRC))
+PORTAL_SRC = ROOT.parent / "EducAgent-Portal" / "src"
+sys.path.insert(0, str(PORTAL_SRC))
 
 from educagent_sdk.elm import build_elm_model, load_elm_settings  # noqa: E402
 
@@ -439,7 +439,7 @@ def main() -> None:
     parser.add_argument(
         "--env-file",
         type=Path,
-        default=ROOT.parent / "EducAgent-SDK" / ".env",
+        default=ROOT.parent / "EducAgent-Portal" / ".env",
     )
     args = parser.parse_args()
     try:

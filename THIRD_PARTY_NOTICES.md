@@ -21,12 +21,12 @@ a use-specific rights review.
 ## Illustrations and dependencies
 
 Illustration provenance is recorded in the README files under
-`EducAgent-SDK/web/public/media/` (foundation-samples, course-openings, m1-courses
+`EducAgent-Portal/web/public/media/` (foundation-samples, course-openings, m1-courses
 and question-context). AI-generated images depict fictional teaching contexts,
 not empirical or clinical evidence. Linked resources retain their own terms.
 
-Python dependencies are declared in `EducAgent-SDK/pyproject.toml` and constraint
-files; JavaScript dependencies are recorded in `EducAgent-SDK/package-lock.json`.
+Python dependencies are declared in `EducAgent-Portal/pyproject.toml` and constraint
+files; JavaScript dependencies are recorded in `EducAgent-Portal/package-lock.json`.
 Their individual licenses apply. Portal bundles KaTeX assets; the release builder
 includes its installed license. Nirvana's Markdown renderer derives from
 micromark (MIT); retain its license notice when redistributing the bundle.

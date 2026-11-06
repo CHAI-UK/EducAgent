@@ -40,7 +40,7 @@ backups/
 *.pdf
 ~$*
 /EducAgent-Nirvana/EPSRC IAA/
-/EducAgent-SDK/docs/evidence/
+/EducAgent-Portal/docs/evidence/
 # Legacy hard-linked copies; Learning is maintained at the repository root.
 /EducAgent-Nirvana/index.html
 /EducAgent-Nirvana/styles.css

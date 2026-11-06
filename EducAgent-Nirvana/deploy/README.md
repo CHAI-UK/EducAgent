@@ -78,7 +78,7 @@ Install nginx using the host package manager, then run:
 ```sh
 conda create -n educagent-server python=3.13 pip -y
 conda activate educagent-server
-python -m pip install -c constraints.txt ./EducAgent-SDK
+python -m pip install -c constraints.txt ./EducAgent-Portal
 python run.py --check-config --data-dir /tmp/educagent-preflight
 python run.py --data-dir /srv/educagent-data
 ```

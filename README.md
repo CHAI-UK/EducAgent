@@ -3,7 +3,7 @@
 | Route | Experience | Canonical source |
 | --- | --- | --- |
 | `/` | Learning: a compact resource directory with light/dark themes | `index.html`, `styles.css` |
-| `/portal/` | Portal: causal reasoning courses in General and Medical contexts | `EducAgent-SDK/` |
+| `/portal/` | Portal: causal reasoning courses in General and Medical contexts | `EducAgent-Portal/` |
 | `/nirvana/` | Nirvana: research-question framing and an editable Causal Research Brief | `EducAgent-Nirvana/` |
 
 Portal learning records and Nirvana research drafts remain separate. This is a
@@ -23,13 +23,13 @@ cd EducAgent
 conda create -n educagent-sdk python=3.13 pip -y
 conda activate educagent-sdk
 python -m pip install --upgrade pip
-python -m pip install --build-constraint EducAgent-SDK/build-constraints.txt -c EducAgent-SDK/constraints.txt -e ./EducAgent-SDK
-cd EducAgent-SDK
+python -m pip install --build-constraint EducAgent-Portal/build-constraints.txt -c EducAgent-Portal/constraints.txt -e ./EducAgent-Portal
+cd EducAgent-Portal
 npm ci
 cd ..
 ```
 
-Copy `EducAgent-SDK/.env.example` to `EducAgent-SDK/.env` and edit:
+Copy `EducAgent-Portal/.env.example` to `EducAgent-Portal/.env` and edit:
 
 ```dotenv
 BASE_URL=https://elm.edina.ac.uk/api/v1
@@ -118,7 +118,7 @@ Linux/systemd, backups and rollback.
 From PowerShell, with the `educagent-sdk` environment activated:
 
 ```powershell
-cd EducAgent-SDK
+cd EducAgent-Portal
 npm run web:check
 npm run web:build
 cd ../EducAgent-Nirvana
@@ -133,4 +133,4 @@ Edit canonical sources, keep documentation and code in English, and exclude
 credentials, learner traces, backups, textbook PDFs and internal drafts from Git.
 Project-authored software uses [MIT](LICENSE); third-party works retain their
 own terms. See [third-party notices](THIRD_PARTY_NOTICES.md) and
-[Sources & rights](EducAgent-SDK/web/public/sources.html).
+[Sources & rights](EducAgent-Portal/web/public/sources.html).
